@@ -1,0 +1,8 @@
+name = Ground History
+description = History Module for Ground PHP
+core = 6.x
+package = Silent Orb
+php = 5.3
+
+files[] = inc/History.inc
+files[] = inc/History_Commit.inc

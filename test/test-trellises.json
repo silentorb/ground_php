@@ -1,0 +1,32 @@
+{
+  "trellises": {
+    "warrior": {
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        },
+        "inventory": {
+          "type": "list",
+          "trellis": "character_item"
+        }
+      }
+    },
+    "character_item": {
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        },
+        "trellis": {
+          "type": "reference",
+          "trellis": "warrior"
+        }
+      }
+    }
+  }
+}

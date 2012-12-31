@@ -1,0 +1,16 @@
+<?php
+
+function ground_php_menu() {
+  $items['ground/jsontest'] = array(
+      'title' => 'JSON Test',
+      'page callback' => 'ground_php_json_test',
+      'access callback' => user_is_logged_in,
+      'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function ground_php_json_test() {
+  module_load_include('php', 'ground_php', 'test/jsontest');
+}

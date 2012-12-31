@@ -1,0 +1,8 @@
+name = Ground DB
+description = General Database Management API
+core = 6.x
+package = Silent Orb
+php = 5.3
+
+files[] = inc/Ground_Database.inc
+files[] = inc/Ground_Table.inc
