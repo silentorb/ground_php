@@ -7,10 +7,21 @@ class Property_Type {
   public $field_type;
   public $default = null;
 
-  public function __construct($name, $field_type, $property_class = 'Bloom_Property') {
+  public function __construct($name, $info, $types) {
+    // Transferring parent properties is done before any other assignment
+    // so the MetaHub::extend() can be overridden.
+    if (isset($info->parent)) {
+      $parent = $types[$info->parent];
+      MetaHub::extend($this, $parent);
+      $this->parent = $parent;
+    }
+
     $this->name = $name;
-    $this->field_type = $field_type;
-    $this->property_class = $property_class;
+    $this->field_type = $info->field_type;
+    $this->property_class = 'Bloom_Property';
+    if (isset($info->default)) {
+      $this->default = $info->default;
+    }
   }
 
 }
@@ -33,32 +44,11 @@ class Ground extends Meta_Object {
 
     $this->listen($this, 'connect.query', 'on_connect_query');
 
-    $property_types = array(
-        'int' => array(
-            'field_type' => 'INT',
-            'default' => 0),
-        'string' => array(
-            'field_type' => 'VARCHAR(255)',
-            'default' => ''),
-        'text' => array(
-            'field_type' => 'TEXT',
-            'default' => ''),
-        'bool' => array(
-            'field_type' => 'BIT',
-            'default' => TRUE),
-        'reference' => array(
-            'field_type' => 'INT',
-            'default' => NULL),
-        'datetime' => array(
-            'field_type' => 'INT(11)',
-            'default' => 0),
-    );
+    $json = file_get_contents($path . '/property_types.json');
+    $property_types = json_decode($json);
 
     foreach ($property_types as $name => $info) {
-      $type = new Property_Type($name, $info['field_type']);
-      if (isset($info['default'])) {
-        $type->default = $info['default'];
-      }
+      $type = new Property_Type($name, $info, $this->property_types);
       $this->property_types[$name] = $type;
     }
   }

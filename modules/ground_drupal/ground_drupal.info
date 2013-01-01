@@ -3,3 +3,5 @@ description = Integration of Ground with Drupal's database objects, particularly
 core = 6.x
 package = Silent Orb
 php = 5.3
+
+files[] = inc/Ground_Drupal.inc
