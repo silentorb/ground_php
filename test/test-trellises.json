@@ -1,6 +1,7 @@
 {
   "trellises": {
     "warrior": {
+      "parent": "base",
       "properties": {
         "id": {
           "type": "int"
@@ -11,6 +12,16 @@
         "inventory": {
           "type": "list",
           "trellis": "character_item"
+        }
+      }
+    },
+    "base": {
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "random_field": {
+          "type": "string"
         }
       }
     },
