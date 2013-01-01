@@ -2,65 +2,88 @@
   "trellises": {
     "user": {
       "primary_key": "uid",
-      "properties":{
-        "uid":{
-          "type":"int"
+      "properties": {
+        "uid": {
+          "type": "int"
         },
-        "name":{
-          "type":"string"
+        "name": {
+          "type": "string"
         },
-        "pass":{
-          "type":"string"
+        "pass": {
+          "type": "string"
         },
-        "mail":{
-          "type":"string"
+        "mail": {
+          "type": "string"
         },
-        "mode":{
-          "type":"bool"
+        "mode": {
+          "type": "bool"
         },
-        "sort":{
-          "type":"bool"
+        "sort": {
+          "type": "bool"
         },
-        "threshold":{
-          "type":"bool"
+        "threshold": {
+          "type": "bool"
         },
-        "theme":{
-          "type":"string"
+        "theme": {
+          "type": "string"
         },
-        "signature":{
-          "type":"string"
+        "signature": {
+          "type": "string"
         },
-        "signature_format":{
-          "type":"int"
+        "signature_format": {
+          "type": "int"
         },
-        "created":{
-          "type":"datetime"
+        "created": {
+          "type": "datetime"
         },
-        "access":{
-          "type":"datetime"
+        "access": {
+          "type": "datetime"
         },
-        "login":{
-          "type":"datetime"
+        "login": {
+          "type": "datetime"
         },
-        "status":{
-          "type":"bool"
+        "status": {
+          "type": "bool"
         },
-        "timezone":{
-          "type":"string"
+        "timezone": {
+          "type": "string"
         },
-        "language":{
-          "type":"string"
+        "language": {
+          "type": "string"
         },
-        "picture":{
-          "type":"string"
+        "picture": {
+          "type": "string"
         },
-        "init":{
-          "type":"string"
+        "init": {
+          "type": "string"
         },
-        "data":{
-          "type":"text"
+        "data": {
+          "type": "text"
+        }
+      }
+    },
+    "object": {
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "readonly": true,
+          "insert_trellis": true
+        },
+        "created": {
+          "type": "created",
+          "readonly": true
+        },
+        "modified": {
+          "type": "modified",
+          "readonly": true
         }
       }
     }
-}
+  }
 }
