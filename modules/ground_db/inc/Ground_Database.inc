@@ -55,6 +55,10 @@ class Ground_Database {
       $fields[] = $field_sql;
     }
 
+    // Can't create a table without fields
+    if (count($fields) == 0)
+      return;
+    
     $fields = array_merge($fields, $keys);
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_plural() . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
