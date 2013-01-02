@@ -15,9 +15,11 @@ class Property_Type {
       MetaHub::extend($this, $parent);
       $this->parent = $parent;
     }
-
+    else {
+      $this->field_type = $info->field_type;
+    }
+    
     $this->name = $name;
-    $this->field_type = $info->field_type;
     $this->property_class = 'Bloom_Property';
     if (isset($info->default)) {
       $this->default = $info->default;

@@ -101,6 +101,7 @@ class Ground_Database {
 //    }
 
     $sql .= ");\n";
+    
     $this->connection->exec($sql);
   }
 

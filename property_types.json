@@ -4,7 +4,7 @@
     "default" : 0
   },
   "string" : {
-    "field_type" : "VARCHAR(255}",
+    "field_type" : "VARCHAR(255)",
     "default" : ""
   },
   "text" : {
@@ -20,7 +20,7 @@
     "default" : null
   },
   "datetime" : {
-    "field_type" : "INT(11}",
+    "field_type" : "INT(11)",
     "default" : 0
   },
   "created": {
