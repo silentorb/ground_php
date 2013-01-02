@@ -133,7 +133,7 @@ SELECT trellis.id, trellis.name, trellis.plural, trellis.primary_key, parent_tre
 FROM vineyard_trellises trellis
 LEFT JOIN vineyard_trellises parent_trellis ON trellis.parent = parent_trellis.id
 SQL;
-    $rows = db_query($sql);
+    $rows = $this->db->query($sql);
     $trellises = array();
 
     $sql = <<<SQL
@@ -141,11 +141,11 @@ SELECT property.name, property.type, property.readonly,
 property.insert_trellis, other_trellis.name as trellis
 FROM vineyard_properties property
 LEFT JOIN vineyard_trellises other_trellis ON property.trellis = other_trellis.id
-WHERE property.trellis = %d
+WHERE property.trellis = ?
 SQL;
 
     while ($row = db_fetch_object($rows)) {
-      $properties = db_query($sql, $row->id);
+      $properties = $this->db->query($sql, array($row->id));
       $row->properties = array();
       if (!$row->plural)
         unset($row->plural);

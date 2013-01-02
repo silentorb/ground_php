@@ -5,9 +5,8 @@ class Link_Trellis {
   public $table_name;
   public $first_property;
   public $second_property;
-
   public $id_suffix = '';
-  
+
   public function __construct($first_property, $second_property) {
 
     $other_table = $second_property->parent->get_plural();
@@ -16,6 +15,10 @@ class Link_Trellis {
     $this->table_name = implode('_', $temp);
     $this->first_property = $first_property;
     $this->second_property = $second_property;
+  }
+
+  public static function get_cross_table_name() {
+    
   }
 
   public function generate_join($id) {

@@ -133,22 +133,23 @@ class Ground_Database {
     return $result;
   }
 
-  function query($sql) {
+  function query($sql, $parameters = null) {
     $query = $this->connection->prepare($sql);
-    $query->execute();
+    $query->execute($parameters);
     return $query;
   }
 
-  function query_array($sql) {
-    $query = $this->connection->prepare($sql);
-    $query->execute();
+  function query_array($sql, $parameters = null) {
+    $query = $this->query($sql, $parameters);
     return $query->fetchAll();
   }
 
-  function query_objects($sql) {
-    $query = $this->connection->prepare($sql);
-    $query->execute();
+  function query_objects($sql, $parameters = null) {
+    $query = $this->query($sql, $parameters);
 
+    // This may not be the most optimal way to get an array of objects
+    // from PDO, but it functions properly for now and can be discretely
+    // optimized later.
     $items = $query->fetchAll();
     $result = array();
     foreach ($items as $item) {
