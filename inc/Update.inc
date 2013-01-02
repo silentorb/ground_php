@@ -137,7 +137,7 @@ SQL;
       if (!$create) {
         $rows = $join->query_rows($id);
 
-        while ($other_id = $this->db->query_value($rows)) {
+       foreach($rows as $other_id) {
           if (!in_array($other_id, $list)) {
             $this->db->query($join->delete_row($id, $other_id));
           }
@@ -167,17 +167,20 @@ SQL;
     }
     while ($trellis = $trellis->parent);
 
+    // The sql is only collected for debugging purpose.
+    // The individual parts of the generated sql script
+    // are executed individually.
+    // Eventually this should probably be converted to
+    // a transaction.
     $sql = '';
     foreach ($tree as $trellis) {
       $sql .= $this->generate_sql($trellis);
     }
-//    print $sql;
-//    db_query($sql);
+
     if ($return_sql)
       $result->sql = $sql;
 
     $result->seed = $this->seed;
-//    $result->fields = $this->fields;
     return $result;
   }
 

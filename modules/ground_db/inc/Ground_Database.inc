@@ -58,7 +58,7 @@ class Ground_Database {
     // Can't create a table without fields
     if (count($fields) == 0)
       return;
-    
+
     $fields = array_merge($fields, $keys);
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_plural() . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
@@ -101,16 +101,16 @@ class Ground_Database {
 //    }
 
     $sql .= ");\n";
-    
+
     $this->connection->exec($sql);
   }
 
   function create_tables($trellises) {
-    foreach($trellises as $trellis) {
+    foreach ($trellises as $trellis) {
       $this->create_table($trellis);
     }
   }
-  
+
   function drop_all_tables() {
     $db = $this->connection;
     $db->query('SET foreign_key_checks = 0');
@@ -133,17 +133,20 @@ class Ground_Database {
     return $result;
   }
 
+  // Return a raw query for further data extraction
   function query($sql, $parameters = null) {
     $query = $this->connection->prepare($sql);
     $query->execute($parameters);
     return $query;
   }
 
+  // Return an array of associative arrays
   function query_array($sql, $parameters = null) {
     $query = $this->query($sql, $parameters);
     return $query->fetchAll();
   }
 
+  // Return an array of objects
   function query_objects($sql, $parameters = null) {
     $query = $this->query($sql, $parameters);
 
@@ -159,12 +162,18 @@ class Ground_Database {
     return $result;
   }
 
-  function query_value($sql) {
-    $query = $this->connection->prepare($sql);
-    $query->execute();
+  // Return a single value
+  function query_value($sql, $parameters = null) {
+    $query = $this->query($sql, $parameters);
     return $query->fetchColumn(0);
   }
-
+  
+  // Return an array of single values, usually a list of ids or names
+  function query_values($sql, $parameters = null) {
+    $query = $this->query($sql, $parameters);
+    return $query->fetchAll(PDO::FETCH_COLUMN, 0);
+  }
+  
   function last_insert_id($name) {
     return $this->connection->lastInsertId($name);
   }

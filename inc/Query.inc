@@ -247,10 +247,6 @@ class Query {
   }
 
   function post_process_result($result) {
-//    if ($this->pager) {
-//      $sql = 'SELECT COUNT(*) FROM (' . $sql . ') query_summary';
-//      $result['total'] = db_result(db_query($sql));
-//    }
   }
 
 }

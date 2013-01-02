@@ -1,6 +1,6 @@
 <?php
 
-class Ground_Test extends Bizantu_Test_Fixtures {
+class Ground_Test extends Ground_Test_Fixtures {
   function setUp() {
     $this->ground = new Ground();
   }

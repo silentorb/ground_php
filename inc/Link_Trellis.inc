@@ -7,8 +7,9 @@ class Link_Trellis {
   public $second_property;
   public $id_suffix = '';
 
-  public function __construct($first_property, $second_property) {
-
+  public function __construct($first_property, $second_property, $ground) {
+    $this->ground = $ground;
+    $this->db = $ground->db;
     $other_table = $second_property->parent->get_plural();
     $temp = array($other_table, $first_property->parent->get_plural());
     sort($temp);
@@ -44,7 +45,7 @@ class Link_Trellis {
 
     $sql = "SELECT $table_name.$first_key FROM $table_name WHERE $table_name.$second_key = $id\n";
 
-    return db_query($sql);
+    return $this->db->query_values($sql);
   }
 
   public function delete_row($first_id, $second_id) {
