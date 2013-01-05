@@ -11,6 +11,7 @@ class Update_Test extends PHPUnit_Framework_TestCase {
     $update = new Update($this->trellis, $this->object, $this->ground);
     $result = $update->run(true);
     $this->assertSame($result->seed,$this->object);
+    $this->assertSame(1, $result->seed->id);
   }
 
 }

@@ -156,7 +156,6 @@ class Query {
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
-    file_put_contents('debug.sql', $paged_sql);
 
     $this->sql = $paged_sql;
     $rows = $this->db->query_objects($paged_sql);
@@ -236,17 +235,26 @@ class Query {
 //        }
       }
       else {
-        $query = $this->ground->create_query($link->other, false);
-        $query->add_filter($link->other->query_primary_key() . ' = ' . $row->{$property->name});
-        $result = $query->run(true);
-        $this->sql .= "\n" . $result->sql . "($property->name)";
-
-        $row->{$name} = $result->objects;
+        $row->{$name} = $this->get_reference_value($row, $property, $link->other);
       }
     }
   }
 
+  function get_reference_value($row, $property, $other_table) {
+    $property = $link->property;
+    $query = $this->ground->create_query($other_table, false);
+    if (!isset($row->{$property->name}))
+      throw new Exception("$property->name is undefined.");
+
+    $query->add_filter($link->other->query_primary_key() . ' = ' . $row->{$property->name});
+    $result = $query->run(true);
+    $this->sql .= "\n" . $result->sql . "($property->name)";
+
+    return $result->objects;
+  }
+
   function post_process_result($result) {
+    
   }
 
 }

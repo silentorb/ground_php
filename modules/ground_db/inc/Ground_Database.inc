@@ -37,16 +37,6 @@ class Ground_Database {
         continue;
 
       $field_sql = "`$property->name` $type";
-//      if ($property->Null == 'NO') {
-//        $sql .= ' NOT NULL';
-//      }
-//      else if ($property->Default === null) {
-//        $sql .= " DEFAULT NULL";
-//      }
-//
-//      if ($property->Default !== null)
-//        $sql .= " DEFAULT '$property->Default'";
-//
       if ($property->name == $trellis->primary_key) {
         $field_sql .= ' AUTO_INCREMENT';
         $keys[] = "PRIMARY KEY (`$property->name`)\n";
@@ -62,43 +52,6 @@ class Ground_Database {
     $fields = array_merge($fields, $keys);
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_plural() . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
-
-//    $keys = db_query('SHOW INDEX FROM ' . $this->name);
-//    while ($key = db_fetch_object($keys)) {
-//      $this->keys[$key->Key_name][] = $key;
-//    }
-//
-//    foreach ($this->keys as $name => $key) {
-//      if ($name == 'PRIMARY') {
-//        $column_name = $key[0]->Column_name;
-//        $sql .= "PRIMARY KEY (`$column_name`),\n";
-//      }
-//      else {
-//        if (!$key[0]->Non_unique)
-//          $sql .= 'UNIQUE ';
-//
-//        $items = '';
-//
-//        foreach ($key as $item) {
-//          if ($items != '')
-//            $items .= ',';
-//
-//          $items .= "`$item->Column_name`";
-//          if ($item->Sub_part != null)
-//            $items .= "($item->Sub_part)";
-//        }
-//
-//        $sql .= "KEY `$name` ($items),\n";
-//      }
-//    }
-//    if (count($this->fields) > 0)
-//      $sql = substr($sql, 0, strlen($sql) - 2);
-//    if ($keystring > 0)
-//      $info = db_fetch_object(db_query("SHOW TABLE STATUS WHERE Name = '$this->name'"));
-//    $sql .= "\n) ENGINE=$info->Engine";
-//    if ($info->Auto_increment) {
-//      $sql .= ' AUTO_INCREMENT=' . $info->Auto_increment;
-//    }
 
     $sql .= ");\n";
 

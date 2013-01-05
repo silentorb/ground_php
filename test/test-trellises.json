@@ -6,7 +6,7 @@
         "id": {
           "type": "int"
         },
-        "name": {
+        "race": {
           "type": "string"
         },
         "inventory": {
@@ -20,7 +20,7 @@
         "id": {
           "type": "int"
         },
-        "random_field": {
+        "name": {
           "type": "string"
         }
       }
@@ -33,7 +33,7 @@
         "name": {
           "type": "string"
         },
-        "trellis": {
+        "owner": {
           "type": "reference",
           "trellis": "warrior"
         }
