@@ -1,0 +1,72 @@
+{
+  "trellises":{
+    "history_commit":{
+      "properties":{
+        "id":{
+          "type":"int"
+        },
+        "timestamp":{
+          "type":"datetime"
+        },
+        "user":{
+          "type":"int"
+        },
+        "deletes": {
+          "type":"list",
+          "trellis": "history_delete"
+        },
+        "updates": {
+          "type":"list",
+          "trellis": "history_update"
+        }
+      }
+    },
+    "history_object": {
+      "id":{
+        "type":"int"
+      },
+      "trellis":{
+        "type":"string"
+      },
+      "object_id":{
+        "type":"int"
+      }    
+    },
+    "history_delete":{
+      "properties":{
+        "id":{
+          "type":"int"
+        },
+        "commit":{
+          "type":"reference",
+          "trellis": "history_commit"
+        },
+        "object":{
+          "type":"reference",
+          "trellis": "history_object"
+        },
+      }
+    },
+    "history_update":{
+      "properties":{
+        "id":{
+          "type":"int"
+        },
+        "commit":{
+          "type":"reference",
+          "trellis": "history_commit"
+        },
+        "object":{
+          "type":"reference",
+          "trellis": "history_object"
+        },
+        "property":{
+          "type":"string"
+        },
+        "value":{
+          "type":"string"
+        }
+      }
+    }
+  }
+}

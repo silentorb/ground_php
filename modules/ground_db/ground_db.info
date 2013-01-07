@@ -5,4 +5,4 @@ package = Silent Orb
 php = 5.3
 
 files[] = inc/Ground_Database.inc
-files[] = inc/Ground_Table.inc
+files[] = inc/Table.inc

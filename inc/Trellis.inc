@@ -69,7 +69,7 @@ class Bloom_Property {
   }
 
   public function query() {
-    return $this->parent->get_plural() . '.' . $this->name;
+    return $this->parent->get_table_name() . '.' . $this->name;
   }
 
 }
@@ -79,6 +79,7 @@ class Trellis {
   public $plural;
   public $parent;
   public $ground;
+  public $table;
   public $primary_key = 'id';
   // Properties that are specific to this trellis and not inherited from a parent trellis
   public $properties = array();
@@ -146,6 +147,10 @@ class Trellis {
     return null;
   }
 
+  public function get_object_id($object) {
+    return $object->{$this->primary_key};
+  }
+
   public function get_plural() {
     if ($this->plural)
       return $this->plural;
@@ -155,6 +160,28 @@ class Trellis {
 
   public function get_primary_property() {
     return $this->all_properties[$this->primary_key];
+  }
+
+  public function get_table_name() {
+    if ($this->table)
+      return $this->table->name;
+
+    if ($this->plural)
+      return $this->plural;
+
+    return $this->name . 's';
+  }
+
+  public function get_tree() {
+    $trellis = $this;
+    $tree = array();
+
+    do {
+      array_unshift($tree, $trellis);
+    }
+    while ($trellis = $trellis->parent);
+
+    return $tree;
   }
 
   function is_a($name) {
@@ -188,8 +215,8 @@ class Trellis {
   public function parent_query($query) {
     if ($this->parent) {
       $parent = $this->parent;
-      $parent_table = $parent->get_plural();
-      $query->add_join('JOIN ' . $parent->get_plural() .
+      $parent_table = $parent->get_table_name();
+      $query->add_join('JOIN ' . $parent->get_table_name() .
               ' ON ' . $parent_table . '.' . $parent->primary_key .
               ' = ' . $query->main_table . '.' . $this->primary_key);
 
@@ -199,20 +226,20 @@ class Trellis {
   }
 
   public function query_primary_key() {
-    return $this->get_plural() . '.' . $this->primary_key;
+    return $this->get_table_name() . '.' . $this->primary_key;
   }
 
   public function query_property($property) {
-    return $this->get_plural() . '.' . $property;
+    return $this->get_table_name() . '.' . $property;
   }
 
   public function update_core_properties() {
     $this->core_properties = array();
     foreach ($this->properties as $property) {
-      if ($property->type != 'reference' && $property->type != 'list') {
+      if ($property->type != 'list') {
         $this->core_properties[] = $property;
       }
-      else {
+      if ($property->type == 'reference' || $property->type == 'list') {
         $this->links[] = $property;
         $property->other = $this->ground->trellises[$property->trellis];
       }

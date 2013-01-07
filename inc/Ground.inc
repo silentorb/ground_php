@@ -35,6 +35,8 @@ class Ground extends Meta_Object {
   public $queries = array();
   public $property_types = array();
   public $db;
+  // Eventually Ground MetaHub will support optimize_getter()
+  public $modules = array();
 
   public function __construct($database = null) {
     if ($database) {
@@ -58,6 +60,7 @@ class Ground extends Meta_Object {
   public function add_module($name) {
     $module = new $name();
     $this->connect($module, 'module', 'ground');
+    $this->modules[$name] = $module;
   }
 
   public function on_connect_query($query) {
@@ -90,37 +93,24 @@ class Ground extends Meta_Object {
     $json = file_get_contents($schema_file);
     if ($json === false)
       throw new Exception('Could not find schema file: ' . $schema_file);
-    $this->load_schema($json);
-  }
 
-  public function load_schema($json) {
     $data = json_decode($json);
-
-    if (!isset($data->trellises))
-      throw new Exception('classes object is required.');
-
-    foreach ($data->trellises as $key => $object) {
-      $trellis = new Trellis($key, $this);
-      $trellis->load_from_object($object);
-      $this->trellises[$key] = $trellis;
+    if (!is_object($data)) {
+      throw new Exception("Invalid JSON in file $schema_file.");
     }
 
-    $this->initialize_trellises($this->trellises, $this->trellises);
+    $this->parse_schema($data);
+  }
 
-//    foreach ($this->trellises as $object) {
-//      // Convert a string reference into a direct reference to the actual object
-//      if ($object->parent) {
-//        $object->parent = $this->trellises[$object->parent];
-//        $object->check_primary_key();
-//      }
-//    }
-//
-//    foreach ($this->trellises as $object) {
-//      $object->update_core_properties();
-//    }
+  public function parse_schema($data) {
 
-    if (isset($data->maps))
-      $this->maps = $data->maps;
+    if (isset($data->trellises)) {
+      $this->load_trellises($data->trellises);
+    }
+
+    if (isset($data->tables)) {
+      $this->load_tables($data->tables);
+    }
   }
 
   public function load_schema_from_database() {
@@ -187,6 +177,30 @@ SQL;
     }
   }
 
+  public function load_tables($tables) {
+    foreach ($tables as $key => $object) {
+      $table = new Table($key, $this);
+      $table->load_from_schema($object);
+      $this->tables[$key] = $table;
+    }
+  }
+
+  public function load_trellises($trellises) {
+    foreach ($trellises as $key => $object) {
+      $trellis = new Trellis($key, $this);
+      $trellis->load_from_object($object);
+      if (!isset($trellis->id)) {
+        $trellis->id = count($this->trellises);
+      }
+      $this->trellises[$key] = $trellis;
+    }
+
+    $this->initialize_trellises($this->trellises, $this->trellises);
+
+    if (isset($data->maps))
+      $this->maps = $data->maps;
+  }
+
   public function create_query($trellis, $include_links = true) {
     if (is_string($trellis)) {
       if (!$this->trellises[$trellis])
@@ -199,7 +213,7 @@ SQL;
       }
     }
 
-    return new Query($trellis);
+    return new Query($trellis, $include_links);
   }
 
   static function convert_value($value, $type) {

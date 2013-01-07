@@ -50,7 +50,7 @@ class Ground_Database {
       return;
 
     $fields = array_merge($fields, $keys);
-    $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_plural() . "` (\n";
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_table_name() . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
 
     $sql .= ");\n";
@@ -89,7 +89,12 @@ class Ground_Database {
   // Return a raw query for further data extraction
   function query($sql, $parameters = null) {
     $query = $this->connection->prepare($sql);
-    $query->execute($parameters);
+    try {
+      $query->execute($parameters);
+    }
+    catch (Exception $ex) {
+      throw new Exception($ex->getMessage() . " \n" . $sql);
+    }
     return $query;
   }
 
@@ -120,13 +125,13 @@ class Ground_Database {
     $query = $this->query($sql, $parameters);
     return $query->fetchColumn(0);
   }
-  
+
   // Return an array of single values, usually a list of ids or names
   function query_values($sql, $parameters = null) {
     $query = $this->query($sql, $parameters);
     return $query->fetchAll(PDO::FETCH_COLUMN, 0);
   }
-  
+
   function last_insert_id($name) {
     return $this->connection->lastInsertId($name);
   }

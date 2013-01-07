@@ -12,13 +12,22 @@ class Update extends Meta_Object {
 
   public function __construct($trellis, $seed, $ground = null) {
     $this->seed = $seed;
-    $this->trellis = $trellis;
-    $this->main_table = $trellis->get_plural();
+    if (is_string($trellis)) {
+      if ($ground)
+        $this->trellis = $ground->trellises[$trellis];
+      else
+        throw new Exception('No Ground provided to find trellis string.');
+    }
+    else {
+      $this->trellis = $trellis;
+    }
+
+    $this->main_table = $this->trellis->get_table_name();
     if ($ground) {
       $this->ground = $ground;
     }
     else {
-      $this->ground = $trellis->ground;
+      $this->ground = $this->trellis->ground;
     }
 
     $this->db = $ground->db;
@@ -34,7 +43,7 @@ class Update extends Meta_Object {
     }
     else {
       $primary_key = $trellis->query_primary_key();
-      $sql = "SELECT $primary_key FROM " . $trellis->get_plural() . " WHERE $primary_key = $id";
+      $sql = "SELECT $primary_key FROM " . $trellis->get_table_name() . " WHERE $primary_key = $id";
       $id = $this->db->query_value($sql);
       if (!$id && $id !== 0) {
         return $this->create_record($trellis);
@@ -55,13 +64,14 @@ class Update extends Meta_Object {
 
     $field_string = implode(', ', $fields);
     $value_string = implode(', ', $values);
-    $sql = 'INSERT INTO ' . $trellis->get_plural() . " ($field_string) VALUES ($value_string);\n";
+    $sql = 'INSERT INTO ' . $trellis->get_table_name() . " ($field_string) VALUES ($value_string);\n";
     $this->invoke('created', $this->seed, $trellis);
+    echo $sql;
     $this->db->query($sql);
 
     // Hard coding conversion to int is a quick fix hack.  Eventually
     // I should convert it based on the type of trellis property.
-    $this->seed->{$trellis->primary_key} = $id = (int)$this->db->last_insert_id($trellis->primary_key);
+    $this->seed->{$trellis->primary_key} = $id = (int) $this->db->last_insert_id($trellis->primary_key);
     $this->update_links($trellis, $id, true);
     return $sql;
   }
@@ -85,7 +95,7 @@ class Update extends Meta_Object {
       return '';
 
     $update_list_string = implode(', ', $updates);
-    $table_name = $trellis->get_plural();
+    $table_name = $trellis->get_table_name();
     $primary_key = $trellis->query_primary_key();
 
     $sql = <<<SQL
@@ -102,6 +112,7 @@ SQL;
   }
 
   protected function get_field_value($property) {
+    $property_name = $this->trellis->name . '->' . $property->name;
     if ($property->insert_trellis) {
       $value = $this->trellis->name;
     }
@@ -109,7 +120,8 @@ SQL;
       $value = $this->seed->{$property->name};
     }
 
-    $value = str_replace("'", "\\'", $value);
+    if (is_string($value))
+      $value = str_replace("'", "\\'", $value);
 
     if ($property->type == 'string' || $property->type == 'text') {
       $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
@@ -120,15 +132,36 @@ SQL;
     if ($property->type == 'modified') {
       $value = time();
     }
-    else if ($value == null) {
+    if ($property->type == 'reference') {
+      // !!! Eventually I'll need to check the to see if the other property is
+      // using a primary key other than 'id', but this will work for the moment.
+      if (is_object($value)) {
+        if (isset($value->id)) {
+          $value = $value->id;
+        }
+        else {
+          throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
+        }
+      }
+    }
+    else if ($value === null) {
       $value = 'NULL';
     }
+
+    if (is_object($value))
+      throw new Exception("Property $property_name cannot be an object.");
+
+    if (is_array($value))
+      throw new Exception("Property $property_name cannot be an array.");
 
     return $value;
   }
 
   protected function update_links($trellis, $id, $create = false) {
     foreach ($trellis->links as $link) {
+      if ($link->type == 'reference')
+        continue;
+      continue;
       $list = $this->seed->{$link->name};
       if (!$list)
         continue;
@@ -139,7 +172,7 @@ SQL;
       if (!$create) {
         $rows = $join->query_rows($id);
 
-       foreach($rows as $other_id) {
+        foreach ($rows as $other_id) {
           if (!in_array($other_id, $list)) {
             $this->db->query($join->delete_row($id, $other_id));
           }
@@ -157,17 +190,12 @@ SQL;
     }
   }
 
-  public function run($return_sql) {
+  public function run($return_sql = false) {
     $result = new stdClass();
 
     // JOINED tables will require multiple generate_sqls...
-    $tree = array();
     $trellis = $this->trellis;
-
-    do {
-      array_unshift($tree, $trellis);
-    }
-    while ($trellis = $trellis->parent);
+    $tree = $trellis->get_tree();
 
     // The sql is only collected for debugging purpose.
     // The individual parts of the generated sql script

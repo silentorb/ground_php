@@ -1,11 +1,17 @@
 <?php
 
-class Trellis_Test extends PHPUnit_Framework_TestCase {
+class Trellis_Test extends Ground_Test_Fixtures {
   function setUp() {
     $this->ground = new Ground();
     $this->trellis = $this->ground->trellises['vineyard_trellis'];
   }
 
+  function test_get_parent_tree() {
+    $this->fixture_load_schemas();
+    $tree = $this->ground->trellises['warrior']->get_tree();
+    $this->assertEquals(2, count($tree));
+  }
+  
   function test_property_types() {
     $property = $this->trellis->properties['name'];
     $property_type = $property->get_property_type();
@@ -15,7 +21,7 @@ class Trellis_Test extends PHPUnit_Framework_TestCase {
   }
 
   function test_plural() {
-    $this->assertEquals('vineyard_trellises', $this->trellis->get_plural());
+    $this->assertEquals('vineyard_trellises', $this->trellis->get_table_name());
   }
 
   function test_create_object() {

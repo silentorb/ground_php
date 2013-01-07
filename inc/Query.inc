@@ -20,7 +20,7 @@ class Query {
     $this->trellis = $trellis;
     $this->ground = $this->trellis->ground;
     $this->db = $this->ground->db;
-    $this->main_table = $trellis->get_plural();
+    $this->main_table = $trellis->get_table_name();
     $this->add_source($trellis);
     if ($include_links) {
       $current_trellis = $trellis;
@@ -35,7 +35,7 @@ class Query {
 
   function add_source($source, $include_primary_key = true) {
     $this->sources[] = $source;
-    $table_name = $source->get_plural();
+    $table_name = $source->get_table_name();
     foreach ($source->core_properties as $property) {
       if ($property->name != $source->primary_key || $include_primary_key)
         $this->add_field($table_name . '.' . $property->field_name);
@@ -101,13 +101,6 @@ class Query {
   function add_links($paths) {
     foreach ($paths as $path) {
       $this->add_link($path);
-//      $levels = explode('/', $path);
-//      $last_link = null;
-//      foreach($levels as $level) {
-//        $link = array();
-////        if ($last_link)
-////        $link['child']
-//      }
     }
   }
 
@@ -150,7 +143,24 @@ class Query {
     return $sql;
   }
 
-  function run($return_sql = false) {
+  function run() {
+    $result = new stdClass();
+    $result->objects = array();
+    $sql = $this->generate_sql();
+    $sql = str_replace("\r", "\n", $sql);
+    $paged_sql = $this->paged_sql($sql);
+
+    $rows = $this->db->query_objects($paged_sql);
+    foreach ($rows as $row) {
+      $this->process_row($row);
+      $result->objects[] = $row;
+    }
+
+    $this->post_process_result($result);
+    return $result->objects;
+  }
+
+  function run_as_service($return_sql = false) {
     $result = new stdClass();
     $result->objects = array();
     $sql = $this->generate_sql();
@@ -204,53 +214,49 @@ class Query {
       if ($other_property === null)
         throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other . '.');
 
-      // First check for Many to Many
       if ($property->type == 'list' && $other_property->type == 'list') {
-        $query = $this->ground->create_query($link->other, false);
-        $join = new Link_Trellis($link->other->get_primary_property(), $property->parent->get_primary_property());
-        $join_sql = $join->generate_join($id);
-        $query->add_join($join_sql);
-
-        $result = $query->run(true);
-        $this->sql .= "\n" . $result->sql;
-
-//        if ($link->property->type == 'reference')
-//          $row->{$name} = $result->objects[0];
-//        else
-        $row->{$name} = $result->objects;
+        // Many to Many
+        $row->{$name} = $this->get_many_to_many_list($id, $property, $other_property, $link->other);
       }
       else if ($property->type == 'list') {
         // One to Many
-        $query = $this->ground->create_query($link->other, false);
-        $query->add_filter($other_property->query() . ' = ' . $id);
-        $result = $query->run(true);
-        $this->sql .= "\n" . $result->sql;
-        $row->{$name} = $result->objects;
-
-//        if ($other_property->type == 'list') {
-        $row->{$name} = $result->objects;
-//        }
-//        else { // One to One
-//          $row->{$name} = $result->objects[0];
-//        }
+        $row->{$name} = $this->get_one_to_many_list($id, $property, $other_property, $link->other);
       }
       else {
-        $row->{$name} = $this->get_reference_value($row, $property, $link->other);
+        // One to One
+        $row->{$name} = $this->get_reference_object($row, $property, $link->other);
       }
     }
   }
 
-  function get_reference_value($row, $property, $other_table) {
-    $property = $link->property;
+  function get_many_to_many_list($id, $property, $other_property, $other) {
+    $query = $this->ground->create_query($other_table, false);
+    $join = new Link_Trellis($other_table->get_primary_property(), $property->parent->get_primary_property());
+    $join_sql = $join->generate_join($id);
+    $query->add_join($join_sql);
+
+    $result = $query->run_as_service(true);
+    $this->sql .= "\n" . $result->sql;
+
+    return $result->objects;
+  }
+
+  function get_one_to_many_list($id, $property, $other_property, $other_table) {
+    $query = $this->ground->create_query($other_table, false);
+    $query->add_filter($other_property->query() . ' = ' . $id);
+    $result = $query->run_as_service(true);
+    return $result->objects;
+  }
+
+  function get_reference_object($row, $property, $other_table) {
     $query = $this->ground->create_query($other_table, false);
     if (!isset($row->{$property->name}))
       throw new Exception("$property->name is undefined.");
 
-    $query->add_filter($link->other->query_primary_key() . ' = ' . $row->{$property->name});
-    $result = $query->run(true);
-    $this->sql .= "\n" . $result->sql . "($property->name)";
+    $query->add_filter($other_table->query_primary_key() . ' = ' . $row->{$property->name});
+    $result = $query->run_as_service(true);
 
-    return $result->objects;
+    return $result->objects[0];
   }
 
   function post_process_result($result) {

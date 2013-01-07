@@ -10,8 +10,8 @@ class Link_Trellis {
   public function __construct($first_property, $second_property, $ground) {
     $this->ground = $ground;
     $this->db = $ground->db;
-    $other_table = $second_property->parent->get_plural();
-    $temp = array($other_table, $first_property->parent->get_plural());
+    $other_table = $second_property->parent->get_table_name();
+    $temp = array($other_table, $first_property->parent->get_table_name());
     sort($temp);
     $this->table_name = implode('_', $temp);
     $this->first_property = $first_property;

@@ -1,4 +1,19 @@
 {
+  "tables": {
+    "warrior": {
+      "indexes": {
+       "test_index": {
+         "fields": [
+          "race",
+          "age"
+         ]
+       }
+      }
+    },
+    "base" : {
+      "table_name": "base_objects"
+    }
+  },
   "trellises": {
     "warrior": {
       "parent": "base",
@@ -8,6 +23,9 @@
         },
         "race": {
           "type": "string"
+        },
+        "age": {
+          "type": "int"
         },
         "inventory": {
           "type": "list",
