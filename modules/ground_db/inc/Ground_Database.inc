@@ -18,10 +18,10 @@ class Ground_Database {
     }
 
     $connection_string = $this->create_connection_string($config);
-    $this->connection = new PDO($connection_string, $config['username'], $config['password'], array(
-                PDO::ATTR_PERSISTENT => true,
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            ));
+//    $this->connection = new PDO($connection_string, $config['username'], $config['password'], array(
+//                PDO::ATTR_PERSISTENT => true,
+//                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+//            ));
   }
 
   protected function create_connection_string($config) {
@@ -132,7 +132,7 @@ class Ground_Database {
   // Return an array of single values, usually a list of ids or names
   function query_values($sql, $parameters = null) {
     $query = $this->query($sql, $parameters);
-    return $query->fetchAll(PDO::FETCH_COLUMN, 0);
+  //  return $query->fetchAll(PDO::FETCH_COLUMN, 0);
   }
 
   function last_insert_id($name) {
