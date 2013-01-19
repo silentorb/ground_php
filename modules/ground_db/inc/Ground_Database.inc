@@ -8,7 +8,10 @@ class Ground_Database {
     global $db_url;
 
     if (is_array($db_url)) {
-      $config = array_key_exists($name, $db_url) ? $db_url[$name] : $db_url['default'];
+      if (array_key_exists($name, $db_url))
+        $config = $db_url[$name];
+      else
+        $config = $db_url['default'];
     }
     else {
       $config = $db_url;
