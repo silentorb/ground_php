@@ -11,5 +11,6 @@ class Ground_Drupal extends Ground_Module {
     $sql = <<<SQL
 
 SQL;
+//    $db = $this->ground->db
   }
 }
