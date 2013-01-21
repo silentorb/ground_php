@@ -10,6 +10,11 @@ class Ground_Test extends Ground_Test_Fixtures {
 //    
 //  }
 
+  function test_initialization() {
+    $this->assertArrayHasKey('vineyard_trellis', $this->ground->trellises);
+    $this->assertSame($this->ground, $this->ground->trellises['vineyard_trellis']->ground);
+  }
+  
   function test_property_types() {
     $this->assertTrue(count($this->ground->property_types) > 0, 'Property types were loaded.');
 

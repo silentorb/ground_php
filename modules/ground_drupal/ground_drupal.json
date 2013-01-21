@@ -1,5 +1,93 @@
 {
+  "tables": {
+    "node": {
+      "name": "node"
+    }
+  },
   "trellises": {
+    "node_revision": {
+      "primary_key": "nid",
+      "properties": {
+        "nid": {
+          "type": "int"
+        },
+        "vid": {
+          "type": "int"
+        },
+        "uid": {
+          "type": "int"
+        },
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "text"
+        },
+        "teaser": {
+          "type": "text"
+        },
+        "log": {
+          "type": "text"
+        },
+        "timestamp": {
+          "type": "int"
+        },
+        "format": {
+          "type": "int"
+        }
+      }
+    },
+    "node": {
+      "parent": "node_revision",
+      "primary_key": "nid",
+      "properties": {
+        "nid": {
+          "type": "int"
+        },
+        "vid": {
+          "type": "int"
+        },
+        "type": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "int"
+        },
+        "status": {
+          "type": "int"
+        },
+        "created": {
+          "type": "int"
+        },
+        "changed": {
+          "type": "int"
+        },
+        "comment": {
+          "type": "int"
+        },
+        "promote": {
+          "type": "int"
+        },
+        "moderate": {
+          "type": "int"
+        },
+        "sticky": {
+          "type": "int"
+        },
+        "tnid": {
+          "type": "int"
+        },
+        "translate": {
+          "type": "int"
+        }
+      }
+    },
     "user": {
       "primary_key": "uid",
       "properties": {

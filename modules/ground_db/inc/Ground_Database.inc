@@ -32,33 +32,10 @@ class Ground_Database {
   }
 
   function create_table($trellis) {
-    $keys = array();
-    $fields = array();
-    foreach ($trellis->properties as $property) {
-      $type = $property->get_field_type();
-      if ($type === null)
-        continue;
-
-      $field_sql = "`$property->name` $type";
-      if ($property->name == $trellis->primary_key) {
-        $field_sql .= ' AUTO_INCREMENT';
-        $keys[] = "PRIMARY KEY (`$property->name`)\n";
-      }
-
-      $fields[] = $field_sql;
-    }
-
-    // Can't create a table without fields
-    if (count($fields) == 0)
-      return;
-
-    $fields = array_merge($fields, $keys);
-    $sql = 'CREATE TABLE IF NOT EXISTS `' . $trellis->get_table_name() . "` (\n";
-    $sql .= implode(",\n", $fields) . "\n";
-
-    $sql .= ");\n";
-
+    $table = Table::create_from_trellis($trellis);
+    $sql = $table->generate_create_sql();
     $this->connection->exec($sql);
+    return $table;
   }
 
   function create_tables($trellises) {

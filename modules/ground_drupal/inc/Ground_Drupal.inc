@@ -7,4 +7,9 @@ class Ground_Drupal extends Ground_Module {
     $this->ground->load_schema_from_file($path . '/ground_drupal.json');
   }
 
+  function read_cck_trellises() {
+    $sql = <<<SQL
+
+SQL;
+  }
 }

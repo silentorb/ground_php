@@ -1,5 +1,10 @@
 <?php
 
+function str_to_bool($string) {
+  $string = strtolower($string);
+  return $string == 'true' || $string == '1' ? true : false;
+}
+
 class Property_Type {
 
   public $name;
@@ -58,9 +63,13 @@ class Ground extends Meta_Object {
   }
 
   public function add_module($name) {
+    if (array_key_exists($name, $this->modules))
+      return $this->modules[$name];
+
     $module = new $name();
     $this->connect($module, 'module', 'ground');
     $this->modules[$name] = $module;
+    return $module;
   }
 
   public function on_connect_query($query) {
@@ -158,24 +167,24 @@ SQL;
     $this->initialize_trellises($trellises, $this->trellises);
   }
 
-  public function load_map($map_file) {
-    $json = file_get_contents($map_file);
-    $data = json_decode($json);
-
-    if (isset($data->map)) {
-      foreach ($data->map as $key => $map) {
-        $trellis = $this->trellises[$key];
-        if ($trellis) {
-          foreach ($map->fields as $key => $field_name) {
-            $property = $trellis->all_properties[$key];
-            if ($property) {
-              $property->field_name = $field_name;
-            }
-          }
-        }
-      }
-    }
-  }
+//  public function load_map($map_file) {
+//    $json = file_get_contents($map_file);
+//    $data = json_decode($json);
+//
+//    if (isset($data->map)) {
+//      foreach ($data->map as $key => $map) {
+//        $trellis = $this->trellises[$key];
+//        if ($trellis) {
+//          foreach ($map->fields as $key => $field_name) {
+//            $property = $trellis->all_properties[$key];
+//            if ($property) {
+//              $property->field_name = $field_name;
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }
 
   public function load_tables($tables) {
     foreach ($tables as $key => $object) {

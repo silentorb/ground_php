@@ -3,7 +3,7 @@
 class Table {
 
   public $name;
-  public $fields;
+  public $properties = array();
   public $ground;
   public static $types = array(
       'INT' => 'int',
@@ -25,18 +25,54 @@ class Table {
     return Table::$types[$name];
   }
 
-  public static function create_from_trellis($trellis, $ground = null) {
+  public static function create_from_trellis($trellis, $ground = null) {    
+    // If a developer wants to replace an existing table object,
+    // this function is not the way to do it.
+    if ($trellis->table)
+      return $trellis->table;
+    
     if (!$ground)
       $ground = $trellis->ground;
 
-    $table = new Table($trellis->get_plural(), $ground);
+    $table = new Table($trellis->get_table_name(), $ground);
     $table->trellis = $trellis;
-    $table->load_from_database();
     return $table;
   }
 
-  function load_fields() {
-    $rows = $this->ground->db->query_objects('SHOW COLUMNS FROM ' . $this->name);
+  public function generate_create_sql() {
+    $trellis = $this->trellis;
+    $keys = array();
+    $fields = array();
+    
+    foreach ($trellis->properties as $property) {
+      $type = $property->get_field_type();
+      if ($type === null)
+        continue;
+
+      $field_name = $property->get_field_name();
+      $field_sql = "`$field_name` $type";
+      if ($field_name == $trellis->primary_key) {
+        $field_sql .= ' AUTO_INCREMENT';
+        $keys[] = "PRIMARY KEY (`$field_name`)\n";
+      }
+
+      $fields[] = $field_sql;
+    }
+
+    // Currently can't create a table without fields.  Seems reasonable enough.
+    if (count($fields) == 0)
+      return;
+
+    $fields = array_merge($fields, $keys);
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . $this->name . "` (\n";
+    $sql .= implode(",\n", $fields) . "\n";
+
+    $sql .= ");\n";
+    return $sql;
+  }
+
+  static function load_fields($db, $name) {
+    $rows = $db->query_objects('SHOW COLUMNS FROM ' . $name);
     $result = array();
     foreach ($rows as $row) {
       $field = new stdClass();
@@ -51,7 +87,7 @@ class Table {
   }
 
   function load_from_database() {
-    $this->fields = $this->load_fields();
+    $this->properties = Table::load_fields($this->ground->db, $this->name);
     $this->indexes = $this->load_indexes();
   }
 
@@ -64,10 +100,11 @@ class Table {
       $this->trellis->table = $this;
       $this->name = $this->trellis->get_plural();
     }
-    
-    if (isset($source->table_name)) {
-      $this->name = $source->table_name;
-    }
+
+    MetaHub::extend($this, $source);
+//    if (isset($source->name)) {
+//      $this->name = $source->name;
+//    }
   }
 
   function load_indexes() {
@@ -102,7 +139,7 @@ class Table {
   function get_vineyard_layer() {
     $layer = new stdClass();
     $layer->properties = array();
-    foreach ($this->fields as $item) {
+    foreach ($this->properties as $item) {
       $property = new stdClass();
       $property->type = Table::convert_to_property_type($item->type);
       $layer->properties[$item->name] = $property;
@@ -112,6 +149,18 @@ class Table {
 
   function get_ground_layer() {
     
+  }
+  
+/* Example:
+   Table::get_vineyard_json('dbname', 'table_name');
+*/
+  
+  static function get_vineyard_json($database_name, $table_name) {
+    $ground = new Ground($database_name);
+    $table = new Table($table_name, $ground);
+    $table->load_from_database();
+    $data[$table_name] = $table->get_vineyard_layer();
+    return json_encode($data);
   }
 
 }

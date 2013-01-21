@@ -17,21 +17,21 @@ class Ground_Database_Test extends PHPUnit_Framework_TestCase {
   }
 
   function test_create_table() {
-    $ground = new Ground();
+    $ground = new Ground('ground_test');
     $this->db->create_table($ground->trellises['vineyard_trellis']);
     $count = count($this->db->get_tables());
     $this->assertEquals(1, $count, "Database has 1 table.");
   }
 
   function test_create_tables() {
-    $ground = new Ground();
+    $ground = new Ground('ground_test');
     $this->db->create_tables($ground->trellises);
     $count = count($this->db->get_tables());
     $this->assertEquals(2, $count, "Database has 2 tables.");
   }
 
   function test_queries() {
-    $ground = new Ground();
+    $ground = new Ground('ground_test');
     $db = $this->db;
     $db->create_tables($ground->trellises);
     $db->query("INSERT INTO vineyard_trellises (id, name) VALUES ('5', 'something'), ('8', 'second')");

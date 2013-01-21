@@ -38,7 +38,7 @@ class Query {
     $table_name = $source->get_table_name();
     foreach ($source->core_properties as $property) {
       if ($property->name != $source->primary_key || $include_primary_key)
-        $this->add_field($table_name . '.' . $property->field_name);
+        $this->add_field($table_name . '.' . $property->get_field_name());
     }
 
     $source->parent_query($this);
@@ -94,7 +94,7 @@ class Query {
     $this->links[$property->name] = $link;
 
     if ($property->type == 'reference') {
-      $this->add_field("$property->field_name AS `$property->name`");
+      $this->add_field($property->get_field_name() . " AS `$property->name`");
     }
   }
 
@@ -185,10 +185,11 @@ class Query {
   function process_row(&$row) {
     // Map field names to bloom property names.
     foreach ($this->trellis->properties as $property) {
-      if ($property->name != $property->field_name) {
-        if (isset($row->{$property->field_name})) {
-          $row->{$property->name} = $row->{$property->field_name};
-          unset($row->{$property->field_name});
+      $field_name = $property->get_field_name();
+      if ($property->name != $field_name) {
+        if (isset($row->{$field_name})) {
+          $row->{$property->name} = $row->{$field_name};
+          unset($row->{$field_name});
         }
       }
     }

@@ -56,8 +56,9 @@ class Update extends Meta_Object {
     $fields = array();
     $values = array();
     foreach ($trellis->core_properties as $property) {
-      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
-        $fields[] = '`' . $property->name . '`';
+      $field_name = $property->get_field_name();
+      if (property_exists($this->seed, $field_name) || $property->insert_trellis) {
+        $fields[] = '`' . $field_name . '`';
         $values[] = $this->get_field_value($property);
       }
     }
@@ -80,11 +81,12 @@ class Update extends Meta_Object {
     $updates = array();
     foreach ($trellis->core_properties as $property) {
       // Ignore these with updates
-      if ($property->name == $trellis->primary_key || $property->type == 'created')
+      $field_name = $property->get_field_name();
+      if ($field_name == $trellis->primary_key || $property->type == 'created')
         continue;
 
-      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
-        $field = '`' . $property->name . '`';
+      if (property_exists($this->seed, $field_name) || $property->insert_trellis) {
+        $field = '`' . $field_name . '`';
         $value = $this->get_field_value($property);
         $updates[] = "$field = $value";
       }

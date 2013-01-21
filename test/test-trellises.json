@@ -1,6 +1,11 @@
 {
   "tables": {
     "warrior": {
+       "properties": {
+         "age": {
+           "name": "warrior_age"
+         }
+       },
       "indexes": {
        "test_index": {
          "fields": [
@@ -11,7 +16,7 @@
       }
     },
     "base" : {
-      "table_name": "base_objects"
+      "name": "base_objects"
     }
   },
   "trellises": {

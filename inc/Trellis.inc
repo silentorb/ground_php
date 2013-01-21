@@ -7,7 +7,6 @@ class Bloom_Property {
   public $type;
   public $trellis;
   public $readonly = false;
-  public $field_name;
   public $insert_trellis;
 
   public function __construct($name, $source, $parent) {
@@ -66,6 +65,18 @@ class Bloom_Property {
     }
 
     return null;
+  }
+  
+  public function get_field_name() {
+    $table = $this->parent->table;
+    if ($table && array_key_exists($this->name, $table->properties)) {
+      $field = $table->properties->{$this->name};
+      if (isset($field->name)) {
+        return $field->name;
+      }      
+    }
+    
+    return $this->name;
   }
 
   public function query() {
