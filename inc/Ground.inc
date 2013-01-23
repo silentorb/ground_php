@@ -88,14 +88,15 @@ class Ground extends Meta_Object {
     foreach ($subset as $object) {
 // Convert a string reference into a direct reference to the actual object
       if ($object->parent) {
-        $object->parent = $all[$object->parent];
+        $object->set_parent($all[$object->parent]);
         $object->check_primary_key();
       }
     }
 
-    foreach ($subset as $object) {
-      $object->update_core_properties();
-    }
+    // Now core properties are being set on the fly.
+//    foreach ($subset as $object) {
+//      $object->update_core_properties();
+//    }
   }
 
   public function load_schema_from_file($schema_file) {
@@ -252,6 +253,21 @@ SQL;
     return null;
   }
 
+   function insert_object($trellis, $data = array()) {
+    if (is_string($trellis)) {
+      $trellis_name = $trellis;
+      $trellis = $this->trellises[$trellis_name];
+      if (!$trellis)
+        throw new Exception("Trellis $trellis_name not found.");
+    }    
+
+    $object = $trellis->create_object();
+    MetaHub::extend($object, $data);
+    $update = new Update($trellis, $object, $this);
+    $result = $update->run();
+    return $object;
+  }
+  
   public function prepare_for_serialization() {
     $result = new stdClass();
     $result->trellises = array();

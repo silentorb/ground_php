@@ -55,10 +55,10 @@ class Update extends Meta_Object {
   protected function create_record($trellis) {
     $fields = array();
     $values = array();
-    foreach ($trellis->core_properties as $property) {
-      $field_name = $property->get_field_name();
-      if (property_exists($this->seed, $field_name) || $property->insert_trellis) {
-        $fields[] = '`' . $field_name . '`';
+    $core_properties = $trellis->get_core_properties();
+    foreach ($core_properties as $property) {
+      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
+        $fields[] = '`' . $property->get_field_name() . '`';
         $values[] = $this->get_field_value($property);
       }
     }
@@ -79,14 +79,14 @@ class Update extends Meta_Object {
 
   protected function update_record($trellis, $id) {
     $updates = array();
-    foreach ($trellis->core_properties as $property) {
+    $core_properties = $trellis->get_core_properties();
+    foreach ($core_properties as $property) {
       // Ignore these with updates
-      $field_name = $property->get_field_name();
-      if ($field_name == $trellis->primary_key || $property->type == 'created')
+      if ($property->name == $trellis->primary_key || $property->type == 'created')
         continue;
 
-      if (property_exists($this->seed, $field_name) || $property->insert_trellis) {
-        $field = '`' . $field_name . '`';
+      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
+        $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         $updates[] = "$field = $value";
       }
@@ -146,7 +146,8 @@ SQL;
         }
       }
     }
-    else if ($value === null) {
+
+    if ($value === null) {
       $value = 'NULL';
     }
 
@@ -160,15 +161,16 @@ SQL;
   }
 
   protected function update_links($trellis, $id, $create = false) {
-    foreach ($trellis->links as $link) {
-      if ($link->type == 'reference')
+    $links = $trellis->get_links();
+    foreach ($links as $property) {
+      if ($property->type == 'reference')
         continue;
-      continue;
-      $list = $this->seed->{$link->name};
+      $list = $this->seed->{$property->name};
       if (!$list)
         continue;
 
-      $join = new Link_Trellis($link->other->get_primary_property(), $trellis->get_primary_property());
+      $link_class = $property->get_link_class();
+      $join = new $link_class($property);
       $currently_in_table = array();
 
       if (!$create) {
@@ -176,7 +178,7 @@ SQL;
 
         foreach ($rows as $other_id) {
           if (!in_array($other_id, $list)) {
-            $this->db->query($join->delete_row($id, $other_id));
+            $this->db->query($join->generate_delete_row($id, $other_id));
           }
           else {
             $currently_in_table[] = $other_id;

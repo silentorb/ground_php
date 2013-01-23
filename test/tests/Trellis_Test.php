@@ -11,7 +11,7 @@ class Trellis_Test extends Ground_Test_Fixtures {
     $tree = $this->ground->trellises['warrior']->get_tree();
     $this->assertEquals(2, count($tree));
   }
-  
+
   function test_property_types() {
     $property = $this->trellis->properties['name'];
     $property_type = $property->get_property_type();
@@ -29,6 +29,25 @@ class Trellis_Test extends Ground_Test_Fixtures {
     $this->assertSame('', $object->name);
     $this->assertSame(null, $object->id);
     $this->assertEquals(count($this->trellis->properties), count(get_object_vars($object)));
+  }
+
+  function test_clone_property() {
+    $a = new Trellis('a', $this->ground);
+    $b = new Trellis('b', $this->ground);
+    $source = new stdClass();
+    $source->type = 'string';
+    $a->add_property('prop', $source);
+    $a->clone_property('prop', $b);
+    $this->assertArrayHasKey('prop', $b->properties);
+  }
+
+  function test_override_property() {
+    $trellis = new Trellis('a', $this->ground);
+    $property = $trellis->add_property('prop', new stdClass());
+    $property->override_field('link_class', 'Pretend_Link');
+    $this->assertNotNull($trellis->table);
+    $this->assertArrayHasKey('prop', $trellis->table->properties);
+    $this->assertEquals('Pretend_Link', $trellis->table->properties['prop']->link_class);
   }
 
 }

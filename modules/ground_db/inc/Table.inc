@@ -19,41 +19,46 @@ class Table {
     $this->ground = $ground;
   }
 
+  public function connect_trellis($trellis) {
+    $this->trellis = $trellis;
+    $trellis->table = $this;
+  }
+
   public static function convert_to_property_type($field_type) {
     $name = preg_replace('/\s*\(.*\).*/', '', $field_type);
     $name = strtoupper($name);
     return Table::$types[$name];
   }
 
-  public static function create_from_trellis($trellis, $ground = null) {    
+  public static function create_from_trellis($trellis, $ground = null) {
     // If a developer wants to replace an existing table object,
     // this function is not the way to do it.
     if ($trellis->table)
       return $trellis->table;
-    
+
     if (!$ground)
       $ground = $trellis->ground;
 
     $table = new Table($trellis->get_table_name(), $ground);
-    $table->trellis = $trellis;
+    $table->connect_trellis($trellis);
     return $table;
   }
 
-  public function generate_create_sql() {
-    $trellis = $this->trellis;
+  public static function create_sql_from_array($table_name, $source, $primary_key) {
     $keys = array();
     $fields = array();
-    
-    foreach ($trellis->properties as $property) {
-      $type = $property->get_field_type();
+
+    foreach ($source as $field) {
+      $name = $field->name;
+      $type = $field->type;
+
       if ($type === null)
         continue;
 
-      $field_name = $property->get_field_name();
-      $field_sql = "`$field_name` $type";
-      if ($field_name == $trellis->primary_key) {
+      $field_sql = "`$name` $type";
+      if ($name == $primary_key) {
         $field_sql .= ' AUTO_INCREMENT';
-        $keys[] = "PRIMARY KEY (`$field_name`)\n";
+        $keys[] = "PRIMARY KEY (`$name`)\n";
       }
 
       $fields[] = $field_sql;
@@ -64,11 +69,25 @@ class Table {
       return;
 
     $fields = array_merge($fields, $keys);
-    $sql = 'CREATE TABLE IF NOT EXISTS `' . $this->name . "` (\n";
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . $table_name . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
 
     $sql .= ");\n";
     return $sql;
+  }
+
+  public function create_sql_from_trellis() {
+    $trellis = $this->trellis;
+    $core_properties = $trellis->get_core_properties();
+    $fields = array();
+    foreach ($core_properties as $property) {
+      $fields[] = (object)array(
+          'name' => $property->get_field_name(),
+          'type' => $property->get_field_type(),
+      );
+    }
+
+    return Table::create_sql_from_array($this->name, $fields, $trellis->primary_key);
   }
 
   static function load_fields($db, $name) {
@@ -102,6 +121,7 @@ class Table {
     }
 
     MetaHub::extend($this, $source);
+    $this->properties = (array)$this->properties;
 //    if (isset($source->name)) {
 //      $this->name = $source->name;
 //    }
@@ -150,11 +170,10 @@ class Table {
   function get_ground_layer() {
     
   }
-  
-/* Example:
-   Table::get_vineyard_json('dbname', 'table_name');
-*/
-  
+
+  /* Example:
+    Table::get_vineyard_json('dbname', 'table_name');
+   */
   static function get_vineyard_json($database_name, $table_name) {
     $ground = new Ground($database_name);
     $table = new Table($table_name, $ground);

@@ -8,6 +8,8 @@ class Bloom_Property {
   public $trellis;
   public $readonly = false;
   public $insert_trellis;
+  public $link_class = null;
+  public $property = null; // String reference to the property this connects to on the other trellis.
 
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
@@ -58,6 +60,42 @@ class Bloom_Property {
     return $type->default;
   }
 
+  public function get_link_class() {
+    if ($field = $this->get_field_override()) {
+      if ($field->link_class)
+        return $field->link_class;
+    }
+
+    return 'Link_Trellis';
+  }
+
+  public function get_field_override($create_if_missing = false) {
+    $table = $this->parent->table;
+    if (!$table) {
+      if (!$create_if_missing)
+        return null;
+
+      $table = Table::create_from_trellis($this->parent);
+    }
+
+    if (!array_key_exists($this->name, $table->properties)) {
+      if (!$create_if_missing)
+        return null;
+
+      $table->properties[$this->name] = new stdClass();
+    }
+
+    return $table->properties[$this->name];
+  }
+
+  public function get_other_property() {
+    $other_table = $this->parent->ground->trellises[$this->trellis];
+
+    if ($this->property) {
+      return $other_table->properties[$this->property];
+    }
+  }
+
   public function get_property_type() {
     $types = $this->parent->ground->property_types;
     if (array_key_exists($this->type, $types)) {
@@ -66,21 +104,31 @@ class Bloom_Property {
 
     return null;
   }
-  
+
   public function get_field_name() {
-    $table = $this->parent->table;
-    if ($table && array_key_exists($this->name, $table->properties)) {
-      $field = $table->properties->{$this->name};
+    if ($field = $this->get_field_override()) {
       if (isset($field->name)) {
         return $field->name;
-      }      
+      }
     }
-    
+
     return $this->name;
   }
 
+  public function get_referenced_trellis() {
+    $other = $this->parent->ground->trellises[$this->trellis];
+    if (!$other)
+      throw new Exception('Could not find reference to property ' . $this->name . ' for ' . $this->trellis . '.');
+    return $other;
+  }
+
+  public function override_field($attribute, $value) {
+    $field = $this->get_field_override(true);
+    $field->{$attribute} = $value;
+  }
+
   public function query() {
-    return $this->parent->get_table_name() . '.' . $this->name;
+    return $this->parent->get_table_name() . '.' . $this->get_field_name();
   }
 
 }
@@ -94,9 +142,7 @@ class Trellis {
   public $primary_key = 'id';
   // Properties that are specific to this trellis and not inherited from a parent trellis
   public $properties = array();
-  // All properties that aren't connections
-  public $core_properties = array();
-  // Absolutely every property
+  // Every property including inherited properties
   public $all_properties = array();
   public $links = array();
 
@@ -106,11 +152,35 @@ class Trellis {
 //    $this->update_core_properties();
   }
 
+  public function add_property($name, $source) {
+    if (is_array($source))
+      $source = (object) $source;
+
+    $property = new Bloom_Property($name, $source, $this);
+    $this->properties[$name] = $property;
+    $this->all_properties[$name] = $property;
+    if ($property->type != 'list') {
+      $this->core_properties[] = $property;
+    }
+    if ($property->type == 'reference' || $property->type == 'list') {
+      $this->links[] = $property;
+    }
+
+    return $property;
+  }
+
   public function check_primary_key() {
     if (!$this->properties[$this->primary_key] && $this->parent) {
       $property = $this->parent->properties[$this->parent->primary_key];
       $this->properties[$this->primary_key] = new Bloom_Property($this->primary_key, $property, $this);
     }
+  }
+
+  public function clone_property($property_name, $target_trellis) {
+    if (!array_key_exists($property_name, $this->properties))
+      throw new Exception("$this->name does not have a property named $property_name.");
+
+    $target_trellis->add_property($property_name, $this->properties[$property_name]);
   }
 
   public function create_object() {
@@ -126,6 +196,17 @@ class Trellis {
         $result->{$name} = $property->get_default();
       }
     }
+    return $result;
+  }
+
+  public function get_core_properties() {
+    $result = array();
+    foreach ($this->properties as $property) {
+      if ($property->type != 'list') {
+        $result[] = $property;
+      }
+    }
+
     return $result;
   }
 
@@ -156,6 +237,15 @@ class Trellis {
     }
 
     return null;
+  }
+
+  public function get_links() {
+    $result = array();
+    foreach ($this->properties as $property) {
+      if ($property->trellis)
+        $result[] = $property;
+    }
+    return $result;
   }
 
   public function get_object_id($object) {
@@ -205,9 +295,9 @@ class Trellis {
     return false;
   }
 
-  public function load_from_database($table_name) {
-    
-  }
+//  public function load_from_database($table_name) {
+//    
+//  }
 
   public function load_from_object($source) {
     $names = get_object_vars($source);
@@ -219,7 +309,7 @@ class Trellis {
     }
 
     foreach ($source->properties as $key => $property) {
-      $this->properties[$key] = new Bloom_Property($key, $property, $this);
+      $this->add_property($key, $property);
     }
   }
 
@@ -232,7 +322,7 @@ class Trellis {
               ' = ' . $query->main_table . '.' . $this->primary_key);
 
       $query->add_source($parent, false);
-      $parent->parent_query($query);
+//      $parent->parent_query($query);
     }
   }
 
@@ -244,24 +334,41 @@ class Trellis {
     return $this->get_table_name() . '.' . $property;
   }
 
-  public function update_core_properties() {
+  public function set_parent($parent) {
+    $this->parent = $parent;
+    $this->all_properties = array();
+
+    foreach ($parent->all_properties as $name => $property) {
+      $this->all_properties[$name] = $property;
+    }
+
+    if (!$parent->primary_key)
+      throw new Exception("$parent->name needs a primary key.");
+
+    $parent->clone_property($parent->primary_key, $this);
+
+    $this->primary_key = $parent->primary_key;
+  }
+
+  /*
+    public function update_core_properties() {
     $this->core_properties = array();
     foreach ($this->properties as $property) {
-      if ($property->type != 'list') {
-        $this->core_properties[] = $property;
-      }
-      if ($property->type == 'reference' || $property->type == 'list') {
-        $this->links[] = $property;
-        $property->other = $this->ground->trellises[$property->trellis];
-      }
+    if ($property->type != 'list') {
+    $this->core_properties[] = $property;
+    }
+    if ($property->type == 'reference' || $property->type == 'list') {
+    $this->links[] = $property;
+    //        $property->other = $this->ground->trellises[$property->trellis];
+    }
     }
 
     if ($this->parent) {
-      $this->all_properties = array_merge($this->parent->all_properties, $this->properties);
+    $this->all_properties = array_merge($this->parent->all_properties, $this->properties);
     }
     else {
-      $this->all_properties = $this->properties;
+    $this->all_properties = $this->properties;
     }
-  }
-
+    }
+   */
 }

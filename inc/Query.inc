@@ -15,6 +15,7 @@ class Query {
 
   public function __construct($trellis, $include_links = true) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
+      $x = $x;
       throw new Exception('An invalid trellis was passed to the Query constructor.');
     }
     $this->trellis = $trellis;
@@ -36,9 +37,15 @@ class Query {
   function add_source($source, $include_primary_key = true) {
     $this->sources[] = $source;
     $table_name = $source->get_table_name();
-    foreach ($source->core_properties as $property) {
-      if ($property->name != $source->primary_key || $include_primary_key)
-        $this->add_field($table_name . '.' . $property->get_field_name());
+    $core_properties = $source->get_core_properties();
+    foreach ($core_properties as $property) {
+      if ($property->name != $source->primary_key || $include_primary_key) {
+        $field_name = $property->get_field_name();
+        $sql = $table_name . '.' . $field_name;
+        if ($field_name != $property->name)
+          $sql .= ' AS ' . $property->name;
+        $this->add_field($sql);
+      }
     }
 
     $source->parent_query($this);
@@ -84,12 +91,12 @@ class Query {
         throw new Exception($this->trellis->name . ' does not have a property named ' . $name . '.');
     }
 
-    $other = $this->ground->trellises[$property->trellis];
-    if (!$other)
-      throw new Exception('Could not find reference to property ' . $property->name . ' for ' . $property->trellis . '.');
+    if (array_key_exists($property->name, $this->links)) {
+      throw new Exception("$property->name added twice to query!");
+    }
 
     $link = new stdClass();
-    $link->other = $other;
+    $link->other = $property->get_referenced_trellis();
     $link->property = $property;
     $this->links[$property->name] = $link;
 
@@ -124,16 +131,16 @@ class Query {
     global $user;
 
     $sql = 'SELECT ';
-    $sql .= implode(', ', $this->fields);
+    $sql .= implode(",\n", $this->fields);
 
-    $sql .= ' FROM ' . $this->main_table;
+    $sql .= "\nFROM " . $this->main_table;
 
     if (count($this->joins) > 0) {
-      $sql .= ' ' . implode(' ', $this->joins);
+      $sql .= "\n" . implode("\n", $this->joins);
     }
 
     if (count($this->filters) > 0) {
-      $sql .= ' WHERE ' . implode(' AND ', $this->filters);
+      $sql .= "\nWHERE " . implode(' AND ', $this->filters);
     }
 
     if (count($this->post_clauses) > 0) {
@@ -149,7 +156,7 @@ class Query {
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
-
+//    echo $sql . "\n\n";
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
       $this->process_row($row);
@@ -213,7 +220,7 @@ class Query {
       $id = $row->{$property->parent->primary_key};
       $other_property = $link->other->get_link_property($property->parent);
       if ($other_property === null)
-        throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other . '.');
+        throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other->name . '.');
 
       if ($property->type == 'list' && $other_property->type == 'list') {
         // Many to Many
@@ -230,34 +237,30 @@ class Query {
     }
   }
 
-  function get_many_to_many_list($id, $property, $other_property, $other) {
+  function get_many_to_many_list($id, $property, $other_property, $other_table) {
     $query = $this->ground->create_query($other_table, false);
-    $join = new Link_Trellis($other_table->get_primary_property(), $property->parent->get_primary_property());
+    $link_class = $property->get_link_class();
+    $join = new $link_class($property);
     $join_sql = $join->generate_join($id);
     $query->add_join($join_sql);
-
-    $result = $query->run_as_service(true);
-    $this->sql .= "\n" . $result->sql;
-
-    return $result->objects;
+    return $query->run();
   }
 
   function get_one_to_many_list($id, $property, $other_property, $other_table) {
     $query = $this->ground->create_query($other_table, false);
     $query->add_filter($other_property->query() . ' = ' . $id);
-    $result = $query->run_as_service(true);
-    return $result->objects;
+    return $query->run();
   }
 
   function get_reference_object($row, $property, $other_table) {
     $query = $this->ground->create_query($other_table, false);
-    if (!isset($row->{$property->name}))
-      throw new Exception("$property->name is undefined.");
-
+    if (!isset($row->{$property->name})) {
+      return null;
+//      throw new Exception("Query result does not have $property->name.");
+    }
     $query->add_filter($other_table->query_primary_key() . ' = ' . $row->{$property->name});
-    $result = $query->run_as_service(true);
-
-    return $result->objects[0];
+    $objects = $query->run();
+    return $objects[0];
   }
 
   function post_process_result($result) {

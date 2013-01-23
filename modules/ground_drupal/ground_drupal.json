@@ -2,6 +2,16 @@
   "tables": {
     "node": {
       "name": "node"
+    },
+    "user": {
+      "properties": {
+        "email": {
+          "name": "mail"
+        },
+        "password": {
+          "name": "pass"
+        }
+      }
     }
   },
   "trellises": {
@@ -97,10 +107,10 @@
         "name": {
           "type": "string"
         },
-        "pass": {
+        "password": {
           "type": "string"
         },
-        "mail": {
+        "email": {
           "type": "string"
         },
         "mode": {

@@ -1,8 +1,9 @@
 <?php
 
 class Ground_Database_Test extends PHPUnit_Framework_TestCase {
-  function setUp() {
-    $this->db = new Ground_Database();
+  function setUp() {    
+     global $active_db;
+  $this->db = new Ground_Database();
     $this->db->connect('ground_test');
     $this->db->drop_all_tables();
   }

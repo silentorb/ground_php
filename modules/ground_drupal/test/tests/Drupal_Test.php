@@ -33,4 +33,15 @@ class Drupal_Test extends Drupal_Test_Fixtures {
     $this->assertEquals('A Node', $objects[0]->title);
   }
 
+  function test_add_user() {
+    Ground_Drupal::add_user($this->ground, 'Ninja Bird', 'secret', 'ninja@nest.com');
+    $query = $this->ground->create_query('user');
+    $objects = $query->run();
+
+    $this->assertEquals(1, count($objects));
+    $this->assertEquals('Ninja Bird', $objects[0]->name);
+    $this->assertEquals('ninja@nest.com', $objects[0]->email);
+    $this->assertEquals(md5('secret'), $objects[0]->password);
+  }
+
 }

@@ -33,7 +33,8 @@ class Ground_Database {
 
   function create_table($trellis) {
     $table = Table::create_from_trellis($trellis);
-    $sql = $table->generate_create_sql();
+    $sql = $table->create_sql_from_trellis();
+//    print $sql;
     $this->connection->exec($sql);
     return $table;
   }
@@ -91,13 +92,7 @@ class Ground_Database {
     // This may not be the most optimal way to get an array of objects
     // from PDO, but it functions properly for now and can be discretely
     // optimized later.
-    $items = $query->fetchAll();
-    $result = array();
-    foreach ($items as $item) {
-      $result[] = (object) $item;
-    }
-
-    return $result;
+    return $query->fetchAll(PDO::FETCH_CLASS);
   }
 
   // Return a single value
