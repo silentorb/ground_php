@@ -23,6 +23,14 @@
     "field_type" : "INT(11)",
     "default" : 0
   },
+  "float": {
+    "field_type" : "FLOAT",
+    "default" : 0
+  },
+  "money": {
+    "parent": "float",
+    "field_type" : "DECIMAL(19,2)"
+  },
   "created": {
     "parent": "datetime",
     "readonly": "true"

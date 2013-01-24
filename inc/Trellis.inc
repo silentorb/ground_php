@@ -343,7 +343,7 @@ class Trellis {
     }
 
     if (!$parent->primary_key)
-      throw new Exception("$parent->name needs a primary key.");
+      throw new Exception("$parent->name needs a primary key when being inherited by $this->name.");
 
     $parent->clone_property($parent->primary_key, $this);
 
