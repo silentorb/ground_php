@@ -34,7 +34,7 @@ class Ground_Database {
   function create_table($trellis) {
     $table = Table::create_from_trellis($trellis);
     $sql = $table->create_sql_from_trellis();
-    print $sql;
+//    print $sql;
     $this->connection->exec($sql);
     return $table;
   }
