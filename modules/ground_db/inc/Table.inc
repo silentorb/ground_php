@@ -57,7 +57,9 @@ class Table {
 
       $field_sql = "`$name` $type";
       if ($name == $primary_key) {
-        $field_sql .= ' AUTO_INCREMENT';
+        if (strstr($type, 'INT'))
+          $field_sql .= ' AUTO_INCREMENT';
+        
         $keys[] = "PRIMARY KEY (`$name`)\n";
       }
 
@@ -81,9 +83,9 @@ class Table {
     $core_properties = $trellis->get_core_properties();
     $fields = array();
     foreach ($core_properties as $property) {
-      $fields[] = (object)array(
-          'name' => $property->get_field_name(),
-          'type' => $property->get_field_type(),
+      $fields[] = (object) array(
+                  'name' => $property->get_field_name(),
+                  'type' => $property->get_field_type(),
       );
     }
 
@@ -121,7 +123,7 @@ class Table {
     }
 
     MetaHub::extend($this, $source);
-    $this->properties = (array)$this->properties;
+    $this->properties = (array) $this->properties;
 //    if (isset($source->name)) {
 //      $this->name = $source->name;
 //    }
