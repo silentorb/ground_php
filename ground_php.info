@@ -12,3 +12,4 @@ files[] = inc/Update.inc
 files[] = inc/Trellis.inc
 files[] = inc/Ground.inc
 files[] = inc/Ground_Module.inc
+files[] = inc/Node_Query.inc
