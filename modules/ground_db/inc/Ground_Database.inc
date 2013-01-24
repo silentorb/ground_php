@@ -68,10 +68,10 @@ class Ground_Database {
   }
 
   // Return a raw query for further data extraction
-  function query($sql, $parameters = null) {
+  function query($sql, $arguments = null) {
     $query = $this->connection->prepare($sql);
     try {
-      $query->execute($parameters);
+      $query->execute($arguments);
     }
     catch (Exception $ex) {
       throw new Exception($ex->getMessage() . " \n" . $sql);
