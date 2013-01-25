@@ -230,12 +230,18 @@ SQL;
     return new Query($trellis, $include_links);
   }
 
-  static function convert_value($value, $type) {
+   function convert_value($value, $type) {
     if ($value == null) {
       if ($type == 'bool')
         return false;
 
       return null;
+    }
+
+    if (array_key_exists($type, $this->property_types)) {
+        if ($this->property_types[$type]->parent) {
+            return $this->convert_value($value, $this->property_types[$type]->parent->name);
+        }
     }
     switch ($type) {
       case 'int':
@@ -249,6 +255,7 @@ SQL;
       case 'bool':
         return str_to_bool($value);
         break;
+      case 'float':
       case 'double':
         return (float) $value;
         break;

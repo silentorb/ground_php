@@ -43,7 +43,7 @@ class Query {
         $field_name = $property->get_field_name();
         $sql = $table_name . '.' . $field_name;
         if ($field_name != $property->name)
-          $sql .= ' AS ' . $property->name;
+          $sql .= " AS  `$property->name`";
         $this->add_field($sql);
       }
     }
@@ -210,7 +210,7 @@ class Query {
         $full_name = $property->name;
 
         if (property_exists($row, $full_name)) {
-          $row->$full_name = Ground::convert_value($row->$full_name, $property->type);
+          $row->$full_name = $this->ground->convert_value($row->$full_name, $property->type);
         }
       }
     }

@@ -15,9 +15,12 @@ class Ground_Drupal extends Ground_Module {
             ));
   }
 
-  static function load_module_json($ground, $module_name) {
+  static function load_module_json($ground, $module_name, $filename = null) {
     $path = drupal_get_path('module', $module_name);
-    $ground->load_schema_from_file($path . "/$module_name.json");
+     if ($filename === null)
+         $filename = $module_name . '.json';
+
+    $ground->load_schema_from_file($path . '/' . $filename);
   }
 
 }
