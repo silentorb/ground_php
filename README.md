@@ -21,6 +21,9 @@ These schemas are stored in JSON files.  Ground can load any number of schema fi
 
 In some cases all that is needed is the Vineyard layer.  Both Ground and Bloom have default conventions for how to interpret the Vineyard schema, and their particular schema layers are only needed to override the default behavior.  For example, if the Vineyard Schema defines an object type called "book", Ground assumes that there must be a table in the database named "books".  If the corresponding table is actually named "book_list", a Ground schema will be needed to override the table name for "books".
 
+Background
+----------
+
 In explaining Ground, it is useful to relate some of my background.  My roots are in straight client-side programming.  All of a program's data was stored in either binary or text files distributed with the program.  When I became involved in web programming, and in doing so was introduced to databases, I was horrified.  SQL seemed clunky and tedious compared to the object oriented, XML heavy world I had come from.  So I quickly gravitated to ORMs and tried to hide the database as much as possible behind abstractions.  I kept trying different ORM frameworks, but none of them seemed to adequately hide the databases, and they generally left me wanting more.
 
 Then I got much deeper into web development and found myself having to deal with SQL on a daily basis.  After months of this I began to appreciate SQL more.  Eventually I grew to love SQL and realized the main problem I had run into with ORMs was that I needed tools that focused on streamlining development for the database instead of hiding it.  Most major ORMs contain features and design decisions that are very heavy and come with a high price tag such as:
