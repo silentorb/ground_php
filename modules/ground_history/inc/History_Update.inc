@@ -19,7 +19,7 @@ class History_Update {
       $this->trellis = $trellis;
     }
     else {
-      $object = $object->target;
+      $object = $property->target;
     }
 
     if (is_object($object))

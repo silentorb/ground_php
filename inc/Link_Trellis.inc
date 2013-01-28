@@ -31,19 +31,18 @@ class Link_Trellis {
   }
 
   public function get_arguments($property) {
-    $this->first_property = $other_table->get_primary_property();
-    $this->second_property = $property->parent->get_primary_property();
-    $other_table = $this->second_property->parent->get_table_name();
-    $temp = array($other_table, $this->first_property->parent->get_table_name());
+    $other_property = $property->get_other_property();
+    $other_table = $other_property->parent->get_table_name();
+    $temp = array($other_table, $property->parent->get_table_name());
     sort($temp);
     $this->table_name = implode('_', $temp);
-    
+
     return array(
-        '%first_id' => $this->first_property->query(),
-        '%second_id' => $id = $this->second_property->query(),
+        '%first_id' => $property->query(),
+        '%second_id' => $id = $other_property->query(),
         '%table_name' => $this->table_name,
-        '%first_key' => $this->first_property->parent->name . $this->id_suffix,
-        '%second_key' => $this->second_property->parent->name . $this->id_suffix,
+        '%first_key' => $property->parent->name . $this->id_suffix,
+        '%second_key' => $other_property->parent->name . $this->id_suffix,
     );
   }
 

@@ -94,6 +94,15 @@ class Bloom_Property {
     if ($this->property) {
       return $other_table->properties[$this->property];
     }
+    else {
+      foreach ($other_table->properties as $property) {
+        if ($property->trellis == $this->parent->name) {
+          return $property;
+        }
+      }
+    }
+
+    return null;
   }
 
   public function get_property_type() {
@@ -196,6 +205,18 @@ class Trellis {
         $result->{$name} = $property->get_default();
       }
     }
+    return $result;
+  }
+
+  public function get_all_properties() {
+    $result = array();
+    $tree = $this->get_tree();
+    foreach ($tree as $trellis) {
+      foreach ($trellis->properties as $property) {
+        $result[$property->name] = $property;
+      }
+    }
+
     return $result;
   }
 

@@ -14,13 +14,20 @@ class History_Commit {
 
   public function process_object($object, $trellis) {
     $history_object = $this->history->get_object($object, $trellis);
-    foreach ($trellis->all_properties as $property) {
+    $properties = $trellis->get_all_properties();
+    foreach ($properties as $property) {
 
       // We're only concerned with properties that can change.
       if ($property->name == $trellis->primary_key)
         continue;
 
-      $update = new History_Update($this, $object, $property);
+      if ($property->type == 'list')
+        continue;
+
+      if (!$history_object->property_needs_update($property))
+        continue;
+      
+      $update = new History_Update($this, $object, $property, $trellis);
       $this->updates[] = $update;
     }
   }
