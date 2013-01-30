@@ -7,3 +7,4 @@ php = 5.3
 files[] = inc/History.inc
 files[] = inc/History_Commit.inc
 files[] = inc/History_Update.inc
+files[] = inc/History_Object.inc

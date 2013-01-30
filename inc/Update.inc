@@ -11,7 +11,7 @@ class Update extends Meta_Object {
   public $db;
 
   public function __construct($trellis, $seed, $ground = null) {
-    $this->seed = $seed;
+    $this->seed = (object)$seed;
     if (is_string($trellis)) {
       if ($ground)
         $this->trellis = $ground->trellises[$trellis];
@@ -167,6 +167,10 @@ SQL;
         continue;
       $list = $this->seed->{$property->name};
       if (!$list)
+        continue;
+      
+      $other_property = $property->get_other_property();
+      if ($other_property->type != 'list')
         continue;
 
       $link_class = $property->get_link_class();

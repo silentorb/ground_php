@@ -1,70 +1,76 @@
 {
-  "trellises":{
-    "history_commit":{
-      "properties":{
-        "id":{
-          "type":"int"
+  "trellises": {
+    "history_commit": {
+      "properties": {
+        "id": {
+          "type": "int"
         },
-        "timestamp":{
-          "type":"datetime"
+        "timestamp": {
+          "type": "datetime"
         },
-        "user":{
-          "type":"int"
+        "user": {
+          "type": "int"
         },
         "deletes": {
-          "type":"list",
+          "type": "list",
           "trellis": "history_delete"
         },
         "updates": {
-          "type":"list",
+          "type": "list",
           "trellis": "history_update"
         }
       }
     },
     "history_object": {
-      "id":{
-        "type":"int"
-      },
-      "trellis":{
-        "type":"string"
-      },
-      "object_id":{
-        "type":"int"
-      }    
-    },
-    "history_delete":{
-      "properties":{
-        "id":{
-          "type":"int"
+      "properties": {
+        "id": {
+          "type": "int"
         },
-        "commit":{
-          "type":"reference",
-          "trellis": "history_commit"
+        "trellis": {
+          "type": "string"
         },
-        "object":{
-          "type":"reference",
-          "trellis": "history_object"
+        "object_id": {
+          "type": "int"
         },
+        "updates": {
+          "type": "list",
+          "trellis": "history_update"
+        }
       }
     },
-    "history_update":{
-      "properties":{
-        "id":{
-          "type":"int"
+    "history_delete": {
+      "properties": {
+        "id": {
+          "type": "int"
         },
-        "commit":{
-          "type":"reference",
+        "commit": {
+          "type": "reference",
           "trellis": "history_commit"
         },
-        "object":{
-          "type":"reference",
+        "object": {
+          "type": "reference",
+          "trellis": "history_object"
+        }
+      }
+    },
+    "history_update": {
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "commit": {
+          "type": "reference",
+          "trellis": "history_commit"
+        },
+        "object": {
+          "type": "reference",
           "trellis": "history_object"
         },
-        "property":{
-          "type":"string"
+        "property": {
+          "type": "string"
         },
-        "value":{
-          "type":"string"
+        "value": {
+          "type": "string"
         }
       }
     }

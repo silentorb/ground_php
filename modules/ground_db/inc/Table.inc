@@ -81,6 +81,9 @@ class Table {
   public function create_sql_from_trellis() {
     $trellis = $this->trellis;
     $core_properties = $trellis->get_core_properties();
+    if (count($core_properties) == 0) {
+      throw new Exception("Cannot create a table for $trellis->name.  $trellis->name Does not have any core properties.");
+    }
     $fields = array();
     foreach ($core_properties as $property) {
       $fields[] = (object) array(
