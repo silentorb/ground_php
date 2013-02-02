@@ -4,6 +4,7 @@ class Dynamic_Query {
 
   protected $objects = array();
   public $main_table = 'node';
+  public $main_table_alias = null;
   public $field_sql;
   public $main_sql;
   protected $pre_clauses = array();
@@ -90,6 +91,9 @@ class Dynamic_Query {
     $this->field_sql = implode(', ', $fields);
 
     $main_sql = ' FROM ' . $this->main_table . ' ';
+    if ($this->main_table_alias) {
+      $main_sql .= 'AS ' . $this->main_table_alias . ' ';
+    }
     $main_sql .= ' ' . implode(' ', $this->joins);
 
     if (count($this->filters) > 0) {

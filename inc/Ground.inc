@@ -19,8 +19,7 @@ class Property_Type {
       $parent = $types[$info->parent];
       MetaHub::extend($this, $parent);
       $this->parent = $parent;
-    }
-    else {
+    } else {
       $this->field_type = $info->field_type;
     }
 
@@ -103,16 +102,21 @@ class Ground extends Meta_Object {
 //    }
   }
 
-  public function load_schema_from_file($schema_file) {
-    $json = file_get_contents($schema_file);
+  static function load_json_from_file($filename) {
+    $json = file_get_contents($filename);
     if ($json === false)
-      throw new Exception('Could not find schema file: ' . $schema_file);
+      throw new Exception('Could not find schema file: ' . $filename);
 
     $data = json_decode($json);
     if (!is_object($data)) {
-      throw new Exception("Invalid JSON in file $schema_file.");
+      throw new Exception("Invalid JSON in file $filename.");
     }
 
+    return $data;
+  }
+
+  public function load_schema_from_file($schema_file) {
+    $data = Ground::load_json_from_file($schema_file);
     $this->parse_schema($data);
   }
 
@@ -230,7 +234,7 @@ SQL;
     return new Query($trellis, $include_links);
   }
 
-   function convert_value($value, $type) {
+  function convert_value($value, $type) {
     if ($value == null) {
       if ($type == 'bool')
         return false;
@@ -239,9 +243,9 @@ SQL;
     }
 
     if (array_key_exists($type, $this->property_types)) {
-        if ($this->property_types[$type]->parent) {
-            return $this->convert_value($value, $this->property_types[$type]->parent->name);
-        }
+      if ($this->property_types[$type]->parent) {
+        return $this->convert_value($value, $this->property_types[$type]->parent->name);
+      }
     }
     switch ($type) {
       case 'int':
