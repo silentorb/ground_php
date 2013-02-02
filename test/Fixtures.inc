@@ -4,6 +4,7 @@ class Fixtures extends PHPUnit_Framework_TestCase {
   function prepare_database() {
     $db = $this->ground->db;
     $db->drop_all_tables();
+    print count($this->ground->trellises);
     $db->create_tables($this->ground->trellises);
   }
 
