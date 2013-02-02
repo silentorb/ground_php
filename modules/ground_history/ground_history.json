@@ -11,6 +11,9 @@
         "user": {
           "type": "int"
         },
+        "comment": {
+          "type": "string"
+        },
         "deletes": {
           "type": "list",
           "trellis": "history_delete"
