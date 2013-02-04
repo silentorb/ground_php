@@ -41,6 +41,10 @@ class Ground extends Meta_Object {
   public $db;
   // Eventually Ground MetaHub will support optimize_getter()
   public $modules = array();
+  
+  // A single, global instance of Ground used for Vineyard.  I try to keep minimize static members
+  // as possible but there are some cases where it is too practical to ignore.
+  public static $vineyard_ground;
 
   public function __construct($database = null) {
     if ($database) {
@@ -124,6 +128,10 @@ class Ground extends Meta_Object {
 
     if (isset($data->trellises)) {
       $this->load_trellises($data->trellises);
+    }
+
+    if (isset($data->views)) {
+      $this->views = $data->views;
     }
 
     if (isset($data->tables)) {
@@ -269,6 +277,9 @@ SQL;
   }
 
   function insert_object($trellis, $data = array()) {
+    if (!$trellis)
+      throw new Exception("insert_object called with undefined trellis.");
+
     if (is_string($trellis)) {
       $trellis_name = $trellis;
       $trellis = $this->trellises[$trellis_name];
@@ -289,6 +300,9 @@ SQL;
     foreach ($this->trellises as $key => $trellis) {
       $result->trellises[$key] = $trellis->get_data();
     }
+    
+    if ($this->views)
+      $result->views = $this->views;
 
     return $result;
   }
