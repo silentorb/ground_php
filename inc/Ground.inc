@@ -1,8 +1,10 @@
 <?php
 
-function str_to_bool($string) {
-  $string = strtolower($string);
-  return $string == 'true' || $string == '1' ? true : false;
+if (!function_exists('str_to_bool')) {
+  function str_to_bool($string) {
+    $string = strtolower($string);
+    return $string == 'true' || $string == '1' ? true : false;
+  }
 }
 
 class Property_Type {
@@ -19,7 +21,8 @@ class Property_Type {
       $parent = $types[$info->parent];
       MetaHub::extend($this, $parent);
       $this->parent = $parent;
-    } else {
+    }
+    else {
       $this->field_type = $info->field_type;
     }
 
@@ -41,7 +44,6 @@ class Ground extends Meta_Object {
   public $db;
   // Eventually Ground MetaHub will support optimize_getter()
   public $modules = array();
-  
   // A single, global instance of Ground used for Vineyard.  I try to keep minimize static members
   // as possible but there are some cases where it is too practical to ignore.
   public static $vineyard_ground;
@@ -300,7 +302,7 @@ SQL;
     foreach ($this->trellises as $key => $trellis) {
       $result->trellises[$key] = $trellis->get_data();
     }
-    
+
     if ($this->views)
       $result->views = $this->views;
 

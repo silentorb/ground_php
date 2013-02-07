@@ -1,7 +1,7 @@
 <?php
 
 function ground_php_menu() {
-    $items['vineyard/model.json'] = array(
+  $items['vineyard/model.json'] = array(
       'title' => 'Vineyard Model',
       'page callback' => 'ground_php_model',
       'access callback' => TRUE,
@@ -10,6 +10,13 @@ function ground_php_menu() {
   $items['vineyard/get'] = array(
       'title' => 'Ground Get',
       'page callback' => 'ground_php_get',
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+  );
+  $items['vineyard/get/%'] = array(
+      'title' => 'Ground Get',
+      'page callback' => 'ground_php_get',
+      'page_arguments' => array(2),
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
   );
@@ -31,7 +38,8 @@ function ground_php_model() {
 function ground_php_update() {
   if (isset($_POST['objects'])) {
     $objects = $_POST['objects'];
-  } else {
+  }
+  else {
     $json = file_get_contents("php://input");
     $data = json_decode(utf8_encode($json));
     if ($data)
@@ -46,24 +54,37 @@ function ground_php_update() {
       $result = $ground->insert_object($seed->trellis, $seed);
     }
     $result->success = true;
-  } catch (Exception $ex) {
+  }
+  catch (Exception $ex) {
     $result->message = $ex->getMessage();
     $result->success = false;
   }
   drupal_json($result);
 }
 
-function ground_php_get() {
+function ground_php_get($trellis = null) {
   $ground = Ground::$vineyard_ground;
-  $query = $ground->create_query($_GET['trellis']);
-  if (isset($_GET['id'])) {
-    $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) $_GET['id']);
+  if (!$ground)
+    throw new Exception('Ground not initialized.');
+
+  if (!$ground->db)
+    throw new Exception('Ground DB not initialized.');
+
+  if (!$trellis)
+    $trellis = $_GET['trellis'];
+
+  $query = $ground->create_query($trellis);
+
+  // Currently only works for int types.
+  foreach ($_GET as $key => $value) {
+    if ($key != 'trellis' && array_key_exists($key, $query->trellis->properties)) {
+      $property = $query->trellis->properties[$key];      
+      $query->add_filter($query->trellis->get_table_name() . '.' . $property->get_field_name() . ' = ' . (int) $value);
+    }
   }
-  
   //$query->add_post('ORDER BY name');
 
   $result = $query->run_as_service(true);
-    drupal_set_header('Content-Type: application/json');
- print json_encode($result);
-//  drupal_json($result);
+  drupal_set_header('Content-Type: application/json');
+  print json_encode($result);
 }
