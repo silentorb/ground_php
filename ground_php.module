@@ -7,16 +7,15 @@ function ground_php_menu() {
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
   );
-  $items['vineyard/get'] = array(
+//  $items['vineyard/get'] = array(
+//      'title' => 'Ground Get',
+//      'page callback' => 'ground_php_get',
+//      'access callback' => TRUE,
+//      'type' => MENU_CALLBACK,
+//  );
+  $items['vineyard'] = array(
       'title' => 'Ground Get',
       'page callback' => 'ground_php_get',
-      'access callback' => TRUE,
-      'type' => MENU_CALLBACK,
-  );
-  $items['vineyard/get/%'] = array(
-      'title' => 'Ground Get',
-      'page callback' => 'ground_php_get',
-      'page_arguments' => array(2),
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
   );
@@ -62,7 +61,14 @@ function ground_php_update() {
   drupal_json($result);
 }
 
-function ground_php_get($trellis = null) {
+function ground_php_get() {
+  // For some reason I was having a problem with the typical Drupal routing and just did this for now.
+  // It's more flexible if I want to get fancy with the REST.
+  $trellis = arg(1);
+  
+  if ($trellis === null)
+    throw new Exception('No trellis was specified.');
+  
   $ground = Ground::$vineyard_ground;
   if (!$ground)
     throw new Exception('Ground not initialized.');
@@ -70,14 +76,11 @@ function ground_php_get($trellis = null) {
   if (!$ground->db)
     throw new Exception('Ground DB not initialized.');
 
-  if (!$trellis)
-    $trellis = $_GET['trellis'];
-
   $query = $ground->create_query($trellis);
 
   // Currently only works for int types.
   foreach ($_GET as $key => $value) {
-    if ($key != 'trellis' && array_key_exists($key, $query->trellis->properties)) {
+    if (array_key_exists($key, $query->trellis->properties)) {
       $property = $query->trellis->properties[$key];      
       $query->add_filter($query->trellis->get_table_name() . '.' . $property->get_field_name() . ' = ' . (int) $value);
     }

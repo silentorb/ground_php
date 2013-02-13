@@ -61,6 +61,16 @@
           "trellis": "warrior"
         }
       }
+    },
+    "achievement": {
+      "parent": "base",
+      "properties": {
+        "warrior": {
+          "note": "Test for no reciprical reference.",
+          "type": "reference",
+          "trellis": "warrior"
+        }
+      }
     }
   }
 }

@@ -2,7 +2,7 @@
 
 class Ground_Test extends Ground_Test_Fixtures {
   function setUp() {
-    $this->ground = new Ground();
+    $this->ground = new Ground('ground_test');
   }
 
 //  function test_parent_associations() {
