@@ -1,6 +1,8 @@
 <?php
 
 class Fixtures extends PHPUnit_Framework_TestCase {
+  protected $backupGlobals = FALSE;
+  
   function prepare_database() {
     $db = $this->ground->db;
     $db->drop_all_tables();

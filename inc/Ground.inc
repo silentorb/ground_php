@@ -238,6 +238,10 @@ SQL;
         throw new Exception("Class '" . $trellis . "' does not exist");
       $trellis = $this->trellises[$trellis];
     }
+    else if (!is_object($trellis)) {
+      throw new Exception('Invalid trellis passed to create query.');
+    }
+    
     foreach ($this->queries as $key => $query) {
       if ($trellis->is_a($key)) {
         return new $query($trellis, $include_links);
