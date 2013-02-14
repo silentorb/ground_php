@@ -29,8 +29,16 @@ function ground_php_menu() {
   return $items;
 }
 
+function ground_php_initialize_ground() {
+  if (Ground::$vineyard_ground)
+    return Ground::$vineyard_ground;
+  Ground::$vineyard_ground = $ground = new Ground(Ground::$default_database);
+  module_invoke_all('ground', $ground);
+  return $ground;
+}
+
 function ground_php_model() {
-  $ground = Ground::$vineyard_ground;
+  $ground = ground_php_initialize_ground();
   drupal_set_header('Content-Type: application/json');
   print $ground->to_json();
 }
@@ -46,7 +54,7 @@ function ground_php_update() {
       $objects = $data->objects;
   }
 
-  $ground = Ground::$vineyard_ground;
+  $ground = ground_php_initialize_ground();
 
   try {
     foreach ($objects as $seed) {
@@ -63,7 +71,7 @@ function ground_php_update() {
 }
 
 function ground_php_get($trellis = null) {
-  $ground = Ground::$vineyard_ground;
+  $ground = ground_php_initialize_ground();
   if (!$ground)
     throw new Exception('Ground not initialized.');
 

@@ -47,6 +47,9 @@ class Ground extends Meta_Object {
   // A single, global instance of Ground used for Vineyard.  I try to keep minimize static members
   // as possible but there are some cases where it is too practical to ignore.
   public static $vineyard_ground;
+  
+  // This is not used directly in this class but by ground.module
+  public static $default_database = 'ground_test';
 
   public function __construct($database = null) {
     if ($database) {
