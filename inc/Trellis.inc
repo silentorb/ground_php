@@ -10,6 +10,7 @@ class Bloom_Property {
   public $insert_trellis;
   public $link_class = null;
   public $property = null; // String reference to the property this connects to on the other trellis.
+  public $default;
 
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
@@ -49,13 +50,16 @@ class Bloom_Property {
   public function get_field_type() {
     $property_type = $this->get_property_type();
     if ($property_type) {
-      return $property_type->field_type;
+      return $property_type->get_field_type();
     }
 
     return null;
   }
 
   public function get_default() {
+    if (isset($this->default))
+      return $this->default;
+    
     $type = $this->get_property_type();
     return $type->default;
   }

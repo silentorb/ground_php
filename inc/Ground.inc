@@ -5,6 +5,7 @@ if (!function_exists('str_to_bool')) {
     $string = strtolower($string);
     return $string == 'true' || $string == '1' ? true : false;
   }
+
 }
 
 class Property_Type {
@@ -32,7 +33,18 @@ class Property_Type {
       $this->default = $info->default;
     }
   }
-
+  
+  public function get_field_type() {
+    if (isset($this->field_type)) {
+      return $this->field_type;
+    }
+    
+    if ($this->parent) {
+      return $this->parent->get_field_type();
+    }
+    
+    return null;
+  }
 }
 
 class Ground extends Meta_Object {
@@ -47,7 +59,6 @@ class Ground extends Meta_Object {
   // A single, global instance of Ground used for Vineyard.  I try to keep minimize static members
   // as possible but there are some cases where it is too practical to ignore.
   public static $vineyard_ground;
-  
   // This is not used directly in this class but by ground.module
   public static $default_database = 'ground_test';
 
@@ -60,14 +71,7 @@ class Ground extends Meta_Object {
     $this->load_schema_from_file($path . '/vineyard.json');
 
     $this->listen($this, 'connect.query', 'on_connect_query');
-
-    $json = file_get_contents($path . '/property_types.json');
-    $property_types = json_decode($json);
-
-    foreach ($property_types as $name => $info) {
-      $type = new Property_Type($name, $info, $this->property_types);
-      $this->property_types[$name] = $type;
-    }
+    $this->load_property_types($path . '/property_types.json');
   }
 
   public function add_module($name) {
@@ -141,6 +145,16 @@ class Ground extends Meta_Object {
 
     if (isset($data->tables)) {
       $this->load_tables($data->tables);
+    }
+  }
+
+  public function load_property_types($filename) {
+    $json = file_get_contents($filename);
+    $property_types = json_decode($json);
+
+    foreach ($property_types as $name => $info) {
+      $type = new Property_Type($name, $info, $this->property_types);
+      $this->property_types[$name] = $type;
     }
   }
 
@@ -241,7 +255,7 @@ SQL;
     else if (!is_object($trellis)) {
       throw new Exception('Invalid trellis passed to create query.');
     }
-    
+
     foreach ($this->queries as $key => $query) {
       if ($trellis->is_a($key)) {
         return new $query($trellis, $include_links);
