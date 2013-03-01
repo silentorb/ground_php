@@ -33,18 +33,19 @@ class Property_Type {
       $this->default = $info->default;
     }
   }
-  
+
   public function get_field_type() {
     if (isset($this->field_type)) {
       return $this->field_type;
     }
-    
+
     if ($this->parent) {
       return $this->parent->get_field_type();
     }
-    
+
     return null;
   }
+
 }
 
 class Ground extends Meta_Object {
@@ -231,16 +232,23 @@ SQL;
   }
 
   public function load_trellises($trellises) {
+    $subset = array();
     foreach ($trellises as $key => $object) {
-      $trellis = new Trellis($key, $this);
-      $trellis->load_from_object($object);
-      if (!isset($trellis->id)) {
-        $trellis->id = count($this->trellises);
+      if (get_class($object) === 'Trellis') {
+        $trellis = $object;
+      }
+      else {
+        $trellis = new Trellis($key, $this);
+        $trellis->load_from_object($object);
+        if (!isset($trellis->id)) {
+          $trellis->id = count($this->trellises);
+        }
       }
       $this->trellises[$key] = $trellis;
+      $subset[$key] = $trellis;
     }
 
-    $this->initialize_trellises($this->trellises, $this->trellises);
+    $this->initialize_trellises($subset, $this->trellises);
 
     if (isset($data->maps))
       $this->maps = $data->maps;

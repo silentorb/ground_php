@@ -87,6 +87,10 @@ function ground_php_get() {
 
   $query = $ground->create_query($trellis);
 
+  if (arg(2)) {
+      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) arg(2));
+  }
+  
   // Currently only works for int types.
   foreach ($_GET as $key => $value) {
     if (array_key_exists($key, $query->trellis->properties)) {

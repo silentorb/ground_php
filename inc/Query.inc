@@ -12,6 +12,7 @@ class Query {
   public $links = array();
   public $trellis;
   public $db;
+  public $include_links = false;
 
   public function __construct($trellis, $include_links = true) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
@@ -24,10 +25,20 @@ class Query {
     $this->main_table = $trellis->get_table_name();
     $this->add_source($trellis);
     if ($include_links) {
+      if (is_array($include_links))
+        $this->include_links = $include_links;
+      
       $current_trellis = $trellis;
       do {
-        foreach ($current_trellis->links as $link) {
-          $this->add_link($link);
+        $links = $current_trellis->get_links();
+        foreach ($links as $link) {
+          if (is_array($include_links)) {
+            if (in_array($link->name, $include_links))
+              $this->add_link($link);
+          }
+          else {
+            $this->add_link($link);
+          }
         }
       }
       while ($current_trellis = $current_trellis->parent);
@@ -218,7 +229,9 @@ class Query {
     foreach ($this->links as $name => $link) {
       $property = $link->property;
       $id = $row->{$property->parent->primary_key};
-      $other_property = $link->other->get_link_property($property->parent);
+      //$other_property = $link->other->get_link_property($property->parent);
+      $other_property = $property->get_other_property();
+
       if ($other_property === null)
         throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other->name . '.');
 
@@ -247,7 +260,7 @@ class Query {
   }
 
   function get_one_to_many_list($id, $property, $other_property, $other_table) {
-    $query = $this->ground->create_query($other_table, false);
+    $query = $this->ground->create_query($other_table, $this->include_links);
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
   }

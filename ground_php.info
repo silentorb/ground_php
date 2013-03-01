@@ -13,3 +13,4 @@ files[] = inc/Trellis.inc
 files[] = inc/Ground.inc
 files[] = inc/Ground_Module.inc
 files[] = inc/Node_Query.inc
+files[] = test/Fixture.inc

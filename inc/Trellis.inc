@@ -59,7 +59,7 @@ class Bloom_Property {
   public function get_default() {
     if (isset($this->default))
       return $this->default;
-    
+
     $type = $this->get_property_type();
     return $type->default;
   }
@@ -106,7 +106,18 @@ class Bloom_Property {
       }
     }
 
-    return null;
+    // If 
+    if ($this->trellis == $this->parent->name)
+      return null;
+    
+    // If there is no existing connection defined in this trellis, create a dummy
+    // connection and assume that it is a list.  This means that implicit connections
+    // are either one-to-many or many-to-many, never one-to-one.
+    $attributes = new stdClass();
+    $attributes->type = "list";
+    $attributes->trellis = $other_table->name;
+    $property = new Bloom_Property($other_table->name, $attributes, $this);
+    return $property;
   }
 
   public function get_property_type() {
@@ -157,7 +168,8 @@ class Trellis {
   public $properties = array();
   // Every property including inherited properties
   public $all_properties = array();
-  public $links = array();
+  // It's a lot cleaner and safer to just query the links instead of track them.
+//  public $links = array();
 
   public function __construct($name, $ground) {
     $this->ground = $ground;
@@ -172,9 +184,9 @@ class Trellis {
     $property = new Bloom_Property($name, $source, $this);
     $this->properties[$name] = $property;
     $this->all_properties[$name] = $property;
-    if ($property->type != 'list') {
-      $this->core_properties[] = $property;
-    }
+//    if ($property->type != 'list') {
+//      $this->core_properties[] = $property;
+//    }
     if ($property->type == 'reference' || $property->type == 'list') {
       $this->links[] = $property;
     }
@@ -255,7 +267,7 @@ class Trellis {
   }
 
   public function get_link_property($other_table) {
-    foreach ($this->links as $link) {
+    foreach ($this->all_properties as $link) {
       if ($link->trellis == $other_table->name) {
         return $link;
       }
@@ -364,6 +376,22 @@ class Trellis {
 
   public function query_property($property) {
     return $this->get_table_name() . '.' . $property;
+  }
+
+  public function remove_property($property) {
+    if (is_string($property)) {
+      $name = $property;
+      $property = $this->properties[$name];
+    }
+    else {
+      $name = $property->name;
+    }
+    unset($this->properties[$name]);
+    unset($this->all_properties[$name]);
+
+    $index = array_search($status, $quest->links);
+    if ($index > -1)
+      unset($quest->links[$index]);
   }
 
   public function set_parent($parent) {

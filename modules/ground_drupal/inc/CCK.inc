@@ -13,10 +13,10 @@ class CCK extends Ground_Module {
   );
   public $trellises = array();
 
-//  function initialize($ground) {
-//    parent::initialize($ground);
-//    $this->add_content_types();
-//  }
+    function initialize($ground) {
+    parent::initialize($ground);
+    $this->ground->add_module('Ground_Drupal');
+  }
 
   function create_link($trellis, $name, $ground, $field) {
     $property = $trellis->add_property($name . '_list', array(
@@ -105,6 +105,12 @@ class CCK extends Ground_Module {
     }
 
     return $result;
+  }
+
+  function load_trellises($ground) {
+    $types = $this->read_content_types();
+    $model = $this->convert_cck_to_trellises($types, $this->ground);
+    $ground->load_trellises($model['trellises']);
   }
 
   function read_content_types() {
