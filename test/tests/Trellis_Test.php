@@ -1,13 +1,13 @@
 <?php
 
-class Trellis_Test extends Ground_Test_Fixtures {
+class Trellis_Test extends Ground_Test_Case {
   function setUp() {
-    $this->ground = new Ground();
+    parent::setUp();
     $this->trellis = $this->ground->trellises['vineyard_trellis'];
   }
 
   function test_get_parent_tree() {
-    $this->fixture_load_schemas();
+    $this->fixture->load_schemas();
     $tree = $this->ground->trellises['warrior']->get_tree();
     $this->assertEquals(2, count($tree));
   }

@@ -1,13 +1,17 @@
 <?php
 
-class Table_Test extends Ground_Test_Fixtures {
+class Table_Test extends Ground_Test_Case {
+  function setUp() {
+    parent::setUp();
+  }
+
   function test_convert_to_property_type() {
     $this->assertEquals('string', Table::convert_to_property_type('VARCHAR(64)'));
     $this->assertEquals('int', Table::convert_to_property_type('INT (11) '));
   }
 
   function test_trellis_table_name() {
-    $this->fixture_load_schemas();
+    $this->fixture->load_schemas();
     foreach ($this->ground->trellises as $trellis) {
       $this->assertNotNull($trellis->get_table_name());
     }
@@ -16,7 +20,7 @@ class Table_Test extends Ground_Test_Fixtures {
   }
 
   function test_mapping_table_name() {
-    $this->fixture_load_schemas();
+    $this->fixture->load_schemas();
     $trellis = $this->ground->trellises['base'];
     $this->assertArrayHasKey('base', $this->ground->tables);
     $this->assertNotNull($trellis->table);
@@ -24,11 +28,11 @@ class Table_Test extends Ground_Test_Fixtures {
   }
 
   function test_mapping_property_name() {
-    $this->fixture_load_schemas();
-    $this->prepare_database();
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
     $properties = Table::load_fields($this->ground->db, 'warriors');
     $trellis = $this->ground->trellises['warrior'];
-    
+
     // Assert that 'age' was mapped to 'warrior_age'
     $this->assertNotNull($trellis->table);
     $this->assertArrayHasKey('age', $trellis->properties);
@@ -37,13 +41,14 @@ class Table_Test extends Ground_Test_Fixtures {
   }
 
   function test_mapping_outcome() {
-    $this->fixture_populate_database();
+    $this->fixture->populate_database();
     $tables = $this->ground->db->get_tables();
     $this->assertContains('base_objects', $tables);
   }
 
   function test_get_vineyard_layer() {
-    $this->fixture_populate_database();
+    $this->fixture->populate_database();
+    $this->trellis = $this->ground->trellises['warrior'];
     $this->table = Table::create_from_trellis($this->trellis, $this->ground);
     $this->table->load_from_database();
 

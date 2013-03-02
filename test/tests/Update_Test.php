@@ -1,13 +1,15 @@
 <?php
 
-class Update_Test extends Ground_Test_Fixtures {
+class Update_Test extends Ground_Test_Case {
   function setUp() {
-    $this->ground = new Ground('ground_test');
+    parent::setUp();
     $this->trellis = $this->ground->trellises['vineyard_trellis'];
-    $this->object = $this->trellis->create_object();
   }
 
   function test_insert() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $this->object = $this->trellis->create_object();
     $update = new Update($this->trellis, $this->object, $this->ground);
     $result = $update->run(true);
     $this->assertSame($result->seed, $this->object);
@@ -15,10 +17,10 @@ class Update_Test extends Ground_Test_Fixtures {
   }
 
   function test_update_object_reference() {
-    $this->fixture_populate_database();
-    $this->insert_object('character_item', array(
+    $this->fixture->populate_database();
+    $this->fixture->insert_object('character_item', array(
         'name' => 'axe',
-        'owner' => $this->ninja_bob,
+        'owner' => $this->fixture->ninja_bob,
     ));
 
     $query = $this->ground->create_query('character_item');

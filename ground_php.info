@@ -5,6 +5,7 @@ package = Silent Orb
 php = 5.2
 
 files[] = inc/Object_Map.inc
+files[] = inc/Delete.inc
 files[] = inc/Dynamic_Query.inc
 files[] = inc/Link_Trellis.inc
 files[] = inc/Query.inc

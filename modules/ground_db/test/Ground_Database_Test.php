@@ -1,11 +1,9 @@
 <?php
 
-class Ground_Database_Test extends PHPUnit_Framework_TestCase {
-  function setUp() {    
-     global $active_db;
-  $this->db = new Ground_Database();
-    $this->db->connect('ground_test');
-    $this->db->drop_all_tables();
+class Ground_Database_Test extends Ground_Test_Case {
+  function setUp() {
+    parent::setUp();
+    $this->db = $this->ground->db;
   }
 
   function test_connection() {
@@ -18,23 +16,20 @@ class Ground_Database_Test extends PHPUnit_Framework_TestCase {
   }
 
   function test_create_table() {
-    $ground = new Ground('ground_test');
-    $this->db->create_table($ground->trellises['vineyard_trellis']);
+    $this->db->create_table($this->ground->trellises['vineyard_trellis']);
     $count = count($this->db->get_tables());
     $this->assertEquals(1, $count, "Database has 1 table.");
   }
 
   function test_create_tables() {
-    $ground = new Ground('ground_test');
-    $this->db->create_tables($ground->trellises);
+    $this->db->create_tables($this->ground->trellises);
     $count = count($this->db->get_tables());
     $this->assertEquals(2, $count, "Database has 2 tables.");
   }
 
   function test_queries() {
-    $ground = new Ground('ground_test');
     $db = $this->db;
-    $db->create_tables($ground->trellises);
+    $db->create_tables($this->ground->trellises);
     $db->query("INSERT INTO vineyard_trellises (id, name) VALUES ('5', 'something'), ('8', 'second')");
 
     $select_all = 'SELECT * FROM vineyard_trellises ORDER BY id';

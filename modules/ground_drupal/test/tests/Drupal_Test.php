@@ -1,14 +1,14 @@
 <?php
 
-class Drupal_Test extends Drupal_Test_Fixtures {
+class Drupal_Test extends Drupal_Test_Case {
   function setUp() {
-    $this->ground = new Ground('ground_test');
+    parent::setUp();
     $this->ground->add_module('Ground_Drupal');
-    $this->prepare_database();
+    $this->fixture->prepare_database();
   }
 
   function test_users() {
-    $this->insert_object('user', array(
+    $this->fixture->insert_object('user', array(
         'name' => 'Bob',
         'email' => 'nothing@nowhere.com',
         'pass' => 'password',
@@ -21,7 +21,7 @@ class Drupal_Test extends Drupal_Test_Fixtures {
   }
 
   function test_nodes() {
-    $this->insert_object('node', array(
+    $this->fixture->insert_object('node', array(
         'title' => 'A Node',
         'type' => 'test',
         'body' => '<i>This is the body</i>',
