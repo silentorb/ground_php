@@ -109,7 +109,7 @@ class Bloom_Property {
     // If 
     if ($this->trellis == $this->parent->name)
       return null;
-    
+
     // If there is no existing connection defined in this trellis, create a dummy
     // connection and assume that it is a list.  This means that implicit connections
     // are either one-to-many or many-to-many, never one-to-one.
@@ -168,6 +168,7 @@ class Trellis {
   public $properties = array();
   // Every property including inherited properties
   public $all_properties = array();
+
   // It's a lot cleaner and safer to just query the links instead of track them.
 //  public $links = array();
 
@@ -308,9 +309,12 @@ class Trellis {
   }
 
   public function get_table_name() {
-    if ($this->table)
-      return $this->table->name;
-
+    if ($this->table) {
+      if ($this->table->db_name)
+        return $this->table->db_name . '.' . $this->table->name;
+      else
+        return $this->table->name;
+    }
     if ($this->plural)
       return $this->plural;
 

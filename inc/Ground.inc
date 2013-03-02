@@ -63,6 +63,11 @@ class Ground extends Meta_Object {
   // This is not used directly in this class but by ground.module
   public static $default_database = 'ground_test';
 
+  // For general queries, this is an array of object relational paths
+  // that point to references that should be expanded to full objects instead of
+  // simply an id.  Sort of like explicit lazy loading.
+  public $expansions = array();
+  
   public function __construct($database = null) {
     if ($database) {
       $this->db = new Ground_Database();
@@ -254,7 +259,7 @@ SQL;
       $this->maps = $data->maps;
   }
 
-  public function create_query($trellis, $include_links = true) {
+  public function create_query($trellis, $include_links = true, $base_path = '') {
     if (is_string($trellis)) {
       if (!$this->trellises[$trellis])
         throw new Exception("Class '" . $trellis . "' does not exist");
@@ -266,11 +271,11 @@ SQL;
 
     foreach ($this->queries as $key => $query) {
       if ($trellis->is_a($key)) {
-        return new $query($trellis, $include_links);
+        return new $query($trellis, $include_links, $base_path);
       }
     }
 
-    return new Query($trellis, $include_links);
+    return new Query($trellis, $include_links, $base_path);
   }
 
   function convert_value($value, $type) {

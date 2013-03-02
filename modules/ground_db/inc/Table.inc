@@ -5,6 +5,8 @@ class Table {
   public $name;
   public $properties = array();
   public $ground;
+  public $db_name;
+  
   public static $types = array(
       'INT' => 'int',
       'TINYINT' => 'bool',
