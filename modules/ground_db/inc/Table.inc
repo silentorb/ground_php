@@ -6,7 +6,6 @@ class Table {
   public $properties = array();
   public $ground;
   public $db_name;
-  
   public static $types = array(
       'INT' => 'int',
       'TINYINT' => 'bool',
@@ -61,7 +60,7 @@ class Table {
       if ($name == $primary_key) {
         if (strstr($type, 'INT'))
           $field_sql .= ' AUTO_INCREMENT';
-        
+
         $keys[] = "PRIMARY KEY (`$name`)\n";
       }
 
@@ -110,6 +109,13 @@ class Table {
     }
 
     return $result;
+  }
+
+  static function exists($db, $name) {
+    $name = preg_replace('/[^\w]/', '', $name);
+    $result = $db->query_values("SHOW TABLES LIKE '$name'");
+    print "SHOW TABLES LIKE '$name'";
+    return count($result) > 0;
   }
 
   function load_from_database() {
