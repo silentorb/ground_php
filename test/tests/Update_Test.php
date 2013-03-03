@@ -3,6 +3,7 @@
 class Update_Test extends Ground_Test_Case {
   function setUp() {
     parent::setUp();
+    $this->fixture->load_schemas();
     $this->trellis = $this->ground->trellises['vineyard_trellis'];
   }
 

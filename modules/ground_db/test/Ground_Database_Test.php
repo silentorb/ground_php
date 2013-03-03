@@ -3,6 +3,7 @@
 class Ground_Database_Test extends Ground_Test_Case {
   function setUp() {
     parent::setUp();
+    $this->fixture->load_schemas();
     $this->db = $this->ground->db;
   }
 
@@ -24,7 +25,7 @@ class Ground_Database_Test extends Ground_Test_Case {
   function test_create_tables() {
     $this->db->create_tables($this->ground->trellises);
     $count = count($this->db->get_tables());
-    $this->assertEquals(2, $count, "Database has 2 tables.");
+    $this->assertEquals(7, $count, "Database has 2 tables.");
   }
 
   function test_queries() {

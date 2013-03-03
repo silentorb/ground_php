@@ -73,8 +73,6 @@ class Ground extends Meta_Object {
       $this->db->connect($database);
     }
     $path = drupal_get_path('module', 'ground_php');
-    $this->load_schema_from_file($path . '/vineyard.json');
-
     $this->listen($this, 'connect.query', 'on_connect_query');
     $this->load_property_types($path . '/property_types.json');
   }
