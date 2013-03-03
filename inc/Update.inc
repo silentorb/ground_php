@@ -67,7 +67,7 @@ class Update extends Meta_Object {
     $value_string = implode(', ', $values);
     $sql = 'INSERT INTO ' . $trellis->get_table_name() . " ($field_string) VALUES ($value_string);\n";
     $this->invoke('created', $this->seed, $trellis);
-    echo $sql;
+//    echo $sql;
     $this->db->query($sql);
 
     // Hard coding conversion to int is a quick fix hack.  Eventually

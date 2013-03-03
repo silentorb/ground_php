@@ -12,8 +12,10 @@ class Query {
   public $links = array();
   public $trellis;
   public $db;
+  public $include_links = false;
+  public $base_path;
 
-  public function __construct($trellis, $include_links = true) {
+  public function __construct($trellis, $include_links = true, $base_path = '') {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
       $x = $x;
       throw new Exception('An invalid trellis was passed to the Query constructor.');
@@ -22,16 +24,27 @@ class Query {
     $this->ground = $this->trellis->ground;
     $this->db = $this->ground->db;
     $this->main_table = $trellis->get_table_name();
+    $this->base_path = $base_path;
     $this->add_source($trellis);
-    if ($include_links) {
-      $current_trellis = $trellis;
-      do {
-        foreach ($current_trellis->links as $link) {
-          $this->add_link($link);
+    if (is_array($include_links))
+      $this->include_links = $include_links;
+
+    $current_trellis = $trellis;
+    do {
+      $links = $current_trellis->get_links();
+      foreach ($links as $link) {
+        if (is_array($include_links)) {
+          if (in_array($link->name, $include_links))
+            $this->add_link($link);
+        }
+        else {
+          if ($include_links || $this->has_expansion($link)) {
+            $this->add_link($link);
+          }
         }
       }
-      while ($current_trellis = $current_trellis->parent);
     }
+    while ($current_trellis = $current_trellis->parent);
   }
 
   function add_source($source, $include_primary_key = true) {
@@ -218,7 +231,9 @@ class Query {
     foreach ($this->links as $name => $link) {
       $property = $link->property;
       $id = $row->{$property->parent->primary_key};
-      $other_property = $link->other->get_link_property($property->parent);
+      //$other_property = $link->other->get_link_property($property->parent);
+      $other_property = $property->get_other_property();
+
       if ($other_property === null)
         throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other->name . '.');
 
@@ -238,7 +253,7 @@ class Query {
   }
 
   function get_many_to_many_list($id, $property, $other_property, $other_table) {
-    $query = $this->ground->create_query($other_table, false);
+    $query = $this->ground->create_query($other_table, false, $this->get_path($this->trellis->name, $property->name));
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
     $join_sql = $join->generate_join($id);
@@ -247,13 +262,13 @@ class Query {
   }
 
   function get_one_to_many_list($id, $property, $other_property, $other_table) {
-    $query = $this->ground->create_query($other_table, false);
+    $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($this->trellis->name, $property->name));
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
   }
 
   function get_reference_object($row, $property, $other_table) {
-    $query = $this->ground->create_query($other_table, false);
+    $query = $this->ground->create_query($other_table, false, $this->get_path($this->trellis->name, $property->name));
     if (!isset($row->{$property->name})) {
       return null;
 //      throw new Exception("Query result does not have $property->name.");
@@ -261,6 +276,27 @@ class Query {
     $query->add_filter($other_table->query_primary_key() . ' = ' . $row->{$property->name});
     $objects = $query->run();
     return $objects[0];
+  }
+
+  function get_path($first = null, $second = null) {
+    $items = array();
+    if ($this->base_path)
+      $items[] = $this->base_path;
+    
+    if ($first)
+      $items[] = $first;
+
+    if ($second)
+      $items[] = $second;
+    
+    return implode('.', $items);
+  }
+
+  function has_expansion($property) {
+//    if (!$this->base_path)
+//      return false;
+    $path = $this->get_path($property->name);
+    return in_array($path, $this->ground->expansions);
   }
 
   function post_process_result($result) {

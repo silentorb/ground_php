@@ -1,14 +1,6 @@
 <?php
 
-class Ground_Test extends Ground_Test_Fixtures {
-  function setUp() {
-    $this->ground = new Ground('ground_test');
-  }
-
-//  function test_parent_associations() {
-//    $this->fixture_load_schemas();
-//    
-//  }
+class Ground_Test extends Ground_Test_Case {
 
   function test_initialization() {
     $this->assertArrayHasKey('vineyard_trellis', $this->ground->trellises);

@@ -1,10 +1,10 @@
 <?php
 
-class Query_Test extends Ground_Test_Fixtures {
+class Query_Test extends Ground_Test_Case {
 
   function setUp() {
     parent::setUp();
-    $this->fixture_populate_database();
+    $this->fixture->populate_database();
   }
 
   function test_select() {
@@ -25,14 +25,14 @@ class Query_Test extends Ground_Test_Fixtures {
   // access it from either direction.
   function test_one_way_reference() {
     // Warrior has no reciprical connection to achievement.
-    $this->ninja_bob = $this->insert_object('achievement', array(
+    $this->fixture->insert_object('achievement', array(
         'name' => 'Slay 10000 Hoarse Radishes',
-        'warrior' => $this->ninja_bob->id,
+        'parent' => $this->fixture->ninja_bob->id,
             ));
 
     $objects = $this->ground->create_query('achievement')->run();
     $this->assertEquals(1, count($objects));
-    $this->assertEquals('Bob', $objects[0]->warrior->name);
+    $this->assertEquals('Bob', $objects[0]->parent->name);
   }
 
 }

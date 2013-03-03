@@ -42,6 +42,42 @@ function ground_php_model() {
   print $ground->to_json();
 }
 
+function ground_php_get() {
+  // For some reason I was having a problem with the typical Drupal routing and just did this for now.
+  // It's more flexible if I want to get fancy with the REST.
+  $trellis = arg(1);
+  
+  if ($trellis === null)
+    throw new Exception('No trellis was specified.');
+  
+   $ground = ground_php_initialize_ground();
+
+  if (!$ground)
+    throw new Exception('Ground not initialized.');
+
+  if (!$ground->db)
+    throw new Exception('Ground DB not initialized.');
+
+  $query = $ground->create_query($trellis);
+
+  if (arg(2)) {
+      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) arg(2));
+  }
+  
+  // Currently only works for int types.
+  foreach ($_GET as $key => $value) {
+    if (array_key_exists($key, $query->trellis->properties)) {
+      $property = $query->trellis->properties[$key];      
+      $query->add_filter($query->trellis->get_table_name() . '.' . $property->get_field_name() . ' = ' . (int) $value);
+    }
+  }
+  //$query->add_post('ORDER BY name');
+
+  $result = $query->run_as_service(true);
+  drupal_set_header('Content-Type: application/json');
+  print json_encode($result);
+}
+
 function ground_php_update() {
   if (isset($_POST['objects'])) {
     $objects = $_POST['objects'];
@@ -67,36 +103,4 @@ function ground_php_update() {
     $result->success = false;
   }
   drupal_json($result);
-}
-
-function ground_php_get() {
-  // For some reason I was having a problem with the typical Drupal routing and just did this for now.
-  // It's more flexible if I want to get fancy with the REST.
-  $trellis = arg(1);
-  
-  if ($trellis === null)
-    throw new Exception('No trellis was specified.');
-  
-   $ground = ground_php_initialize_ground();
-
-  if (!$ground)
-    throw new Exception('Ground not initialized.');
-
-  if (!$ground->db)
-    throw new Exception('Ground DB not initialized.');
-
-  $query = $ground->create_query($trellis);
-
-  // Currently only works for int types.
-  foreach ($_GET as $key => $value) {
-    if (array_key_exists($key, $query->trellis->properties)) {
-      $property = $query->trellis->properties[$key];      
-      $query->add_filter($query->trellis->get_table_name() . '.' . $property->get_field_name() . ' = ' . (int) $value);
-    }
-  }
-  //$query->add_post('ORDER BY name');
-
-  $result = $query->run_as_service(true);
-  drupal_set_header('Content-Type: application/json');
-  print json_encode($result);
 }

@@ -1,10 +1,10 @@
 <?php
 
-class CCK_Test extends Drupal_Test_Fixtures {
+class CCK_Test extends Drupal_Test_Case {
   function setUp() {
-    $this->ground = new Ground('ground_test');
+    parent::setUp();
+    $this->fixture->prepare_database();
     $this->ground->add_module('Ground_Drupal');
-    $this->prepare_database();
     $drupal_ground = $this->drupal_ground = new Ground('ground_drupal');
     $this->drupal = $drupal_ground->add_module('Ground_Drupal');
     $this->cck = $drupal_ground->add_module('CCK');
@@ -65,15 +65,16 @@ class CCK_Test extends Drupal_Test_Fixtures {
   }
 
   function test_add_objects() {
+    $this->fixture->prepare_database();
     $this->cck->add_content_types($this->ground);
     $this->ground->db->create_tables($this->cck->trellises);
     Ground_Drupal::add_user($this->ground, 'Ninja Bird', 'secret', 'ninja@nest.com');
 
-    $this->insert_object('lair', array(
+    $this->fixture->insert_object('lair', array(
         'title' => 'The Dark Cave',
     ));
 
-    $this->ogre = $this->insert_object('monster', array(
+    $this->ogre = $this->fixture->insert_object('monster', array(
         'title' => 'Ugh',
         'teeth' => 12,
         'lair' => 1,
