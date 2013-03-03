@@ -1,18 +1,18 @@
 {
   "tables": {
     "warrior": {
-       "properties": {
-         "age": {
-           "name": "warrior_age"
-         }
-       },
+      "properties": {
+        "age": {
+          "name": "warrior_age"
+        }
+      },
       "indexes": {
-       "test_index": {
-         "fields": [
+        "test_index": {
+          "fields": [
           "race",
           "age"
-         ]
-       }
+          ]
+        }
       }
     },
     "base" : {
@@ -35,6 +35,10 @@
         "inventory": {
           "type": "list",
           "trellis": "character_item"
+        },
+        "deeds": {
+          "type": "list",
+          "trellis": "deed"
         }
       }
     },
@@ -65,7 +69,17 @@
     "achievement": {
       "parent": "base",
       "properties": {
-        "warrior": {
+        "parent": {
+          "note": "Test for no reciprical reference.",
+          "type": "reference",
+          "trellis": "warrior"
+        }
+      }
+    },
+    "deed": {
+      "parent": "base",
+      "properties": {
+        "parent": {
           "note": "Test for no reciprical reference.",
           "type": "reference",
           "trellis": "warrior"

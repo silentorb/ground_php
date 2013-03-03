@@ -62,12 +62,11 @@ class Ground extends Meta_Object {
   public static $vineyard_ground;
   // This is not used directly in this class but by ground.module
   public static $default_database = 'ground_test';
-
   // For general queries, this is an array of object relational paths
   // that point to references that should be expanded to full objects instead of
   // simply an id.  Sort of like explicit lazy loading.
   public $expansions = array();
-  
+
   public function __construct($database = null) {
     if ($database) {
       $this->db = new Ground_Database();
@@ -312,22 +311,28 @@ SQL;
     return null;
   }
 
+  // Deprecated in favor of update_object():
   function insert_object($trellis, $data = array()) {
-    if (!$trellis)
-      throw new Exception("insert_object called with undefined trellis.");
+    return $this->update_object($trellis, $data);
+  }
 
-    if (is_string($trellis)) {
-      $trellis_name = $trellis;
-      $trellis = $this->trellises[$trellis_name];
-      if (!$trellis)
-        throw new Exception("Trellis $trellis_name not found.");
+  function update_object($trellis, $data = null) {
+    $trellis = $this->sanitize_trellis_argument($trellis);
+    
+    // If $data is an object than it is a list of links to delete
+    // which will be handled by Update.
+    // If $data is simply TRUE than the object itself is marked for deletion.
+    if ($data->_deleted && !is_object($data->_deleted)) {
+      $delete = new Delete();
+      $delete->run($trellis, $data);
     }
-
-    $object = $trellis->create_object();
-    MetaHub::extend($object, $data);
-    $update = new Update($trellis, $object, $this);
-    $result = $update->run();
-    return $object;
+    else {
+      $object = $trellis->create_object();
+      MetaHub::extend($object, $data);
+      $update = new Update($trellis, $object, $this);
+      $result = $update->run();
+      return $object;
+    }
   }
 
   public function prepare_for_serialization() {
@@ -346,6 +351,20 @@ SQL;
   public function to_json() {
     $result = $this->prepare_for_serialization();
     return json_encode($result);
+  }
+
+  private function sanitize_trellis_argument($trellis) {
+    if (!$trellis)
+      throw new Exception("insert_object called with undefined trellis.");
+
+    if (is_string($trellis)) {
+      $trellis_name = $trellis;
+      $trellis = $this->trellises[$trellis_name];
+      if (!$trellis)
+        throw new Exception("Trellis $trellis_name not found.");
+    }
+
+    return $trellis;
   }
 
 }

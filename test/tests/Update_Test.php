@@ -18,10 +18,12 @@ class Update_Test extends Ground_Test_Case {
 
   function test_update_object_reference() {
     $this->fixture->populate_database();
-    $this->fixture->insert_object('character_item', array(
+    $axe = $this->fixture->insert_object('character_item', array(
         'name' => 'axe',
         'owner' => $this->fixture->ninja_bob,
-    ));
+            ));
+
+    $this->assertEquals(2, $axe->id);
 
     $query = $this->ground->create_query('character_item');
     $result = $query->run_as_service();
