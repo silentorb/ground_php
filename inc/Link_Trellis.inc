@@ -15,12 +15,12 @@ class Link_Trellis {
 
   public function generate_join($id) {
     $sql = "JOIN %table_name ON %table_name.%first_key = $id" .
-            " AND %table_name.%second_key = %second_id\n";
+            " AND %table_name.%second_key = %back_id\n";
     return $this->populate_sql($sql);
   }
 
   public function generate_delete_row($first_id, $second_id) {
-    $sql = "DELETE FROM %table_name WHERE %table_name.%first_key = %second_id" .
+    $sql = "DELETE FROM %table_name WHERE %table_name.%first_key = $second_id" .
             " AND %table_name.%second_key = %first_id\n";
     return $this->populate_sql($sql);
   }
@@ -39,10 +39,11 @@ class Link_Trellis {
 
     return array(
         '%first_id' => $property->query(),
-        '%second_id' => $id = $other_property->query(),
+        '%second_id' => $other_property->query(),
         '%table_name' => $this->table_name,
         '%first_key' => $property->parent->name . $this->id_suffix,
         '%second_key' => $other_property->parent->name . $this->id_suffix,
+        '%back_id' => $other_property->parent->get_table_name() . '.' . $other_property->parent->primary_key,
     );
   }
 
