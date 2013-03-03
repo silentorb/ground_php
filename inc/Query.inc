@@ -113,9 +113,9 @@ class Query {
     $link->property = $property;
     $this->links[$property->name] = $link;
 
-    if ($property->type == 'reference') {
-      $this->add_field($property->get_field_name() . " AS `$property->name`");
-    }
+//    if ($property->type == 'reference') {
+//      $this->add_field($property->get_field_name() . " AS `$property->name`");
+//    }
   }
 
   function add_links($paths) {
