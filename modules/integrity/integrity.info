@@ -1,0 +1,7 @@
+name = Integrity
+description = A collection of Ground functions for ensuring the integrity of your database.
+core = 6.x
+package = Silent Orb
+php = 5.3
+
+files[] = inc/Integrity.inc

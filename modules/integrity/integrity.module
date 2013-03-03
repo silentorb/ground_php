@@ -1,0 +1,18 @@
+<?php
+
+function integrity_menu() {
+  $items['integrity/tables/create'] = array(
+      'title' => 'Create Missing Vineyard Tables',
+      'page callback' => 'integrity_create_tables',
+      'access callback' => 'user_access',
+      'access arguments' => array('administer site configuration'),
+      'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+function integrity_create_tables() {
+  $ground = ground_php_initialize_ground();
+  $integrity = $ground->add_module('Integrity');
+  $integrity->create_missing_tables();  
+}
