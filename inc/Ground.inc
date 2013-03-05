@@ -316,7 +316,7 @@ SQL;
 
   function update_object($trellis, $data = null) {
     $trellis = $this->sanitize_trellis_argument($trellis);
-    
+
     // If $data is an object than it is a list of links to delete
     // which will be handled by Update.
     // If $data is simply TRUE than the object itself is marked for deletion.
@@ -330,6 +330,13 @@ SQL;
       $update = new Update($trellis, $object, $this);
       $result = $update->run();
       return $object;
+    }
+  }
+
+  function update_objects($objects) {
+    foreach ($objects as $seed) {
+      $seed = (object) $seed;
+      $result = $this->update_object($seed->trellis, $seed);
     }
   }
 

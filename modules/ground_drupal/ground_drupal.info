@@ -7,3 +7,4 @@ php = 5.3
 files[] = inc/Ground_Drupal.inc
 files[] = inc/CCK.inc
 files[] = inc/CCK_Link.inc
+files[] = inc/Content_Query.inc

@@ -9,9 +9,10 @@ class Update extends Meta_Object {
   public $main_table = 'node';
   public $ground;
   public $db;
+  static public $log_queries = false;
 
   public function __construct($trellis, $seed, $ground = null) {
-    $this->seed = (object)$seed;
+    $this->seed = (object) $seed;
     if (is_string($trellis)) {
       if ($ground)
         $this->trellis = $ground->trellises[$trellis];
@@ -67,7 +68,9 @@ class Update extends Meta_Object {
     $value_string = implode(', ', $values);
     $sql = 'INSERT INTO ' . $trellis->get_table_name() . " ($field_string) VALUES ($value_string);\n";
     $this->invoke('created', $this->seed, $trellis);
-//    echo $sql;
+    if (Update::$log_queries)
+      echo $sql . "\n";
+
     $this->db->query($sql);
 
     // Hard coding conversion to int is a quick fix hack.  Eventually
@@ -107,6 +110,9 @@ WHERE $primary_key = $id
 
 SQL;
 
+    if (Update::$log_queries)
+      echo $sql . "\n";
+    
     $this->db->query($sql);
     $this->update_links($trellis, $id);
     $this->invoke('updated', $this->seed, $trellis);
@@ -168,7 +174,7 @@ SQL;
       $list = $this->seed->{$property->name};
       if (!$list)
         continue;
-      
+
       $other_property = $property->get_other_property();
       if ($other_property->type != 'list')
         continue;

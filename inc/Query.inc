@@ -14,6 +14,7 @@ class Query {
   public $db;
   public $include_links = false;
   public $base_path;
+  static public $log_queries = false;
 
   public function __construct($trellis, $include_links = true, $base_path = '') {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
@@ -169,7 +170,9 @@ class Query {
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
-//    echo $sql . "\n\n";
+    if (Query::$log_queries)
+      echo $sql . "\n\n";
+    
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
       $this->process_row($row);
@@ -282,13 +285,13 @@ class Query {
     $items = array();
     if ($this->base_path)
       $items[] = $this->base_path;
-    
+
     if ($first)
       $items[] = $first;
 
     if ($second)
       $items[] = $second;
-    
+
     return implode('.', $items);
   }
 

@@ -3,6 +3,9 @@
 class Ground_Drupal extends Ground_Module {
   function initialize($ground) {
     parent::initialize($ground);
+    $info = new stdClass();
+    $info->parent = 'int';
+    $this->ground->property_types['file'] = new Property_Type('file', $info, $this->ground->property_types);
     $path = drupal_get_path('module', 'ground_drupal');
     $this->ground->load_schema_from_file($path . '/ground_drupal.json');
   }
@@ -23,4 +26,9 @@ class Ground_Drupal extends Ground_Module {
     $ground->load_schema_from_file($path . '/' . $filename);
   }
 
+  static function copy_nodes($source, $target) {
+    $query = new Content_Query($source->trellises['node']);
+    $objects = $query->run();    
+    $target->update_objects($objects);    
+  }
 }

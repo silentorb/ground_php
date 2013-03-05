@@ -114,7 +114,6 @@ class Table {
   static function exists($db, $name) {
     $name = preg_replace('/[^\w]/', '', $name);
     $result = $db->query_values("SHOW TABLES LIKE '$name'");
-    print "SHOW TABLES LIKE '$name'";
     return count($result) > 0;
   }
 
