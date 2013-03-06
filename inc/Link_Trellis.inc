@@ -12,6 +12,15 @@ class Link_Trellis {
     $this->property = $property;
     $this->args = $this->get_arguments($property);
   }
+  
+  public function create_trellis() {
+    $trellis = new Trellis($this->table_name);
+    $attributes = new stdClass();
+    $attributes->type = 'int';
+    $trellis->add_property($this->args['%first_key'], $attributes);
+    $trellis->add_property($this->args['%second_key'], $attributes);
+    return $trellis;
+  }
 
   public function generate_join($id) {
     $sql = "JOIN %table_name ON %table_name.%first_key = $id" .

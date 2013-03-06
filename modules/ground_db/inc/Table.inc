@@ -45,6 +45,17 @@ class Table {
     return $table;
   }
 
+  public static function create_from_join($join, $ground = null) {
+    if ($join->table)
+      return $join->table;
+
+    if (!$ground)
+      $ground = $join->ground;
+
+    $table = new Table($join->table_name, $ground);
+    return $table;
+  }
+
   public static function create_sql_from_array($table_name, $source, $primary_key) {
     $keys = array();
     $fields = array();

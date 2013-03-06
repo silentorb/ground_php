@@ -34,7 +34,7 @@ class Ground_Database {
   function create_table($trellis) {
     if (!$trellis)
       throw new Exception('create_table() was passed a null value for $trellis.');
-    
+
     $table = Table::create_from_trellis($trellis);
     $sql = $table->create_sql_from_trellis();
 //    print $sql;
@@ -48,6 +48,19 @@ class Ground_Database {
   function create_tables($trellises) {
     foreach ($trellises as $trellis) {
       $this->create_table($trellis);
+
+      $links = $trellis->get_links();
+      foreach ($links as $link) {
+        if ($link->type == 'list') {
+          $other_property = $link->get_other_property();
+          if ($other_property && $other_property->type == 'list') {
+            $link_class = $link->get_link_class();
+            $join = new $link_class($link);
+            $join_trellis = $join->create_trellis();
+            $this->create_table($join_trellis);
+          }
+        }
+      }
     }
   }
 
