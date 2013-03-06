@@ -1,0 +1,40 @@
+{
+  "number_integer": [
+  {
+    "type": "int",
+    "name": "value"
+  }
+  ],
+  "nodereference": [
+  {
+    "type": "reference",
+    "name": "nid"
+  }
+  ],
+  "userreference": [
+  {
+    "type": "reference",
+    "name": "uid"
+  }
+  ],
+  "filefield": [
+  {
+    "name": "fid",
+    "type": "file"
+  },
+  {
+    "name": "list",
+    "type": "int"
+  },
+  {
+    "name": "data",
+    "type": "string"
+  }
+  ],
+  "text": [
+  {
+    "type": "string",
+    "suffix": "value"
+  }
+  ]
+}

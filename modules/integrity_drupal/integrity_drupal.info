@@ -1,0 +1,7 @@
+name = Integrity
+description = Drupal specific extensions to Integrity
+core = 6.x
+package = Silent Orb
+php = 5.3
+
+files[] = inc/Integrity_Drupal.inc
