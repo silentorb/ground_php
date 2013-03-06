@@ -79,8 +79,12 @@ class Table {
     }
 
     // Currently can't create a table without fields.  Seems reasonable enough.
-    if (count($fields) == 0)
-      return;
+    if (count($fields) == 0) {
+      if (count($source) > 0)
+        throw new Exception("None of the field arguments for creating $table_name have a type.");
+      else
+        throw new Exception("Cannot create a table without fields: $table_name.");
+    }
 
     $fields = array_merge($fields, $keys);
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $table_name . "` (\n";
@@ -90,8 +94,14 @@ class Table {
     return $sql;
   }
 
-  public function create_sql_from_trellis() {
-    $trellis = $this->trellis;
+  public function create_sql_from_trellis($trellis) {
+    if (!$trellis) {
+      if (!$this->trellis)
+        throw new Exception("No valid trellis to generate sql from.");
+
+      $trellis = $this->trellis;
+    }
+
     $core_properties = $trellis->get_core_properties();
     if (count($core_properties) == 0) {
       throw new Exception("Cannot create a table for $trellis->name.  $trellis->name does not have any core properties.");
@@ -168,8 +178,7 @@ class Table {
         $index->collation = $row->Collation;
         $index->cardinality = $row->Cardinality;
         $index->index_type = $row->Index_Type;
-      }
-      else {
+      } else {
         $index = $result[$name];
       }
 
@@ -197,6 +206,7 @@ class Table {
   /* Example:
     Table::get_vineyard_json('dbname', 'table_name');
    */
+
   static function get_vineyard_json($database_name, $table_name) {
     $ground = new Ground($database_name);
     $table = new Table($table_name, $ground);

@@ -36,7 +36,8 @@ class Ground_Database {
       throw new Exception('create_table() was passed a null value for $trellis.');
 
     $table = Table::create_from_trellis($trellis);
-    $sql = $table->create_sql_from_trellis();
+    echo $trellis->name . "\n";
+    $sql = $table->create_sql_from_trellis($trellis);
 //    print $sql;
     if ($sql == '') {
       throw new Exception("No Create SQL was generated for $trellis->name.");
