@@ -31,10 +31,16 @@
     "type": "string"
   }
   ],
+  "location": [
+  {
+    "type": "reference",
+    "name": "lid"
+  }
+  ],
   "text": [
   {
     "type": "string",
-    "suffix": "value"
+    "name": "value"
   }
   ]
 }

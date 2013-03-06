@@ -13,8 +13,9 @@ class Link_Trellis {
     $this->args = $this->get_arguments($property);
   }
   
-  public function create_trellis() {
-    $trellis = new Trellis($this->table_name);
+  public function create_trellis($ground) {
+    $trellis = new Trellis($this->args['%table_name'], $ground);
+    $trellis->plural = $trellis->name;
     $attributes = new stdClass();
     $attributes->type = 'int';
     $trellis->add_property($this->args['%first_key'], $attributes);

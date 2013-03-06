@@ -15,6 +15,35 @@
     }
   },
   "trellises": {
+    "file": {
+      "primary_key": "fid",
+      "properties": {
+        "fid": {
+          "type": "int"
+        },
+        "uid": {
+          "type": "int"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "filepath": {
+          "type": "string"
+        },
+        "filemime": {
+          "type": "string"
+        },
+        "filesize": {
+          "type": "int"
+        },
+        "status": {
+          "type": "int"
+        },
+        "timestamp": {
+          "type": "datetime"
+        }
+      }
+    },
     "node_revision": {
       "primary_key": "nid",
       "properties": {

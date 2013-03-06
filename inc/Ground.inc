@@ -43,7 +43,7 @@ class Property_Type {
       return $this->parent->get_field_type();
     }
 
-    return null;
+    throw new Exception("$this->name could not find valid field type.");
   }
 
 }

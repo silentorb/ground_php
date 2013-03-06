@@ -53,7 +53,7 @@ class Bloom_Property {
       return $property_type->get_field_type();
     }
 
-    return null;
+    throw new Exception("$this->name could not find valid field type.");
   }
 
   public function get_default() {

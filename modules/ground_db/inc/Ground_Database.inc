@@ -56,8 +56,8 @@ class Ground_Database {
           $other_property = $link->get_other_property();
           if ($other_property && $other_property->type == 'list') {
             $link_class = $link->get_link_class();
-            $join = new $link_class($link);
-            $join_trellis = $join->create_trellis();
+            $join = new $link_class($other_property);
+            $join_trellis = $join->create_trellis($trellis->ground);
             $this->create_table($join_trellis);
           }
         }

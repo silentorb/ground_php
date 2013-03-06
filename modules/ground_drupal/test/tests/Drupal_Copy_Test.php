@@ -12,24 +12,20 @@ class Drupal_Copy_Test extends Drupal_Test_Case {
     $this->fixture->prepare_database();
   }
 
-  function test_cross_table() {
+  function test() {
     $db = $this->ground->db;
     $result = $db->query_values("SHOW TABLES LIKE 'content_field_victims'");
     $this->assertEquals(1, count($result));
-  }
-  
-  function test() {
-    $db = $this->ground->db;
+
     Update::$log_queries = true;
     Ground_Drupal::copy_nodes($this->drupal_ground, $this->ground);
     $query = new Content_Query($this->ground->trellises['node']);
     $objects = $query->run();
-    $this->assertEquals(2, count($objects));
+    $this->assertEquals(3, count($objects));
     $this->assertEquals(1, $objects[0]->image_list);
 
     $count = $db->query_value('SELECT COUNT(*) FROM content_type_monster');
     $this->assertEquals(2, $count);
   }
-
 
 }
