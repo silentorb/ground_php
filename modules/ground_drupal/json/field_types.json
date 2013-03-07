@@ -1,46 +1,47 @@
 {
-  "number_integer": [
+  "number_integer": 
   {
     "type": "int",
-    "name": "value"
-  }
-  ],
-  "nodereference": [
-  {
-    "type": "reference",
-    "name": "nid"
-  }
-  ],
-  "userreference": [
-  {
-    "type": "reference",
-    "name": "uid"
-  }
-  ],
-  "filefield": [
-  {
-    "name": "fid",
-    "type": "file"
+    "suffix": "value"
   },
-  {
-    "name": "list",
-    "type": "int"
-  },
-  {
-    "name": "data",
-    "type": "string"
-  }
-  ],
-  "location": [
-  {
-    "type": "reference",
-    "name": "lid"
-  }
-  ],
-  "text": [
+  "text": 
   {
     "type": "string",
-    "name": "value"
+    "suffix": "value"
+  },
+  "nodereference": {
+    "class": "CCK_Reference",   
+    "trellis": "node",
+    "suffix": "nid",
+    "type": "reference"
+  },
+  "userreference": {
+    "class": "CCK_Reference",   
+    "trellis": "user",
+    "suffix": "uid",
+    "type": "reference"
+  },
+  "location": {
+    "class": "CCK_Reference",   
+    "trellis": "location",
+    "suffix": "lid",
+    "type": "reference"
+  },
+  "filefield": {
+    "class": "CCK_File",
+    "properties": [
+    {
+      "suffix": "fid",
+      "type": "file"
+    },
+    {
+      "suffix": "list",
+      "type": "int"
+    },
+    {
+      "suffix": "data",
+      "type": "string"
+    }
+    ]
   }
-  ]
 }

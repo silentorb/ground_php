@@ -6,6 +6,9 @@ class Table {
   public $properties = array();
   public $ground;
   public $db_name;
+  // Array: An override for Vineyard's single key design.  $primary_keys
+  // mostly just effects table creation.
+  public $primary_keys = null;
   public static $types = array(
       'INT' => 'int',
       'TINYINT' => 'bool',
@@ -56,8 +59,7 @@ class Table {
     return $table;
   }
 
-  public static function create_sql_from_array($table_name, $source, $primary_key) {
-    $keys = array();
+  public static function create_sql_from_array($table_name, $source, $primary_keys) {
     $fields = array();
 
     foreach ($source as $field) {
@@ -68,11 +70,9 @@ class Table {
         continue;
 
       $field_sql = "`$name` $type";
-      if ($name == $primary_key) {
-        if (strstr($type, 'INT'))
+      if (in_array($name, $primary_keys)) {
+        if (strstr($type, 'INT') && $primary_keys[0] == $name)
           $field_sql .= ' AUTO_INCREMENT';
-
-        $keys[] = "PRIMARY KEY (`$name`)\n";
       }
 
       $fields[] = $field_sql;
@@ -86,7 +86,11 @@ class Table {
         throw new Exception("Cannot create a table without fields: $table_name.");
     }
 
-    $fields = array_merge($fields, $keys);
+    $keys = array();
+    foreach ($primary_keys as $key) {
+      $keys[] = "`$key`";
+    }
+    $fields[] = "PRIMARY KEY (" . implode(', ', $keys) . ")\n";
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $table_name . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
 
@@ -108,13 +112,24 @@ class Table {
     }
     $fields = array();
     foreach ($core_properties as $property) {
+      $field = $this->properties[$property->name];
+      
+      // Don't duplicate shared fields.
+      if ($field && $field->share)
+        continue;
+      
       $fields[] = (object) array(
                   'name' => $property->get_field_name(),
                   'type' => $property->get_field_type(),
       );
     }
 
-    return Table::create_sql_from_array($this->name, $fields, $trellis->primary_key);
+    if (is_array($this->primary_keys) && count($this->primary_keys) > 0)
+      $primary_keys = $this->primary_keys;
+    else
+      $primary_keys = array($trellis->primary_key);
+
+    return Table::create_sql_from_array($this->name, $fields, $primary_keys);
   }
 
   static function load_fields($db, $name) {
@@ -178,7 +193,8 @@ class Table {
         $index->collation = $row->Collation;
         $index->cardinality = $row->Cardinality;
         $index->index_type = $row->Index_Type;
-      } else {
+      }
+      else {
         $index = $result[$name];
       }
 
@@ -206,7 +222,6 @@ class Table {
   /* Example:
     Table::get_vineyard_json('dbname', 'table_name');
    */
-
   static function get_vineyard_json($database_name, $table_name) {
     $ground = new Ground($database_name);
     $table = new Table($table_name, $ground);

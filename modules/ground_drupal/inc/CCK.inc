@@ -1,5 +1,7 @@
 <?php
 
+module_load_include('inc', 'ground_drupal', 'inc/CCK_Trellis');
+
 class CCK extends Ground_Module {
 
   public $field_types = array(
@@ -22,30 +24,9 @@ class CCK extends Ground_Module {
     $this->field_types = (array) json_decode($json);
   }
 
-  function create_link($trellis, $name, $ground, $field) {
-    $property = $trellis->add_property($name . '_list', array(
-        'type' => 'list',
-        'trellis' => $name, // No easy way to make this plural.  It's a Drupal problem.
-        'property' => $field->name
-            ));
-
-    $property->override_field('link_class', 'CCK_Link');
-    $property->override_field('name', 'field_' . $field->name . '_value');
-
-    if ($field->multiple) {
-      $this->create_link_table($trellis, $name, $ground, $field);
-    }
-  }
-
-  function create_link_table($trellis, $name, $ground, $field) {
-    // Use the Ground pointing to the Drupal database, not the passed Ground, which could be different
-    $table = new Table('content_field_' . $field->name, $this->ground);
-    $table->load_from_database();
-    $sql = Table::create_sql_from_array($table->name, $table->properties, array());
-    $ground->db->query($sql);
-  }
-
   function add_content_types($ground) {
+    $types = $this->read_cross_tables();
+    $this->convert_cck_joins_to_trellises($types, $ground);
     $types = $this->read_content_types();
     $this->convert_cck_to_trellises($types, $ground);
   }
@@ -59,82 +40,55 @@ class CCK extends Ground_Module {
     if (!$node)
       throw new Exception("Node table missing.  It must be loaded before the CCK tables are loaded.");
 
-    foreach ($content_types as $name => $type) {
-
-      // Create Trellis
-      $trellis = new Trellis($name, $ground);
-      $trellis->set_parent($node);
-      $ground->trellises[$name] = $trellis;
-      $result['trellises'][$name] = $trellis;
-      $this->trellises[$name] = $trellis;
-
-      // Create Table
-      $table = new Table('content_type_' . $name, $ground);
-      $table->connect_trellis($trellis);
-      $ground->tables[$name] = $table;
-      $result['table'][$name] = $table;
-
-      // Create Properties
-      foreach ($type as $field) {
-        $info = $this->field_types[$field->type];
-        if (!$info)
-          throw new Exception("No CCK field info for $field->type.");
-
-        // One CCK field can map to multiple table fields.  Whatever.
-        foreach ($info as $sub_field) {
-          $source = new stdClass();
-          $source->type = $sub_field->type;
-          if ($field->type == 'nodereference') {
-            $source->trellis = 'node';
-            $source->property = $name . '_list';
-            $this->create_link($node, $name, $ground, $field);
-          }
-          else if ($field->type == 'userreference') {
-            $source->trellis = 'user';
-            $source->property = $name . '_list';
-            $this->create_link($ground->trellises['user'], $name, $ground, $field);
-          }
-
-          if ($field->multiple || $field->type == 'userreference')
-            $source->type = 'list';
-
-          $sub_field_name = $field->name;
-          if (count($info) > 1)
-            $sub_field_name = $field->name . '_' . $sub_field->name;
-
-          $property = new Bloom_Property($sub_field_name, $source, $trellis);
-          $trellis->add_property($sub_field_name, $property);
-          $table_property = new stdClass();
-          $table_property->name = 'field_' . $field->name . '_' . $sub_field->name;
-          $table->properties[$sub_field_name] = $table_property;
-
-          if ($field->type == 'nodereference' || $field->type == 'userreference') {
-            $property->override_field('link_class', 'CCK_Link');
-          }
-        }
-      }
+    foreach ($content_types as $name => $fields) {
+      $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_type_');
+      $cck_trellis->trellis->set_parent($node);
+      $cck_trellis->create_properties($fields);
+      $result['trellises'][$name] = $cck_trellis->trellis;
+      $result['tables'][$name] = $cck_trellis->table;
+      $this->trellises[$name] = $cck_trellis->trellis;
     }
     return $result;
   }
 
-  static function get_field_suffix($type) {
-    $types = array(
-        'userreference' => 'uid',
-        'nodereference' => 'nid',
-        'filefield' => 'fid',
-    );
-    if (array_key_exists($type, $types)) {
-      return $types[$type];
+  function convert_cck_joins_to_trellises($content_types, $ground) {
+    if (!$ground)
+      throw new Exception('Invalid Ground Object.');
+
+    $result = array();
+    $node = $ground->trellises['node'];
+    if (!$node)
+      throw new Exception("Node table missing.  It must be loaded before the CCK tables are loaded.");
+
+    foreach ($content_types as $name => $field) {
+
+      $new_field = new stdClass();
+      $new_field->name = $field->name;
+      $new_field->type = $field->type;
+      $cck_trellis = new CCK_Trellis($ground, $field->name, $this->field_types, 'content_field_');
+      $attributes = new stdClass();
+      $attributes->type = 'int';
+      $trellis = $cck_trellis->trellis;
+      $trellis->add_property('nid', $attributes);
+      $trellis->add_property('vid', $attributes);
+      $trellis->add_property('delta', $attributes);
+      
+      // This is not accurate but practical.  CCK's real primary keys are "vid, delta".
+      $cck_trellis->table->primary_keys = array('nid', 'delta');
+      $cck_trellis->create_properties(array($new_field));
+
+      $result['trellises'][$name] = $trellis;
+      $result['tables'][$name] = $cck_trellis->table;
+      $this->trellises[$name] = $trellis;
     }
-
-    return 'value';
+    return $result;
   }
 
-  function load_trellises($ground) {
-    $types = $this->read_content_types();
-    $model = $this->convert_cck_to_trellises($types, $this->ground);
-    $ground->load_trellises($model['trellises']);
-  }
+//  function load_trellises($ground) {
+//    $types = $this->read_content_types();
+//    $model = $this->convert_cck_to_trellises($types, $this->ground);
+//    $ground->load_trellises($model['trellises']);
+//  }
 
   function read_content_types() {
     $sql = <<<SQL
@@ -161,6 +115,30 @@ SQL;
     }
 
     return $content_types;
+  }
+
+  function read_cross_tables() {
+    $sql = <<<SQL
+SELECT
+field.field_name as name,
+field.type,
+field.multiple,
+field.required
+FROM content_node_field field
+WHERE field.multiple = 1
+SQL;
+    $db = $this->ground->db;
+
+    $rows = $db->query_objects($sql);
+    $fields = array();
+
+    // Group the content types
+    foreach ($rows as $field) {
+      $field->name = substr($field->name, 6);
+      $fields[$field->name] = $field;
+    }
+
+    return $fields;
   }
 
 }

@@ -87,6 +87,28 @@ class Ground extends Meta_Object {
     return $module;
   }
 
+  public function add_trellis($name, $object = null, $initialize_parent = true) {
+    if (get_class($object) === 'Trellis') {
+      $trellis = $object;
+      $trellis->ground = $this;
+    }
+    else {
+      $trellis = new Trellis($name, $this);
+      if ($object)
+        $trellis->load_from_object($object);
+      
+      if (!isset($trellis->id)) {
+        $trellis->id = count($this->trellises);
+      }
+    }
+    $this->trellises[$name] = $trellis;
+
+    if ($initialize_parent)
+      $this->initialize_trellises(array($trellis), $this->trellises);
+
+    return $trellis;
+  }
+
   public function on_connect_query($query) {
     $this->listen($query, 'all', 'respond');
   }
@@ -235,25 +257,12 @@ SQL;
 
   public function load_trellises($trellises) {
     $subset = array();
-    foreach ($trellises as $key => $object) {
-      if (get_class($object) === 'Trellis') {
-        $trellis = $object;
-      }
-      else {
-        $trellis = new Trellis($key, $this);
-        $trellis->load_from_object($object);
-        if (!isset($trellis->id)) {
-          $trellis->id = count($this->trellises);
-        }
-      }
-      $this->trellises[$key] = $trellis;
-      $subset[$key] = $trellis;
+    foreach ($trellises as $name => $object) {
+      $trellis = $this->add_trellis($name, $object, false);
+      $subset[$name] = $trellis;
     }
 
     $this->initialize_trellises($subset, $this->trellises);
-
-    if (isset($data->maps))
-      $this->maps = $data->maps;
   }
 
   public function create_query($trellis, $include_links = true, $base_path = '') {

@@ -116,7 +116,7 @@ class Bloom_Property {
     $attributes = new stdClass();
     $attributes->type = "list";
     $attributes->trellis = $other_table->name;
-    $property = new Bloom_Property($other_table->name, $attributes, $this);
+    $property = new Bloom_Property($other_table->name, $attributes, $this->parent);
     return $property;
   }
 
@@ -134,6 +134,10 @@ class Bloom_Property {
       if (isset($field->name)) {
         return $field->name;
       }
+      
+      if (isset($field->share)) {
+        return $field->share;
+      }
     }
 
     return $this->name;
@@ -141,8 +145,9 @@ class Bloom_Property {
 
   public function get_referenced_trellis() {
     $other = $this->parent->ground->trellises[$this->trellis];
-    if (!$other)
+    if (!$other) {
       throw new Exception('Could not find reference to property ' . $this->name . ' for ' . $this->trellis . '.');
+    }
     return $other;
   }
 
@@ -171,7 +176,7 @@ class Trellis {
 
   // It's a lot cleaner and safer to just query the links instead of track them.
 //  public $links = array();
-
+  
   public function __construct($name, $ground) {
     $this->ground = $ground;
     $this->name = $name;
@@ -179,6 +184,10 @@ class Trellis {
   }
 
   public function add_property($name, $source) {
+    if (!$name) {
+      throw new Exception("Attempt to add a property with no name to trellis $this->name.");
+    }
+    
     if (is_array($source))
       $source = (object) $source;
 
@@ -219,6 +228,9 @@ class Trellis {
         $result->{$name} = null;
       }
       else {
+        if (!$name) {
+          throw new Exception();
+        }
         $result->{$name} = $property->get_default();
       }
     }

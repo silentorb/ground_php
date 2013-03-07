@@ -3,8 +3,8 @@
 class Ground_Test extends Ground_Test_Case {
   function test_initialization() {
     $this->fixture->load_schemas();
-    $this->assertArrayHasKey('vineyard_trellis', $this->ground->trellises);
-    $this->assertSame($this->ground, $this->ground->trellises['vineyard_trellis']->ground);
+    $this->assertGreaterThan(0, count($this->ground->trellises));
+     $this->assertEquals('object', gettype($this->ground->trellises['warrior']->parent));
   }
 
   function test_property_types() {
