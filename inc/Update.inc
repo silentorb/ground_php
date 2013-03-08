@@ -58,9 +58,21 @@ class Update extends Meta_Object {
     $values = array();
     $core_properties = $trellis->get_core_properties();
     foreach ($core_properties as $property) {
+
+      // Ignore shared fields
+      $field = $property->get_field_override();
+      if ($field && $field->share)
+        continue;
+
       if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
         $fields[] = '`' . $property->get_field_name() . '`';
-        $values[] = $this->get_field_value($property);
+        $value = $this->get_field_value($property);
+        if (strlen($value) == 0) {
+          $this->get_field_value($property);
+          throw new Exception("Field value was empty for inserting $property->name in $trellis->name.");
+        }
+        
+        $values[] = $value;
       }
     }
 
@@ -88,6 +100,11 @@ class Update extends Meta_Object {
       if ($property->name == $trellis->primary_key || $property->type == 'created')
         continue;
 
+      // Ignore shared fields
+      $field = $property->get_field_override();
+      if ($field && $field->share)
+        continue;
+
       if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
         $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
@@ -112,7 +129,7 @@ SQL;
 
     if (Update::$log_queries)
       echo $sql . "\n";
-    
+
     $this->db->query($sql);
     $this->update_links($trellis, $id);
     $this->invoke('updated', $this->seed, $trellis);
@@ -120,7 +137,6 @@ SQL;
   }
 
   protected function get_field_value($property) {
-    $property_name = $this->trellis->name . '->' . $property->name;
     if ($property->insert_trellis) {
       $value = $this->trellis->name;
     }
@@ -131,6 +147,11 @@ SQL;
     if (is_string($value))
       $value = str_replace("'", "\\'", $value);
 
+    if ($value === true)
+      return 'TRUE';
+    else if ($value === false)
+      return 'FALSE';
+    
     if ($property->type == 'string' || $property->type == 'text') {
       $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
     }
@@ -144,12 +165,7 @@ SQL;
       // !!! Eventually I'll need to check the to see if the other property is
       // using a primary key other than 'id', but this will work for the moment.
       if (is_object($value)) {
-        if (isset($value->id)) {
-          $value = $value->id;
-        }
-        else {
-          throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
-        }
+        $value = $property->get_other_id($value);
       }
     }
 
@@ -169,39 +185,86 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
-      if ($property->type == 'reference')
-        continue;
-      $list = $this->seed->{$property->name};
-      if (!$list)
-        continue;
-
-      $other_property = $property->get_other_property();
-      if ($other_property->type != 'list')
-        continue;
-
-      $link_class = $property->get_link_class();
-      $join = new $link_class($property);
-      $currently_in_table = array();
-
-      if (!$create) {
-        $rows = $join->query_rows($id);
-
-        foreach ($rows as $other_id) {
-          if (!in_array($other_id, $list)) {
-            $this->db->query($join->generate_delete_row($id, $other_id));
-          }
-          else {
-            $currently_in_table[] = $other_id;
-          }
-        }
+      if ($property->type == 'reference') {
+        $this->update_reference($property, $id);
       }
+      else {
+        $other_property = $property->get_other_property();
+        if ($other_property->type == 'list')
+          $this->update_many_to_many($property, $id, $create);
+        else
+          $this->update_one_to_many($property, $id);
+      }
+    }
+  }
 
-      foreach ($list as $other_id) {
-        if (!in_array($other_id, $currently_in_table)) {
-          $this->db->query($join->generate_insert($id, $other_id));
+  protected function update_many_to_many($property, $id, $create = false) {
+    $list = $this->seed->{$property->name};
+    if (!$list)
+      return;
+
+    $link_class = $property->get_link_class();
+    $join = new $link_class($property);
+    $currently_in_table = array();
+
+    if (!$create) {
+      $rows = $join->query_rows($id);
+
+      foreach ($rows as $other_id) {
+        if (!in_array($other_id, $list)) {
+          $this->db->query($join->generate_delete_row($id, $other_id));
+        }
+        else {
+          $currently_in_table[] = $other_id;
         }
       }
     }
+
+    foreach ($list as $other_id) {
+      if (!in_array($other_id, $currently_in_table)) {
+        $this->db->query($join->generate_insert($id, $other_id));
+      }
+    }
+  }
+
+  protected function update_one_to_many($property, $id) {
+    $list = $this->seed->{$property->name};
+    if (!is_array($list))
+      return;
+
+    foreach ($list as $object) {
+      $this->update_reference_object($object, $property, $id);
+    }
+  }
+
+  protected function update_reference($property, $id) {
+    $object = $this->seed->{$property->name};
+    if (is_array($object)) {
+      $object = (object) $object;
+    }
+    else if (!is_object($object)) {
+      return;
+    }
+
+    $this->update_reference_object($object, $property, $id);
+  }
+
+  protected function update_reference_object($object, $property, $id) {
+    if (is_array($object))
+      $object = (object) $object;
+
+    if ($object->trellis) {
+      $trellis = $object->trellis;
+    }
+    else {
+      $trellis = $property->trellis;
+    }
+
+    $other_property = $property->get_other_property();
+    if ($other_property) {
+      $object->{$other_property->name} = $id;
+    }
+    $this->ground->update_object($trellis, $object);
   }
 
   public function run($return_sql = false) {

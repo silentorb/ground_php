@@ -20,15 +20,23 @@ class Ground_Drupal extends Ground_Module {
 
   static function load_module_json($ground, $module_name, $filename = null) {
     $path = drupal_get_path('module', $module_name);
-     if ($filename === null)
-         $filename = $module_name . '.json';
+    if ($filename === null)
+      $filename = $module_name . '.json';
 
     $ground->load_schema_from_file($path . '/' . $filename);
   }
 
   static function copy_nodes($source, $target) {
+    Ground_Drupal::configure_files_expansion($source);
     $query = new Content_Query($source->trellises['node']);
-    $objects = $query->run();    
-    $target->update_objects($objects);    
+    $objects = $query->run();
+    $target->update_objects($objects);
   }
+
+  static function configure_files_expansion($ground) {
+    $expansion = new stdClass();
+    $expansion->pattern = '/.*images_fid/';
+    $ground->expansions[] = $expansion;
+  }
+
 }

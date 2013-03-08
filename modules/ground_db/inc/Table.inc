@@ -10,6 +10,8 @@ class Table {
   // mostly just effects table creation.
   public $primary_keys = null;
   public static $types = array(
+      'CHAR' => 'string',
+      'DECIMAL' => 'decimal',
       'INT' => 'int',
       'TINYINT' => 'bool',
       'SMALLINT' => 'int',

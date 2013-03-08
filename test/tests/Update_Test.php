@@ -17,19 +17,37 @@ class Update_Test extends Ground_Test_Case {
     $this->assertSame(1, $result->seed->id);
   }
 
-  function test_update_object_reference() {
+  function test_insert_object_reference() {
     $this->fixture->populate_database();
     $axe = $this->fixture->insert_object('character_item', array(
         'name' => 'axe',
-        'owner' => $this->fixture->ninja_bob,
+        'owner' => $this->fixture->ninja_bob->id,
             ));
 
     $this->assertEquals(2, $axe->id);
 
-    $query = $this->ground->create_query('character_item');
-    $result = $query->run_as_service();
-    $objects = $result->objects;
+    $objects = $this->ground->create_query('character_item')->run();
     $this->assertEquals(1, $objects[1]->owner->id);
+
+    // Insert Embedded Object
+    $this->cyborg = $this->fixture->insert_object('warrior', array(
+        'name' => 'Cirguit',
+        'race' => 'cyborg',
+        'age' => 1,
+        'inventory' => array(
+            array(
+                'name' => 'laser',
+            )
+        )
+            ));
+
+    $objects = $this->ground->create_query('character_item')->run();
+    $this->assertEquals('laser', $objects[2]->name);
+    $this->assertEquals(2, $objects[2]->owner->id);
+    
+    $objects = $this->ground->create_query('warrior')->run();    
+    $this->assertGreaterThan(1, count($objects));
+    $this->assertEquals('object', gettype($objects[1]->inventory[0]));
   }
 
 }

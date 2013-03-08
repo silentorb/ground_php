@@ -32,7 +32,8 @@
     "properties": [
     {
       "suffix": "fid",
-      "type": "file"
+      "type": "reference",
+      "trellis": "file"
     },
     {
       "suffix": "list",

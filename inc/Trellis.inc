@@ -134,7 +134,7 @@ class Bloom_Property {
       if (isset($field->name)) {
         return $field->name;
       }
-      
+
       if (isset($field->share)) {
         return $field->share;
       }
@@ -149,6 +149,16 @@ class Bloom_Property {
       throw new Exception('Could not find reference to property ' . $this->name . ' for ' . $this->trellis . '.');
     }
     return $other;
+  }
+
+  public function get_other_id($object) {
+    $trellis = $this->get_referenced_trellis();
+    if (isset($object->{$trellis->primary_key})) {
+      return $object->{$trellis->primary_key};
+    }
+    
+    $property_name = $this->parent->name . '->' . $this->name;
+    throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
   }
 
   public function override_field($attribute, $value) {
@@ -176,7 +186,7 @@ class Trellis {
 
   // It's a lot cleaner and safer to just query the links instead of track them.
 //  public $links = array();
-  
+
   public function __construct($name, $ground) {
     $this->ground = $ground;
     $this->name = $name;
@@ -187,7 +197,7 @@ class Trellis {
     if (!$name) {
       throw new Exception("Attempt to add a property with no name to trellis $this->name.");
     }
-    
+
     if (is_array($source))
       $source = (object) $source;
 

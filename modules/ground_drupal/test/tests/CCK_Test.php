@@ -28,6 +28,11 @@ class CCK_Test extends Drupal_Test_Case {
     $this->assertArrayNotHasKey('', $result['trellises']['images']->properties);
     $this->assertArrayHasKey('images_data', $result['trellises']['images']->properties);
     $this->assertArrayHasKey('victims', $this->ground->trellises);
+
+    // Second Level Reference
+    $images = $result['trellises']['images'];
+    $this->assertEquals('reference', $images->properties['images_fid']->type);
+    $this->assertEquals('file', $images->properties['images_fid']->trellis);
   }
 
   function test_convert_cck_to_trellises() {
@@ -39,7 +44,7 @@ class CCK_Test extends Drupal_Test_Case {
     $this->assertEquals('content_type_monster', $trellis->get_table_name());
     $this->assertEquals('content_type_monster', $trellis->get_table_name());
     $this->assertGreaterThan(0, count($trellis->properties));
-       
+
     // Table
     $this->assertArrayHasKey('monster', $result['tables']);
     $this->assertArrayHasKey('teeth', $result['tables']['monster']->properties);
