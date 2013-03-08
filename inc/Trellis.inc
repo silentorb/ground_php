@@ -1,5 +1,9 @@
 <?php
 
+define("RELATIONSHIP_ONE_TO_ONE", 1);
+define("RELATIONSHIP_ONE_TO_MANY", 2);
+define("RELATIONSHIP_MANY_TO_MANY", 3);
+
 class Bloom_Property {
 
   public $name;
@@ -134,7 +138,7 @@ class Bloom_Property {
       if (isset($field->name)) {
         return $field->name;
       }
-      
+
       if (isset($field->share)) {
         return $field->share;
       }
@@ -149,6 +153,36 @@ class Bloom_Property {
       throw new Exception('Could not find reference to property ' . $this->name . ' for ' . $this->trellis . '.');
     }
     return $other;
+  }
+
+  public function get_relationship() {
+
+    // First see if the table field tells us the relationship.
+    $field = $this->get_field_override();
+    if ($field && isset($field->relationship)) {
+      switch ($field->relationship) {
+        case 'one-to-one':
+          return RELATIONSHIP_ONE_TO_ONE;
+        case 'one-to-many':
+          return RELATIONSHIP_ONE_TO_MANY;
+        case 'many-to-many':
+          return RELATIONSHIP_MANY_TO_MANY;
+      }
+    }
+
+    // Otherwise, infer it from the property on the other side of the connection.
+    $other_property = $this->get_other_property();
+    if ($other_property === null)
+      throw new Exception($this->parent->name . '->' . $this->name . ' does not have a reciprocal reference on ' . $link->other->name . '.');
+
+    if ($this->type == 'list' && $other_property->type == 'list') {
+      return RELATIONSHIP_MANY_TO_MANY;
+    }
+    else if ($this->type == 'list') {
+      return RELATIONSHIP_ONE_TO_MANY;
+    }
+
+    return RELATIONSHIP_ONE_TO_ONE;
   }
 
   public function override_field($attribute, $value) {
@@ -176,7 +210,7 @@ class Trellis {
 
   // It's a lot cleaner and safer to just query the links instead of track them.
 //  public $links = array();
-  
+
   public function __construct($name, $ground) {
     $this->ground = $ground;
     $this->name = $name;
@@ -187,7 +221,7 @@ class Trellis {
     if (!$name) {
       throw new Exception("Attempt to add a property with no name to trellis $this->name.");
     }
-    
+
     if (is_array($source))
       $source = (object) $source;
 

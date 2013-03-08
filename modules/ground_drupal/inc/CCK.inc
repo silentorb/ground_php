@@ -71,10 +71,15 @@ class CCK extends Ground_Module {
       $trellis = $cck_trellis->trellis;
       $trellis->add_property('nid', $attributes);
       $trellis->add_property('vid', $attributes);
-      $trellis->add_property('delta', $attributes);
-      
+
       // This is not accurate but practical.  CCK's real primary keys are "vid, delta".
-      $cck_trellis->table->primary_keys = array('nid', 'delta');
+      if ($field->multiple) {
+        $trellis->add_property('delta', $attributes);
+        $cck_trellis->table->primary_keys = array('nid', 'delta');
+      }
+      else {
+        $trellis->primary_key = 'nid';
+      }
       $cck_trellis->create_properties(array($new_field));
 
       $result['trellises'][$name] = $trellis;
@@ -96,6 +101,7 @@ SELECT
 info.field_name as name,
 info.type,
 info.multiple,
+info.db_storage,
 info.required,
 instance.type_name as trellis
 FROM content_node_field_instance instance
@@ -123,9 +129,10 @@ SELECT
 field.field_name as name,
 field.type,
 field.multiple,
+field.db_storage,
 field.required
 FROM content_node_field field
-WHERE field.multiple = 1
+WHERE field.db_storage = 0
 SQL;
     $db = $this->ground->db;
 

@@ -172,7 +172,7 @@ class Query {
     $paged_sql = $this->paged_sql($sql);
     if (Query::$log_queries)
       echo $sql . "\n\n";
-    
+
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
       $this->process_row($row);
@@ -234,28 +234,23 @@ class Query {
     foreach ($this->links as $name => $link) {
       $property = $link->property;
       $id = $row->{$property->parent->primary_key};
-      //$other_property = $link->other->get_link_property($property->parent);
-      $other_property = $property->get_other_property();
 
-      if ($other_property === null)
-        throw new Exception($property->parent->name . '->' . $property->name . ' does not have a reciprocal reference on ' . $link->other->name . '.');
-
-      if ($property->type == 'list' && $other_property->type == 'list') {
-        // Many to Many
-        $row->{$name} = $this->get_many_to_many_list($id, $property, $other_property, $link->other);
-      }
-      else if ($property->type == 'list') {
-        // One to Many
-        $row->{$name} = $this->get_one_to_many_list($id, $property, $other_property, $link->other);
-      }
-      else {
-        // One to One
-        $row->{$name} = $this->get_reference_object($row, $property, $link->other);
+      switch ($property->get_relationship()) {
+        case RELATIONSHIP_ONE_TO_ONE:
+          $row->{$name} = $this->get_reference_object($row, $property, $link->other);
+          break;
+        case RELATIONSHIP_ONE_TO_MANY:
+          $row->{$name} = $this->get_one_to_many_list($id, $property, $link->other);
+          break;
+        case RELATIONSHIP_MANY_TO_MANY:
+          $row->{$name} = $this->get_many_to_many_list($id, $property, $link->other);
+          break;
       }
     }
   }
 
-  function get_many_to_many_list($id, $property, $other_property, $other_table) {
+  function get_many_to_many_list($id, $property, $other_table) {
+    $other_property = $property->get_other_property();
     $query = $this->ground->create_query($other_table, false, $this->get_path($this->trellis->name, $property->name));
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
@@ -264,7 +259,8 @@ class Query {
     return $query->run();
   }
 
-  function get_one_to_many_list($id, $property, $other_property, $other_table) {
+  function get_one_to_many_list($id, $property, $other_table) {
+    $other_property = $property->get_other_property();
     $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($this->trellis->name, $property->name));
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();

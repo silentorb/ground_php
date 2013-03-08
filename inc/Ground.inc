@@ -96,7 +96,7 @@ class Ground extends Meta_Object {
       $trellis = new Trellis($name, $this);
       if ($object)
         $trellis->load_from_object($object);
-      
+
       if (!isset($trellis->id)) {
         $trellis->id = count($this->trellises);
       }
@@ -362,8 +362,16 @@ SQL;
     return $result;
   }
 
-  public function to_json() {
+  public function to_json($include_tables = false) {
     $result = $this->prepare_for_serialization();
+
+    if ($include_tables) {
+      foreach ($this->tables as $key => $table) {
+        if ($table->properties)
+          $result->tables[$key]['fields'] = $table->properties;
+      }
+    }
+
     return json_encode($result);
   }
 

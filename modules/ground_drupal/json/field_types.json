@@ -1,4 +1,16 @@
 {
+  "nodereference_count": {
+    "type": "int",
+    "suffix": "value" 
+  },
+  "content_taxonomy": {
+    "type": "int",
+    "suffix": "value" 
+  },
+  "datestamp": {
+    "type": "datetime",
+    "suffix": "value" 
+  },
   "number_integer": 
   {
     "type": "int",
