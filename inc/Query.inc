@@ -295,7 +295,17 @@ class Query {
 //    if (!$this->base_path)
 //      return false;
     $path = $this->get_path($property->name);
-    return in_array($path, $this->ground->expansions);
+    foreach ($this->ground->expansions as $expansion) {
+      if (is_string($expansion)) {
+        if ($path == $expansion)
+          return true;
+      }
+      else if (is_object($expansion)) {
+        if (preg_match($expansion->pattern, $path))
+          return true;
+      }
+    }
+    return false;
   }
 
   function post_process_result($result) {

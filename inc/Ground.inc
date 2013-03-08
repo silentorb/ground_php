@@ -325,8 +325,10 @@ SQL;
 
   function update_object($trellis, $data = null) {
     $trellis = $this->sanitize_trellis_argument($trellis);
+    if (is_array($data))
+      $data = (object) $data;
 
-    // If $data is an object than it is a list of links to delete
+    // If $_deleted is an object than it is a list of links to delete
     // which will be handled by Update.
     // If $data is simply TRUE than the object itself is marked for deletion.
     if ($data->_deleted && !is_object($data->_deleted)) {

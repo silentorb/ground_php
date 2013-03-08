@@ -52,6 +52,8 @@ class CCK_Trellis {
   function add_property($info, $field, $name, $suffix = '') {
     $source = new stdClass();
     $source->type = $info->type;
+    if ($info->trellis)
+      $source->trellis = $info->trellis;
 
     if ($field->multiple)
       $source->type = 'list';

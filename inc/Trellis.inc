@@ -185,6 +185,16 @@ class Bloom_Property {
     return RELATIONSHIP_ONE_TO_ONE;
   }
 
+  public function get_other_id($object) {
+    $trellis = $this->get_referenced_trellis();
+    if (isset($object->{$trellis->primary_key})) {
+      return $object->{$trellis->primary_key};
+    }
+
+    $property_name = $this->parent->name . '->' . $this->name;
+    throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
+  }
+
   public function override_field($attribute, $value) {
     $field = $this->get_field_override(true);
     $field->{$attribute} = $value;

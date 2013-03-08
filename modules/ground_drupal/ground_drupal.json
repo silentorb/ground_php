@@ -1,5 +1,8 @@
 {
   "tables": {
+    "location": {
+      "name": "location"
+    },
     "node": {
       "name": "node"
     },
@@ -41,6 +44,47 @@
         },
         "timestamp": {
           "type": "datetime"
+        }
+      }
+    },
+    "location": {
+      "primary_key": "lid",
+      "properties": {
+        "lid": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        },
+        "street": {
+          "type": "string"
+        },
+        "additional": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "province": {
+          "type": "string"
+        },
+        "postal_code": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "latitude": {
+          "type": "decimal"
+        },
+        "longitude": {
+          "type": "decimal"
+        },
+        "source": {
+          "type": "bool"
+        },
+        "is_primary": {
+          "type": "bool"
         }
       }
     },
