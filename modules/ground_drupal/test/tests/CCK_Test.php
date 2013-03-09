@@ -99,6 +99,9 @@ class CCK_Test extends Drupal_Test_Case {
         'lair' => 1,
             ));
 
+    $other_property = $this->ground->trellises['monster']->properties['victims']->get_other_property();
+    $this->assertEquals('victims', $other_property->parent->name);
+    
     $query = $this->ground->create_query('monster');
     $monsters = $query->run();
     $this->assertSame(1, count($monsters));

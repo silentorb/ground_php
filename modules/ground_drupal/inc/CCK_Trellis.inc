@@ -93,7 +93,7 @@ class CCK_Trellis {
 //    $cck_trellis->create_properties(array($new_field));
 //  }
 
-  function create_properties($fields) {
+  function create_properties($fields, $cross_table = false) {
     // Create Properties
     foreach ($fields as $field) {
       $info = $this->field_types[$field->type];
@@ -101,7 +101,7 @@ class CCK_Trellis {
         throw new Exception("No CCK field info for $field->type.");
       }
 
-      if (!$field->db_storage) {
+      if (!$field->db_storage && !$cross_table) {
         $this->add_join_property($info, $field);
       }
       else {

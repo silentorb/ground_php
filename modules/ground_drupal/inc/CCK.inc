@@ -77,10 +77,9 @@ class CCK extends Ground_Module {
         $trellis->add_property('delta', $attributes);
         $cck_trellis->table->primary_keys = array('nid', 'delta');
       }
-      else {
-        $trellis->primary_key = 'nid';
-      }
-      $cck_trellis->create_properties(array($new_field));
+
+      $trellis->primary_key = 'nid';
+      $cck_trellis->create_properties(array($new_field), true);
 
       $result['trellises'][$name] = $trellis;
       $result['tables'][$name] = $cck_trellis->table;

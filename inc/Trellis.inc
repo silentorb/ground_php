@@ -96,7 +96,7 @@ class Bloom_Property {
     return $table->properties[$this->name];
   }
 
-  public function get_other_property() {
+  public function get_other_property($create_if_none = true) {
     $other_table = $this->parent->ground->trellises[$this->trellis];
 
     if ($this->property) {
@@ -110,17 +110,19 @@ class Bloom_Property {
       }
     }
 
-    // If 
     if ($this->trellis == $this->parent->name)
       return null;
 
+    if (!$create_if_none)
+      return null;
+    
     // If there is no existing connection defined in this trellis, create a dummy
     // connection and assume that it is a list.  This means that implicit connections
     // are either one-to-many or many-to-many, never one-to-one.
     $attributes = new stdClass();
     $attributes->type = "list";
-    $attributes->trellis = $other_table->name;
-    $property = new Bloom_Property($other_table->name, $attributes, $this->parent);
+    $attributes->trellis = $this->parent->name;
+    $property = new Bloom_Property($other_table->name, $attributes, $other_table);
     return $property;
   }
 

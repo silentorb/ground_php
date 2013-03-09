@@ -260,7 +260,11 @@ class Query {
   }
 
   function get_one_to_many_list($id, $property, $other_table) {
-    $other_property = $property->get_other_property();
+    $other_property = $property->get_other_property(false);
+    if (!$other_property) {
+      $other_property = $other_table->properties[$other_table->primary_key];
+    }
+    
     $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($this->trellis->name, $property->name));
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
