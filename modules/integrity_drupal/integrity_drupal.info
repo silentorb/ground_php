@@ -1,4 +1,4 @@
-name = Integrity
+name = Integrity Drupal
 description = Drupal specific extensions to Integrity
 core = 6.x
 package = Silent Orb
