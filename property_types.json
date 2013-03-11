@@ -28,6 +28,7 @@
     "parent" : "datetime"
   },
   "decimal": {
+    "parent" : "float",
     "field_type" : "DECIMAL",
     "default" : 0
   },
