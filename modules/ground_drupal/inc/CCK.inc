@@ -47,6 +47,11 @@ class CCK extends Ground_Module {
       $result['trellises'][$name] = $cck_trellis->trellis;
       $result['tables'][$name] = $cck_trellis->table;
       $this->trellises[$name] = $cck_trellis->trellis;
+
+      $attributes = new stdClass();
+      $attributes->type = 'int';
+      $trellis = $cck_trellis->trellis;
+      $trellis->add_property('vid', $attributes);
     }
     return $result;
   }
