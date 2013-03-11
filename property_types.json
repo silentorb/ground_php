@@ -27,12 +27,13 @@
   "date" : {
     "parent" : "datetime"
   },
-  "decimal": {
-    "field_type" : "DECIMAL",
-    "default" : 0
-  },
   "float": {
     "field_type" : "FLOAT",
+    "default" : 0
+  },
+  "decimal": {
+    "parent" : "float",
+    "field_type" : "DECIMAL",
     "default" : 0
   },
   "money": {
