@@ -6,13 +6,6 @@
     "node": {
       "name": "node"
     },
-    "node_revision": {
-      "properties": {
-        "editor": {
-          "name": "uid"
-        }
-      }
-    },
     "user": {
       "properties": {
         "email": {
@@ -96,15 +89,16 @@
       }
     },
     "node_revision": {
-      "primary_key": "nid",
+      "primary_key": "vid",
       "properties": {
         "nid": {
-          "type": "int"
+          "type": "reference",
+          "trellis": "node"
         },
         "vid": {
           "type": "int"
         },
-        "editor": {
+        "uid": {
           "type": "int"
         },
         "title": {
@@ -128,7 +122,6 @@
       }
     },
     "node": {
-      "parent": "node_revision",
       "primary_key": "nid",
       "properties": {
         "nid": {
@@ -175,6 +168,10 @@
         },
         "translate": {
           "type": "int"
+        },
+        "revisions": {
+          "type": "list",
+          "trellis": "node_revision"
         }
       }
     },

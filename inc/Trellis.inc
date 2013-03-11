@@ -115,7 +115,7 @@ class Bloom_Property {
 
     if (!$create_if_none)
       return null;
-    
+
     // If there is no existing connection defined in this trellis, create a dummy
     // connection and assume that it is a list.  This means that implicit connections
     // are either one-to-many or many-to-many, never one-to-one.
@@ -379,6 +379,13 @@ class Trellis {
     return $this->name . 's';
   }
 
+  public function get_table_query() {
+    if ($this->table && $this->table->query)
+      return $this->table->query;
+
+    return $this->get_table_name();
+  }
+
   public function get_tree() {
     $trellis = $this;
     $tree = array();
@@ -423,7 +430,7 @@ class Trellis {
     if ($this->parent) {
       $parent = $this->parent;
       $parent_table = $parent->get_table_name();
-      $query->add_join('JOIN ' . $parent->get_table_name() .
+      $query->add_join('JOIN ' . $parent->get_table_query() .
               ' ON ' . $parent_table . '.' . $parent->primary_key .
               ' = ' . $query->main_table . '.' . $this->primary_key);
 

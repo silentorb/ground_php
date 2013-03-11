@@ -6,6 +6,7 @@ class Table {
   public $properties = array();
   public $ground;
   public $db_name;
+  public $query;
   // Array: An override for Vineyard's single key design.  $primary_keys
   // mostly just effects table creation.
   public $primary_keys = null;
@@ -115,11 +116,11 @@ class Table {
     $fields = array();
     foreach ($core_properties as $property) {
       $field = $this->properties[$property->name];
-      
+
       // Don't duplicate shared fields.
       if ($field && $field->share)
         continue;
-      
+
       $fields[] = (object) array(
                   'name' => $property->get_field_name(),
                   'type' => $property->get_field_type(),

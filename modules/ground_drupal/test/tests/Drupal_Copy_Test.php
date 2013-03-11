@@ -23,6 +23,7 @@ class Drupal_Copy_Test extends Drupal_Test_Case {
   function test_get_nodes() {
     Ground_Drupal::configure_files_expansion($this->drupal_ground);
     $query = new Content_Query($this->drupal_ground->trellises['node']);
+    $query->add_post('ORDER BY nid');
     $objects = $query->run();
     $this->assertSame(false, $objects[2]->location->is_primary);
     $this->assertGreaterThan(1, count($objects[0]->images));
@@ -37,6 +38,7 @@ class Drupal_Copy_Test extends Drupal_Test_Case {
     Update::$log_queries = true;
     Ground_Drupal::copy_nodes($this->drupal_ground, $this->ground);
     $query = new Content_Query($this->ground->trellises['node']);
+    $query->add_post('ORDER BY nid');
     $objects = $query->run();
     $this->assertEquals(3, count($objects));
     $this->assertGreaterThan(0, count($objects[0]->images));
@@ -52,6 +54,9 @@ class Drupal_Copy_Test extends Drupal_Test_Case {
     // Check locations
     $count = $db->query_value('SELECT COUNT(*) FROM location');
     $this->assertEquals(1, $count);
+
+    $vid = $db->query_value('SELECT vid FROM `node` WHERE nid = 3');
+    $this->assertEquals(4, $vid);
   }
 
 }
