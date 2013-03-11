@@ -83,6 +83,9 @@ class Update extends Meta_Object {
       if ($field && $field->share)
         continue;
 
+      if ($property->name == 'friend') {
+        $field = $field;
+      }
       if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
@@ -204,6 +207,9 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
+      if ($property->name == 'friend') {
+        $property = $property;
+      }
       switch ($property->get_relationship()) {
         case RELATIONSHIP_ONE_TO_ONE:
           $this->update_reference($property, $id);
@@ -258,6 +264,7 @@ SQL;
   }
 
   protected function update_one_to_many($property, $id) {
+    $seed = $this->seed;
     $list = $this->seed->{$property->name};
     if (!is_array($list))
       return;
@@ -291,7 +298,7 @@ SQL;
     }
 
     $other_property = $property->get_other_property();
-    if ($other_property) {
+    if ($other_property && !isset($object->{$other_property->name})) {
       $object->{$other_property->name} = $id;
     }
     $this->ground->update_object($trellis, $object);

@@ -23,9 +23,8 @@
   },
   "nodereference": {
     "class": "CCK_Reference",   
-    "trellis": "node",
     "suffix": "nid",
-    "type": "reference"
+    "type": "int"
   },
   "userreference": {
     "class": "CCK_Reference",   

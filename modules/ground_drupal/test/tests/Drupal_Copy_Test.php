@@ -57,6 +57,9 @@ class Drupal_Copy_Test extends Drupal_Test_Case {
 
     $vid = $db->query_value('SELECT vid FROM `node` WHERE nid = 3');
     $this->assertEquals(4, $vid);
+
+    $field_friend_nid = $db->query_value('SELECT field_friend_nid FROM `content_field_friend` WHERE nid = 1');
+    $this->assertEquals(2, $field_friend_nid);
   }
 
 }
