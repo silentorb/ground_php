@@ -71,7 +71,7 @@ class Update extends Meta_Object {
           $this->get_field_value($property);
           throw new Exception("Field value was empty for inserting $property->name in $trellis->name.");
         }
-        
+
         $values[] = $value;
       }
     }
@@ -151,7 +151,7 @@ SQL;
       return 'TRUE';
     else if ($value === false)
       return 'FALSE';
-    
+
     if ($property->type == 'string' || $property->type == 'text') {
       $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
     }
@@ -185,16 +185,27 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
-      if ($property->type == 'reference') {
-        $this->update_reference($property, $id);
-      }
-      else {
-        $other_property = $property->get_other_property();
-        if ($other_property->type == 'list')
-          $this->update_many_to_many($property, $id, $create);
-        else
+      switch ($property->get_relationship()) {
+        case RELATIONSHIP_ONE_TO_ONE:
+          $this->update_reference($property, $id);
+          break;
+        case RELATIONSHIP_ONE_TO_MANY:
           $this->update_one_to_many($property, $id);
+          break;
+        case RELATIONSHIP_MANY_TO_MANY:
+          $this->update_many_to_many($property, $id, $create);
+          break;
       }
+//      if ($property->type == 'reference') {
+//        $this->update_reference($property, $id);
+//      }
+//      else {
+//        $other_property = $property->get_other_property();
+//        if ($other_property->type == 'list')
+//          $this->update_many_to_many($property, $id, $create);
+//        else
+//          $this->update_one_to_many($property, $id);
+//      }
     }
   }
 
