@@ -207,6 +207,19 @@ class Table {
     return $result;
   }
 
+  function get_data() {
+    $result = new stdClass();
+    if ($this->name)
+      $result->name = $this->name;
+
+    if ($this->primary_keys)
+      $result->primary_keys = $this->primary_keys;
+    
+    $result->fields = $this->properties;
+
+    return $result;
+  }
+
   function get_vineyard_layer() {
     $layer = new stdClass();
     $layer->properties = array();

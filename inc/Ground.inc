@@ -370,7 +370,7 @@ SQL;
     if ($include_tables) {
       foreach ($this->tables as $key => $table) {
         if ($table->properties)
-          $result->tables[$key]['fields'] = $table->properties;
+          $result->tables[$key] = $table->get_data();
       }
     }
 

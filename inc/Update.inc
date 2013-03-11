@@ -43,13 +43,32 @@ class Update extends Meta_Object {
       return $this->create_record($trellis);
     }
     else {
-      $primary_key = $trellis->query_primary_key();
-      $sql = "SELECT $primary_key FROM " . $trellis->get_table_name() . " WHERE $primary_key = $id";
-      $id = $this->db->query_value($sql);
-      if (!$id && $id !== 0) {
+      $table = $this->ground->tables[$trellis->name];
+      if ($table && is_array($table->primary_keys) && count($table->primary_keys) > 0) {
+        $primary_keys = $table->primary_keys;
+      }
+      else {
+        $primary_keys = array($trellis->primary_key);
+      }
+      $conditions = array();
+      $ids = array();
+      foreach ($primary_keys as $key) {
+        $ids[$key] = $this->seed->{$key};
+        $conditions[] = $key . ' = ' . $ids[$key];
+      }
+      $condition_string = implode(' AND ', $conditions);
+      if (!$condition_string) {
+        throw new Exception('Condition string cannot be empty.');
+      }
+
+      $sql = 'SELECT ' . implode(', ', $primary_keys) . ' FROM ' . $trellis->get_table_name()
+              . ' WHERE ' . $condition_string;
+
+      $id_result = $this->db->query_array($sql);
+      if (!$id_result) {
         return $this->create_record($trellis);
       }
-      return $this->update_record($trellis, $id);
+      return $this->update_record($trellis, $id, $condition_string);
     }
   }
 
@@ -92,7 +111,7 @@ class Update extends Meta_Object {
     return $sql;
   }
 
-  protected function update_record($trellis, $id) {
+  protected function update_record($trellis, $id, $key_condition) {
     $updates = array();
     $core_properties = $trellis->get_core_properties();
     foreach ($core_properties as $property) {
@@ -123,7 +142,7 @@ class Update extends Meta_Object {
     $sql = <<<SQL
 UPDATE $table_name
 SET $update_list_string
-WHERE $primary_key = $id
+WHERE $key_condition
 
 SQL;
 
