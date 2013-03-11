@@ -12,6 +12,7 @@ class Content_Query extends Query {
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
       $query = $this->ground->create_query($row->type);
+      $query->filters = $this->filters;
       $query->add_filter("node.nid = $row->nid");
       $nodes = $query->run();
       if (count($nodes) > 0) {
