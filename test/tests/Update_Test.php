@@ -65,6 +65,7 @@ class Update_Test extends Ground_Test_Case {
             ));
 
     $objects = $this->ground->create_query('warrior')->run();
+    $this->assertEquals(1, count($objects));
     $this->assertEquals(1, $objects[0]->inventory[0]->id);
 
     $objects = $this->ground->create_query('character_item')->run();

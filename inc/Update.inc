@@ -185,19 +185,22 @@ SQL;
         $value = (object) $value;
       }
       if (is_object($value)) {
-        $value = $property->get_other_id($value);
-        if ($value === null) {
-          if ($value->trellis) {
-            $trellis = $value->trellis;
+        if ($value->trellis) {
+          $trellis = $value->trellis;
 //            $property_name = $property->parent->name . '->' . $property->name;
 //            throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
-          }
-          else {
-            $trellis = $property->trellis;
-          }
-          $trellis = $this->ground->trellises[$trellis];
+        }
+        else {
+          $trellis = $property->trellis;
+        }
+        $trellis = $this->ground->trellises[$trellis];
 
-          $object = $this->ground->update_object($trellis, $value);
+        $object = $this->ground->update_object($trellis, $value);
+        $other_id = $property->get_other_id($value);
+        if ($other_id !== null) {
+          $value = $other_id;
+        }
+        else {
           $value = $object->{$trellis->primary_key};
         }
       }
@@ -207,8 +210,9 @@ SQL;
       $value = 'NULL';
     }
 
-    if (is_object($value))
+    if (is_object($value)) {
       throw new Exception("Property $property_name cannot be an object.");
+    }
 
     if (is_array($value))
       throw new Exception("Property $property_name cannot be an array.");
@@ -221,7 +225,9 @@ SQL;
     foreach ($links as $property) {
       switch ($property->get_relationship()) {
         case RELATIONSHIP_ONE_TO_ONE:
-          $this->update_reference($property, $id);
+          // I think the new code I added earlier in the pipeline should
+          // completely take care of this so it is no longer needed.
+//          $this->update_reference($property, $id);
           break;
         case RELATIONSHIP_ONE_TO_MANY:
           $this->update_one_to_many($property, $id);
