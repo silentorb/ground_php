@@ -83,9 +83,6 @@ class Update extends Meta_Object {
       if ($field && $field->share)
         continue;
 
-      if ($property->name == 'friend') {
-        $field = $field;
-      }
       if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
@@ -184,10 +181,25 @@ SQL;
       $value = time();
     }
     if ($property->type == 'reference') {
-      // !!! Eventually I'll need to check the to see if the other property is
-      // using a primary key other than 'id', but this will work for the moment.
+      if (is_array($value)) {
+        $value = (object) $value;
+      }
       if (is_object($value)) {
         $value = $property->get_other_id($value);
+        if ($value === null) {
+          if ($value->trellis) {
+            $trellis = $value->trellis;
+//            $property_name = $property->parent->name . '->' . $property->name;
+//            throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
+          }
+          else {
+            $trellis = $property->trellis;
+          }
+          $trellis = $this->ground->trellises[$trellis];
+
+          $object = $this->ground->update_object($trellis, $value);
+          $value = $object->{$trellis->primary_key};
+        }
       }
     }
 
@@ -207,9 +219,6 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
-      if ($property->name == 'friend') {
-        $property = $property;
-      }
       switch ($property->get_relationship()) {
         case RELATIONSHIP_ONE_TO_ONE:
           $this->update_reference($property, $id);

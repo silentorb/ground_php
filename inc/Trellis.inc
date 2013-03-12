@@ -193,8 +193,9 @@ class Bloom_Property {
       return $object->{$trellis->primary_key};
     }
 
-    $property_name = $this->parent->name . '->' . $this->name;
-    throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
+//    $property_name = $this->parent->name . '->' . $this->name;
+//    throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
+    return null;
   }
 
   public function override_field($attribute, $value) {
