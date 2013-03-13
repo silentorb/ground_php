@@ -1,13 +1,9 @@
 <?php
 
 class Query_Test extends Ground_Test_Case {
-
-  function setUp() {
-    parent::setUp();
+  /*
+    function test_select() {
     $this->fixture->populate_database();
-  }
-
-  function test_select() {
     $query = $this->ground->create_query($this->ground->trellises['warrior']);
     $objects = $query->run();
     $this->assertEquals(1, count($objects));
@@ -16,23 +12,74 @@ class Query_Test extends Ground_Test_Case {
     $query = $this->ground->create_query($this->ground->trellises['character_item']);
     $objects = $query->run();
     $this->assertEquals(1, $objects[0]->owner->id);
-  }
+    }
 
-  // Originally Vineyard was designed to only support links that had explicit definitions within both
-  // Trellises, but it has become increasingly useful when embedding into existing systems not to need
-  // to insert the connection definition in the pre-existing table.  Note that these new 'implicit'
-  // connections only work in one direction, you still need to define both sides of the connection to
-  // access it from either direction.
-  function test_one_way_reference() {
+    // Originally Vineyard was designed to only support links that had explicit definitions within both
+    // Trellises, but it has become increasingly useful when embedding into existing systems not to need
+    // to insert the connection definition in the pre-existing table.  Note that these new 'implicit'
+    // connections only work in one direction, you still need to define both sides of the connection to
+    // access it from either direction.
+    function test_one_way_reference() {
+    $this->fixture->populate_database();
     // Warrior has no reciprical connection to achievement.
     $this->fixture->insert_object('achievement', array(
-        'name' => 'Slay 10000 Hoarse Radishes',
-        'parent' => $this->fixture->ninja_bob->id,
-            ));
+    'name' => 'Slay 10000 Hoarse Radishes',
+    'parent' => $this->fixture->ninja_bob->id,
+    ));
 
     $objects = $this->ground->create_query('achievement')->run();
     $this->assertEquals(1, count($objects));
     $this->assertEquals('Bob', $objects[0]->parent->name);
+    }
+   */
+  private function prepare_tree() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+
+    // Kind of confusing looking but it actually makes sense.  Looks cleaner in JSON.
+    $this->fixture->insert_object('branch', array(
+        'name' => 'A',
+        'children' => array(
+            array(
+                'name' => 'B',
+                'children' => array(
+                    array(
+                        'name' => 'C',
+                    )
+                )
+            )
+        )
+    ));
+  }
+
+  function test_has_expansion() {
+    $this->fixture->load_schemas();
+    $query = $this->ground->create_query('warrior');
+    $this->ground->expansions[] = '/.*images_fid/';
+    $this->assertTrue($query->has_expansion('object/images_fid'));
+  }
+
+  function test_tree() {
+    $this->prepare_tree();
+    $query = $this->ground->create_query('branch');
+    $query->add_filter('branches.id = 1');
+    $objects = $query->run();
+    $this->assertSame(1, count($query));
+    $this->assertEquals('B', $objects[0]->children[0]->name);
+    $this->assertEquals(0, count($objects[0]->children[0]->children));
+  }
+
+  function test_tree_part_two() {
+    $this->prepare_tree();
+
+    $this->ground->expansions[] = 'branch/children/children';
+    $query = $this->ground->create_query('branch');
+    $query->add_filter('branches.id = 1');
+    $objects = $query->run();
+    $this->assertSame(1, count($query));
+    $this->assertEquals('B', $objects[0]->children[0]->name);
+    $this->assertEquals('C', $objects[0]->children[0]->children[0]->name);
+    $this->assertEquals('2', $objects[0]->children[0]->children[0]->parent);
   }
 
 }

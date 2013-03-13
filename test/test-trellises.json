@@ -85,6 +85,27 @@
           "trellis": "warrior"
         }
       }
+    },
+    "branch": {
+      "plural": "branches",
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "reference",
+          "trellis": "branch",
+          "property": "children"
+        },
+        "children": {
+          "type": "list",
+          "trellis": "branch",
+          "property": "parent"
+        }
+      }
     }
   }
 }

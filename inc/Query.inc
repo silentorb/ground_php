@@ -39,7 +39,8 @@ class Query {
             $this->add_link($link);
         }
         else {
-          if ($include_links || $this->has_expansion($link)) {
+          $path = $this->get_path($link->name);
+          if ($include_links || $this->has_expansion($path)) {
             $this->add_link($link);
           }
         }
@@ -264,7 +265,7 @@ class Query {
     if (!$other_property) {
       $other_property = $other_table->properties[$other_table->primary_key];
     }
-    
+
     $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($this->trellis->name, $property->name));
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
@@ -292,21 +293,19 @@ class Query {
     if ($second)
       $items[] = $second;
 
-    return implode('.', $items);
+    return implode('/', $items);
   }
 
-  function has_expansion($property) {
+  function has_expansion($path) {
 //    if (!$this->base_path)
 //      return false;
-    $path = $this->get_path($property->name);
+    //$path = $this->get_path($property->name);
     foreach ($this->ground->expansions as $expansion) {
-      if (is_string($expansion)) {
-        if ($path == $expansion)
-          return true;
+      if (substr($expansion, 0, 1) == '/' && substr($expansion, strlen($expansion) - 1, 1) == '/') {
+        return preg_match($expansion, $path) == 1;
       }
-      else if (is_object($expansion)) {
-        if (preg_match($expansion->pattern, $path))
-          return true;
+      else {
+        return $path == $expansion;
       }
     }
     return false;
@@ -317,3 +316,4 @@ class Query {
   }
 
 }
+

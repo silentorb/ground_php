@@ -76,7 +76,7 @@ class Ground extends Meta_Object {
     $this->listen($this, 'connect.query', 'on_connect_query');
     $this->load_property_types($path . '/property_types.json');
   }
-
+  
   public function add_module($name) {
     if (array_key_exists($name, $this->modules))
       return $this->modules[$name];

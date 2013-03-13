@@ -35,8 +35,7 @@ class Ground_Drupal extends Ground_Module {
 
   static function configure_files_expansion($ground) {
     $expansion = new stdClass();
-    $expansion->pattern = '/.*images_fid/';
-    $ground->expansions[] = $expansion;
+    $ground->expansions[] = '/.*images_fid/';
   }
 
 }
