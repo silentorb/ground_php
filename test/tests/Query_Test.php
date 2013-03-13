@@ -72,6 +72,7 @@ class Query_Test extends Ground_Test_Case {
   function test_tree_part_two() {
     $this->prepare_tree();
 
+    $this->ground->expansions[] = 'dummy/test';
     $this->ground->expansions[] = 'branch/children/children';
     $query = $this->ground->create_query('branch');
     $query->add_filter('branches.id = 1');

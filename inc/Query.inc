@@ -305,7 +305,8 @@ class Query {
         return preg_match($expansion, $path) == 1;
       }
       else {
-        return $path == $expansion;
+        if ($path == $expansion)
+          return true;
       }
     }
     return false;
