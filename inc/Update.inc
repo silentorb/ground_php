@@ -83,7 +83,10 @@ class Update extends Meta_Object {
       if ($field && $field->share)
         continue;
 
-      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
+      if (property_exists($this->seed, $property->name)
+              || $property->insert_trellis
+              || $property->type == 'created'
+              || $property->type == 'modified') {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
@@ -124,7 +127,9 @@ class Update extends Meta_Object {
       if ($field && $field->share)
         continue;
 
-      if (property_exists($this->seed, $property->name) || $property->insert_trellis) {
+      if (property_exists($this->seed, $property->name)
+              || $property->insert_trellis
+              || $property->type == 'modified') {
         $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         $updates[] = "$field = $value";

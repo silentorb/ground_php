@@ -48,6 +48,29 @@ class Update_Test extends Ground_Test_Case {
     $objects = $this->ground->create_query('warrior')->run();
     $this->assertGreaterThan(1, count($objects));
     $this->assertEquals('object', gettype($objects[1]->inventory[0]));
+
+    // Test created and modified
+    $created = $objects[1]->created;
+    $modified = $objects[1]->modified;
+    $this->assertGreaterThan(10000, $created);
+    $this->assertGreaterThan(10000, $modified);
+
+    // Test updating existing object.
+    $this->cyborg = $this->fixture->insert_object('warrior', array(
+        'id' => $this->cyborg->id,
+        'name' => 'Cirguit',
+        'age' => 2,
+            ));
+
+    $objects = $this->ground->create_query('warrior')->run();
+    $this->assertEquals(2, count($objects));
+    $this->assertEquals(2, $objects[1]->age);
+    $this->assertGreaterThanOrEqual($modified, $objects[1]->modified);
+    $this->assertEquals($created, $objects[1]->created);
+    
+    // Not sure I want to keep this behavior.  Currently an update that ommits existing values
+    // results in those values becoming null.
+    $this->assertNull($objects[1]->race);
   }
 
   function test_insert_new_embedded_reference() {
@@ -71,4 +94,5 @@ class Update_Test extends Ground_Test_Case {
     $objects = $this->ground->create_query('character_item')->run();
     $this->assertEquals(1, $objects[0]->owner->id);
   }
+
 }

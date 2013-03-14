@@ -49,6 +49,14 @@
         },
         "name": {
           "type": "string"
+        },
+        "created": {
+          "type": "created",
+          "readonly": true
+        },
+        "modified": {
+          "type": "modified",
+          "readonly": true
         }
       }
     },
