@@ -86,7 +86,8 @@ class Update extends Meta_Object {
       if (property_exists($this->seed, $property->name)
               || $property->insert_trellis
               || $property->type == 'created'
-              || $property->type == 'modified') {
+              || $property->type == 'modified'
+              || $property->insert == 'author') {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
