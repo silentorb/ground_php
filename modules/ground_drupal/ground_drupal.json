@@ -246,6 +246,11 @@
         "name": {
           "type": "string"
         },
+        "author": {
+          "type": "reference",
+          "trellis": "user",
+          "insert": "author"
+        },
         "type": {
           "type": "string",
           "readonly": true,
