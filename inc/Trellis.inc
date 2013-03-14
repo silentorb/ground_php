@@ -11,7 +11,11 @@ class Bloom_Property {
   public $type;
   public $trellis;
   public $readonly = false;
+  
+  // This is going to be deprecated in favor of $insert
   public $insert_trellis;
+  
+  public $insert;
   public $link_class = null;
   public $property = null; // String reference to the property this connects to on the other trellis.
   public $default;

@@ -119,7 +119,7 @@ class Update extends Meta_Object {
     $core_properties = $trellis->get_core_properties();
     foreach ($core_properties as $property) {
       // Ignore these with updates
-      if ($property->name == $trellis->primary_key || $property->type == 'created')
+      if ($property->name == $trellis->primary_key || $property->type == 'created' || $property->insert == 'alter')
         continue;
 
       // Ignore shared fields
@@ -179,13 +179,13 @@ SQL;
     if ($property->type == 'string' || $property->type == 'text') {
       $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
     }
-    if ($property->type == 'created') {
+    else if ($property->type == 'created') {
       $value = time();
     }
-    if ($property->type == 'modified') {
+    else if ($property->type == 'modified') {
       $value = time();
     }
-    if ($property->type == 'reference') {
+    else if ($property->type == 'reference') {
       if (is_array($value)) {
         $value = (object) $value;
       }
@@ -209,6 +209,11 @@ SQL;
           $value = $object->{$trellis->primary_key};
         }
       }
+    }
+    
+    if ($property->insert == 'author') {
+      global $user;
+      $value = $user->uid;
     }
 
     if ($value === null) {

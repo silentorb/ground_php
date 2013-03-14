@@ -67,7 +67,7 @@ class Update_Test extends Ground_Test_Case {
     $this->assertEquals(2, $objects[1]->age);
     $this->assertGreaterThanOrEqual($modified, $objects[1]->modified);
     $this->assertEquals($created, $objects[1]->created);
-    
+
     // Not sure I want to keep this behavior.  Currently an update that ommits existing values
     // results in those values becoming null.
     $this->assertNull($objects[1]->race);
@@ -90,9 +90,23 @@ class Update_Test extends Ground_Test_Case {
     $objects = $this->ground->create_query('warrior')->run();
     $this->assertEquals(1, count($objects));
     $this->assertEquals(1, $objects[0]->inventory[0]->id);
-
     $objects = $this->ground->create_query('character_item')->run();
     $this->assertEquals(1, $objects[0]->owner->id);
+  }
+
+  function test_insert_author() {
+    global $user;
+    $storage = $user->uid;
+    $user->uid = 7;
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $this->fixture->insert_object('deed', array(
+        'name' => 'something special',
+    ));
+
+    $objects = $this->ground->create_query('deed')->run();
+    $this->assertEquals(7, $objects[0]->author);
+    $user->uid = $storage;
   }
 
 }

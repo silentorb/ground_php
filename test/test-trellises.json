@@ -91,6 +91,10 @@
           "note": "Test for no reciprical reference.",
           "type": "reference",
           "trellis": "warrior"
+        },
+        "author": {
+          "type": "int",
+          "insert": "author"
         }
       }
     },
