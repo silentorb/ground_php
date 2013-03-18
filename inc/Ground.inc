@@ -66,6 +66,8 @@ class Ground extends Meta_Object {
   // that point to references that should be expanded to full objects instead of
   // simply an id.  Sort of like explicit lazy loading.
   public $expansions = array();
+  // These might be better called query templates.
+  public $static_queries = array();
 
   public function __construct($database = null) {
     if ($database) {
@@ -76,7 +78,7 @@ class Ground extends Meta_Object {
     $this->listen($this, 'connect.query', 'on_connect_query');
     $this->load_property_types($path . '/property_types.json');
   }
-  
+
   public function add_module($name) {
     if (array_key_exists($name, $this->modules))
       return $this->modules[$name];
@@ -266,15 +268,11 @@ SQL;
   }
 
   public function create_query($trellis, $include_links = true, $base_path = '') {
-    if (is_string($trellis)) {
-      if (!$this->trellises[$trellis])
-        throw new Exception("Class '" . $trellis . "' does not exist");
-      $trellis = $this->trellises[$trellis];
-    }
-    else if (!is_object($trellis)) {
-      throw new Exception('Invalid trellis passed to create query.');
-    }
+    $trellis = $this->sanitize_trellis_argument($trellis, true);
 
+    if ($trellis->is_static) {
+      return $trellis->create_query($include_links, $base_path);
+    }
     foreach ($this->queries as $key => $query) {
       if ($trellis->is_a($key)) {
         return new $query($trellis, $include_links, $base_path);
@@ -282,6 +280,13 @@ SQL;
     }
 
     return new Query($trellis, $include_links, $base_path);
+  }
+
+  public function create_static_query($query_name, $trellis, $include_links = true) {
+    $trellis = $this->sanitize_trellis_argument($trellis, false);
+    $result = new Static_Query($query_name, $trellis, $include_links);
+    $this->static_queries[$query_name] = $result;
+    return $result;
   }
 
   function convert_value($value, $type) {
@@ -324,7 +329,7 @@ SQL;
   }
 
   function update_object($trellis, $data = null) {
-    $trellis = $this->sanitize_trellis_argument($trellis);
+    $trellis = $this->sanitize_trellis_argument($trellis, false);
     if (is_array($data))
       $data = (object) $data;
 
@@ -377,15 +382,20 @@ SQL;
     return json_encode($result);
   }
 
-  private function sanitize_trellis_argument($trellis) {
+  private function sanitize_trellis_argument($trellis, $include_static_queries = false) {
     if (!$trellis)
       throw new Exception("insert_object called with undefined trellis.");
 
     if (is_string($trellis)) {
       $trellis_name = $trellis;
-      $trellis = $this->trellises[$trellis_name];
-      if (!$trellis)
-        throw new Exception("Trellis $trellis_name not found.");
+      if ($this->static_queries[$trellis_name]) {
+        $trellis = $this->static_queries[$trellis_name];
+      }
+      else {
+        $trellis = $this->trellises[$trellis_name];
+        if (!$trellis)
+          throw new Exception("Trellis $trellis_name not found.");
+      }
     }
 
     return $trellis;
