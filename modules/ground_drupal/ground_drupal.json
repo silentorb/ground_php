@@ -179,8 +179,7 @@
       "primary_key": "uid",
       "properties": {
         "uid": {
-          "type": "int",
-          "insert": "author"
+          "type": "int"
         },
         "name": {
           "type": "string"

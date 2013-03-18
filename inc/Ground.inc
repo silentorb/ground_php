@@ -401,4 +401,22 @@ SQL;
     return $trellis;
   }
 
+  public function vineyard_service($trellis, $id = null, $args = array()) {
+    $query = $this->create_query($trellis);
+    if ($id) {
+      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) $id);
+    }
+
+    // Currently only works for int types.
+    foreach ($_GET as $key => $value) {
+      if (array_key_exists($key, $query->trellis->all_properties)) {
+        $property = $query->trellis->all_properties[$key];
+        $query->add_filter($property->query() . ' = ' . (int) $value);
+      }
+    }
+    //$query->add_post('ORDER BY name');
+
+    return $query->run_as_service(true);
+  }
+
 }
