@@ -212,7 +212,7 @@ SQL;
       }
     }
     
-    if ($property->insert == 'author') {
+    if (!$value && $property->insert == 'author') {
       global $user;
       $value = $user->uid;
     }

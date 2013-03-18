@@ -302,7 +302,8 @@ class Query {
     //$path = $this->get_path($property->name);
     foreach ($this->ground->expansions as $expansion) {
       if (substr($expansion, 0, 1) == '/' && substr($expansion, strlen($expansion) - 1, 1) == '/') {
-        return preg_match($expansion, $path) == 1;
+        if (preg_match($expansion, $path))
+          return true;
       }
       else {
         if ($path == $expansion)

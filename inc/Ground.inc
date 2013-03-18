@@ -408,7 +408,7 @@ SQL;
     }
 
     // Currently only works for int types.
-    foreach ($_GET as $key => $value) {
+    foreach ($args as $key => $value) {
       if (array_key_exists($key, $query->trellis->all_properties)) {
         $property = $query->trellis->all_properties[$key];
         $query->add_filter($property->query() . ' = ' . (int) $value);

@@ -58,7 +58,6 @@ function ground_php_get() {
   if (!$ground->db)
     throw new Exception('Ground DB not initialized.');
 
-  $result = $query->run_as_service(true);
   $result = $ground->vineyard_service($trellis, arg(2), $_GET);
   drupal_set_header('Content-Type: application/json');
   print json_encode($result);
