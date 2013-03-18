@@ -38,10 +38,11 @@ class Static_Query {
   function create_query($include_links = true, $base_path = '') {
     $query = new Query($this->trellis, $include_links, $base_path);
 
-    $query->filters = $this->filters;
-    $query->joins=$this->joins;
-    $query->post_clauses = $this->post_clauses;
-    
+    $query->fields = array_merge($query->fields, $this->fields);
+    $query->filters = array_merge($query->filters, $this->filters);
+    $query->joins = array_merge($query->joins, $this->joins);
+    $query->post_clauses = array_merge($query->post_clauses, $this->post_clauses);
+
     return $query;
   }
 
