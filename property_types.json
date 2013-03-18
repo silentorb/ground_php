@@ -12,7 +12,7 @@
     "default" : ""
   },
   "bool" : {
-    "field_type" : "BIT",
+    "field_type" : "TINYINT(4)",
     "default" : true
   },
   "reference" : {
