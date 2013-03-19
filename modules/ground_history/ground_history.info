@@ -1,6 +1,6 @@
 name = Ground History
 description = History Module for Ground PHP
-core = 6.x
+core = DRUPAL_CORE_COMPATIBILITY
 package = Silent Orb
 php = 5.3
 

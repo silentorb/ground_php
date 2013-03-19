@@ -1,6 +1,6 @@
 name = Integrity Drupal
 description = Drupal specific extensions to Integrity
-core = 6.x
+core = DRUPAL_CORE_COMPATIBILITY
 package = Silent Orb
 php = 5.3
 

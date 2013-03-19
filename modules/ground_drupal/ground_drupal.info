@@ -1,6 +1,6 @@
 name = Ground Drupal
 description = Integration of Ground with Drupal's database objects, particularly nodes and users.
-core = 6.x
+core = DRUPAL_CORE_COMPATIBILITY
 package = Silent Orb
 php = 5.3
 
