@@ -419,24 +419,24 @@ SQL;
     return $query->run_as_service(true);
   }
 
-  public static function strip($object, $strip_properties = array()) {
+  public static function strip(&$object, $strip_properties = array()) {
     if (count($strip_properties) == 0)
       $strip_properties = array('id');
 
     if (is_object($object)) {
       $properties = get_object_vars($object);
       foreach ($strip_properties as $name) {
-        unset($object->{name});
+        unset($object->{$name});
       }
       foreach ($properties as $name => $value) {
         if (is_object($value) || is_array($value)) {
-          Ground::strip($value, $strip_properties);
+          $object->{$name} = Ground::strip($value, $strip_properties);
         }
       }
     }
     else if (is_array($object)) {
       foreach ($strip_properties as $name) {
-        unset($object[name]);
+        unset($object[$name]);
       }
       foreach ($object as $name => $value) {
         if (is_object($value) || is_array($value)) {
@@ -444,10 +444,12 @@ SQL;
           if ($value === $object)
             continue;
           
-          Ground::strip($value, $strip_properties);
+          $object[$name] = Ground::strip($value, $strip_properties);
         }
       }
     }
+    
+    return $object;
   }
 
 }

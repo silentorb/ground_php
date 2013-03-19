@@ -4,7 +4,36 @@ class Ground_Test extends Ground_Test_Case {
   function test_initialization() {
     $this->fixture->load_schemas();
     $this->assertGreaterThan(0, count($this->ground->trellises));
-     $this->assertEquals('object', gettype($this->ground->trellises['warrior']->parent));
+    $this->assertEquals('object', gettype($this->ground->trellises['warrior']->parent));
+  }
+
+  function test_strip() {
+    $sample = array(
+        'id' => 10,
+        'name' => 'surreal',
+    );
+
+    Ground::strip($sample);
+    $this->assertEquals(null, $sample['id']);
+    $this->assertEquals('surreal', $sample['name']);
+
+    $sample = new stdClass();
+    $sample->height = 20;
+    $sample->width = 100;
+    $sample->child = array(
+        'width' => -420,
+        'height' => -400,
+        'child' => array(
+            'height' => 500,
+        )
+    );
+
+    Ground::strip($sample, array('height'));
+    $this->assertEquals(null, $sample->height);
+    $this->assertSame(100, $sample->width);
+    $this->assertEquals(null, $sample->child['height']);
+    $this->assertSame(-420, $sample->child['width']);
+    $this->assertEquals(null, $sample->child['child']['height']);
   }
 
   function test_property_types() {
