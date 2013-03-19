@@ -22,7 +22,7 @@ function ground_php_menu() {
   $items['vineyard/update'] = array(
       'title' => 'Ground Update',
       'page callback' => 'ground_php_update',
-      'access callback' => user_is_logged_in,
+      'access callback' => 'user_is_logged_in',
       'type' => MENU_CALLBACK,
   );
   return $items;
