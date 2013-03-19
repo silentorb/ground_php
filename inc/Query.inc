@@ -16,16 +16,21 @@ class Query {
   public $base_path;
   static public $log_queries = false;
 
-  public function __construct($trellis, $include_links = true, $base_path = '') {
+  public function __construct($trellis, $include_links = true, $base_path = null) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
       $x = $x;
       throw new Exception('An invalid trellis was passed to the Query constructor.');
     }
     $this->trellis = $trellis;
     $this->ground = $this->trellis->ground;
+    $this->expansions = $this->ground->expansions;
     $this->db = $this->ground->db;
     $this->main_table = $trellis->get_table_name();
-    $this->base_path = $base_path;
+    if ($base_path)
+      $this->base_path = $base_path;
+    else
+      $this->base_path = $this->trellis->name;
+
     $this->add_source($trellis);
     if (is_array($include_links))
       $this->include_links = $include_links;
@@ -39,8 +44,7 @@ class Query {
             $this->add_link($link);
         }
         else {
-          $path = $this->get_path($link->name);
-          if ($include_links || $this->has_expansion($path)) {
+          if ($include_links) {
             $this->add_link($link);
           }
         }
@@ -80,6 +84,10 @@ class Query {
 
   function add_post($clause) {
     $this->post_clauses[] = $clause;
+  }
+
+  function add_expansion($clause) {
+    $this->expansions[] = $clause;
   }
 
   function generate_pager($offset = 0, $limit = 0) {
@@ -232,27 +240,34 @@ class Query {
       }
     }
 
-    foreach ($this->links as $name => $link) {
-      $property = $link->property;
-      $id = $row->{$property->parent->primary_key};
+    $links = $this->trellis->get_all_links();
 
-      switch ($property->get_relationship()) {
-        case RELATIONSHIP_ONE_TO_ONE:
-          $row->{$name} = $this->get_reference_object($row, $property, $link->other);
-          break;
-        case RELATIONSHIP_ONE_TO_MANY:
-          $row->{$name} = $this->get_one_to_many_list($id, $property, $link->other);
-          break;
-        case RELATIONSHIP_MANY_TO_MANY:
-          $row->{$name} = $this->get_many_to_many_list($id, $property, $link->other);
-          break;
+    foreach ($links as $name => $property) {
+      $path = $this->get_path($property->name);
+      if (array_key_exists($name, $this->links) || $this->has_expansion($path)) {
+        $other_table = $property->get_referenced_trellis();
+        //$property = $link->property;
+        $id = $row->{$property->parent->primary_key};
+
+        switch ($property->get_relationship()) {
+          case RELATIONSHIP_ONE_TO_ONE:
+            $row->{$name} = $this->get_reference_object($row, $property, $other_table);
+            break;
+          case RELATIONSHIP_ONE_TO_MANY:
+            $row->{$name} = $this->get_one_to_many_list($id, $property, $other_table);
+            break;
+          case RELATIONSHIP_MANY_TO_MANY:
+            $row->{$name} = $this->get_many_to_many_list($id, $property, $other_table);
+            break;
+        }
       }
     }
   }
 
   function get_many_to_many_list($id, $property, $other_table) {
     $other_property = $property->get_other_property();
-    $query = $this->ground->create_query($other_table, false, $this->get_path($this->trellis->name, $property->name));
+    $query = $this->ground->create_query($other_table, false, $this->get_path($property->name));
+    $query->expansions = $this->expansions;
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
     $join_sql = $join->generate_join($id);
@@ -266,13 +281,15 @@ class Query {
       $other_property = $other_table->properties[$other_table->primary_key];
     }
 
-    $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($this->trellis->name, $property->name));
+    $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($property->name));
+    $query->expansions = $this->expansions;
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
   }
 
   function get_reference_object($row, $property, $other_table) {
-    $query = $this->ground->create_query($other_table, false, $this->get_path($this->trellis->name, $property->name));
+    $query = $this->ground->create_query($other_table, false, $this->get_path($property->name));
+    $query->expansions = $this->expansions;
     if (!isset($row->{$property->name})) {
       return null;
 //      throw new Exception("Query result does not have $property->name.");
@@ -297,10 +314,11 @@ class Query {
   }
 
   function has_expansion($path) {
+//    print $path . "\n";
 //    if (!$this->base_path)
 //      return false;
     //$path = $this->get_path($property->name);
-    foreach ($this->ground->expansions as $expansion) {
+    foreach ($this->expansions as $expansion) {
       if (substr($expansion, 0, 1) == '/' && substr($expansion, strlen($expansion) - 1, 1) == '/') {
         if (preg_match($expansion, $path))
           return true;
@@ -318,4 +336,3 @@ class Query {
   }
 
 }
-

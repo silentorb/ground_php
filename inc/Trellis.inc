@@ -11,10 +11,8 @@ class Bloom_Property {
   public $type;
   public $trellis;
   public $readonly = false;
-  
   // This is going to be deprecated in favor of $insert
   public $insert_trellis;
-  
   public $insert;
   public $link_class = null;
   public $property = null; // String reference to the property this connects to on the other trellis.
@@ -345,6 +343,16 @@ class Trellis {
     $attributes->trellis = $other_table->name;
     $property = new Bloom_Property($other_table->name, $attributes, $this);
     return $property;
+  }
+
+  public function get_all_links() {
+    $result = array();
+    $properties = $this->get_all_properties();
+    foreach ($properties as $property) {
+      if ($property->trellis)
+        $result[$property->name] = $property;
+    }
+    return $result;
   }
 
   public function get_links() {
