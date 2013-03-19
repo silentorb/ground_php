@@ -120,7 +120,7 @@ class Query {
       throw new Exception("$property->name added twice to query!");
     }
 
-    $link = new stdClass();
+    $link = new \stdClass();
     $link->other = $property->get_referenced_trellis();
     $link->property = $property;
     $this->links[$property->name] = $link;

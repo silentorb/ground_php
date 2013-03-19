@@ -1,13 +1,13 @@
 <?php
 
-class Content_Query extends Query {
+module_load_include('inc', 'ground_drupal', 'inc/Query');
+
+class Content_Query extends \ground\Query {
   function run() {
     $objects = array();
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
-    if (Query::$log_queries)
-      echo $sql . "\n\n";
 
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {

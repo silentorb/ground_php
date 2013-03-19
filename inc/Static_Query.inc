@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . '/Query.inc';
+
 // Used to create predefined queries.
 class Static_Query {
 
@@ -36,7 +38,7 @@ class Static_Query {
   }
 
   function create_query($include_links = true, $base_path = '') {
-    $query = new Query($this->trellis, $include_links, $base_path);
+    $query = new \ground\Query($this->trellis, $include_links, $base_path);
 
     $query->fields = array_merge($query->fields, $this->fields);
     $query->filters = array_merge($query->filters, $this->filters);
