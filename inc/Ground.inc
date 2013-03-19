@@ -408,9 +408,10 @@ SQL;
     }
 
     // Currently only works for int types.
+    $properties = $query->trellis->get_all_properties();
     foreach ($args as $key => $value) {
-      if (array_key_exists($key, $query->trellis->all_properties)) {
-        $property = $query->trellis->all_properties[$key];
+      if (array_key_exists($key, $properties)) {
+        $property = $properties[$key];
         $query->add_filter($property->query() . ' = ' . (int) $value);
       }
     }
