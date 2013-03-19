@@ -6,16 +6,26 @@ class Ground_Database {
 
   function connect($name) {
     global $db_url;
-
-    if (is_array($db_url)) {
-      if (array_key_exists($name, $db_url))
-        $config = $db_url[$name];
+    global $databases;
+    if ($db_url) {
+      if (is_array($db_url)) {
+        if (array_key_exists($name, $db_url))
+          $config = $db_url[$name];
+        else
+          $config = $db_url['default'];
+      }
+      else {
+        $config = $db_url;
+      }
+    }
+    else if ($databases) {
+      if (array_key_exists($name, $databases))
+        $config = $databases[$name]['default'];
       else
-        $config = $db_url['default'];
+        $config = $databases['default']['default'];
     }
-    else {
-      $config = $db_url;
-    }
+    else
+      throw new Exception("Currently Ground only works with Drupal 6.x and 7.x.");
 
     $connection_string = $this->create_connection_string($config);
     $this->connection = new PDO($connection_string, $config['username'], $config['password'], array(
