@@ -22,7 +22,10 @@ class Ground_Database {
       if (array_key_exists($name, $databases))
         $config = $databases[$name]['default'];
       else
-        $config = $databases['default']['default'];
+        throw new Exception("Could not find specified database.");
+      // I was going to make it default to the default database
+      // but that can be dangerous.
+      //        $config = $databases['default']['default'];
     }
     else
       throw new Exception("Currently Ground only works with Drupal 6.x and 7.x.");

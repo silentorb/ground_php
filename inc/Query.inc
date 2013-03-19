@@ -1,5 +1,7 @@
 <?php
 
+namespace ground;
+
 class Query {
 
   protected $trellises = array();
@@ -174,7 +176,7 @@ class Query {
   }
 
   function run() {
-    $result = new stdClass();
+    $result = new \stdClass();
     $result->objects = array();
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
@@ -190,6 +192,11 @@ class Query {
 
     $this->post_process_result($result);
     return $result->objects;
+  }
+  
+  function run_single() {
+    $objects = $this->run();
+    return $objects[0];
   }
 
   function run_as_service($return_sql = false) {

@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . '/Query.inc';
+
 if (!function_exists('str_to_bool')) {
   function str_to_bool($string) {
     $string = strtolower($string);
@@ -273,13 +275,13 @@ SQL;
     if ($trellis->is_static) {
       return $trellis->create_query($include_links, $base_path);
     }
-    foreach ($this->queries as $key => $query) {
-      if ($trellis->is_a($key)) {
-        return new $query($trellis, $include_links, $base_path);
-      }
-    }
+//    foreach ($this->queries as $key => $query) {
+//      if ($trellis->is_a($key)) {
+//        return new $query($trellis, $include_links, $base_path);
+//      }
+//    }
 
-    return new Query($trellis, $include_links, $base_path);
+    return new \ground\Query($trellis, $include_links, $base_path);
   }
 
   public function create_static_query($query_name, $trellis, $include_links = true) {
@@ -323,6 +325,11 @@ SQL;
     return null;
   }
 
+  function delete_object($trellis, $data) {
+    $delete = new Delete();
+    $delete->run($trellis, $data);
+  }
+
   // Deprecated in favor of update_object():
   function insert_object($trellis, $data = array()) {
     return $this->update_object($trellis, $data);
@@ -337,8 +344,7 @@ SQL;
     // which will be handled by Update.
     // If $data is simply TRUE than the object itself is marked for deletion.
     if ($data->_deleted && !is_object($data->_deleted)) {
-      $delete = new Delete();
-      $delete->run($trellis, $data);
+      $this->delete_object($trellis, $data);
     }
     else {
       $object = $trellis->create_object();
@@ -444,12 +450,12 @@ SQL;
           // Limited prevention of loops:
           if ($value === $object)
             continue;
-          
+
           $object[$name] = Ground::strip($value, $strip_properties);
         }
       }
     }
-    
+
     return $object;
   }
 
