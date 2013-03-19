@@ -53,8 +53,8 @@ class Query_Test extends Ground_Test_Case {
 
   function test_has_expansion() {
     $this->fixture->load_schemas();
-    $query = $this->ground->create_query('warrior');
     $this->ground->expansions[] = '/.*images_fid/';
+    $query = $this->ground->create_query('warrior');
     $this->assertTrue($query->has_expansion('object/images_fid'));
   }
 
