@@ -11,6 +11,9 @@ class Query_Test extends Ground_Test_Case {
     $query = $this->ground->create_query($this->ground->trellises['character_item']);
     $objects = $query->run();
     $this->assertEquals(1, $objects[0]->owner->id);
+
+    $result = $query->run_as_service();
+    $this->assertEquals(1, $result->objects[0]->owner->id);
   }
 
   // Originally Vineyard was designed to only support links that had explicit definitions within both

@@ -200,7 +200,7 @@ class Query {
   }
 
   function run_as_service($return_sql = false) {
-    $result = new stdClass();
+    $result = new \stdClass();
     $result->objects = array();
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
