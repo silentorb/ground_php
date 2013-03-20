@@ -2,7 +2,7 @@ name = Ground PHP
 description = Lightweight ORM/service for Bloom
 core = DRUPAL_CORE_COMPATIBILITY
 package = Silent Orb
-php = 5.2
+php = 5.3
 
 files[] = inc/Delete.inc
 files[] = inc/Dynamic_Query.inc

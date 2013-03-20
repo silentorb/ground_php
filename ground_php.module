@@ -31,8 +31,14 @@ function ground_php_menu() {
 function ground_php_initialize_ground() {
   if (Ground::$vineyard_ground)
     return Ground::$vineyard_ground;
+
   Ground::$vineyard_ground = $ground = new Ground(Ground::$default_database);
-  module_invoke_all('ground', $ground);
+  $ground->irrigation = new Irrigation($ground);
+  module_invoke_all('vineyard', $ground, $irrigation);
+
+  // Deprecated.
+  module_invoke_all('ground', $ground, $irrigation);
+  
   return $ground;
 }
 
@@ -63,7 +69,7 @@ function ground_php_get() {
     $code = $ex->getCode();
     if (!$code)
       $code = '500';
-    
+
     drupal_set_header('Status: ' . $code);
     $result->message = $ex->getMessage();
   }

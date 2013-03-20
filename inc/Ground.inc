@@ -409,8 +409,17 @@ SQL;
   }
 
   public function vineyard_service($trellis, $id = null, $args = array()) {
+    if ($this->irrigation) {
+      $bag = Irrigation::create_bag_from_globals();
+      $channel = $this->irrigation->find_channel($bag->path);
+
+      if ($channel) {
+        return $channel->run($bag);
+      }
+    }
+
     if ($trellis === null)
-      throw new Exception('No trellis was specified.', 400);
+      throw new Exception('No path or trellis was specified.', 404);
 
     $query = $this->create_query($trellis);
     if ($id) {
