@@ -28,6 +28,7 @@ class Irrigation_Test extends Ground_Test_Case {
     $irrigation = new Irrigation($this->ground);
     $irrigation->add_channel('@trellis/resurrect', $this, 'resurrect');
     $irrigation->add_channel('harvest', $this, 'harvest_food');
+    $irrigation->add_channel('mutant/%/squirrels', $this, 'flee');
 
     $channel = $irrigation->find_channel('warrior/resurrect');
     $this->assertEquals('object', gettype($channel));
@@ -40,6 +41,10 @@ class Irrigation_Test extends Ground_Test_Case {
     $channel = $irrigation->find_channel('harvest');
     $this->assertEquals('object', gettype($channel));
     $this->assertEquals('harvest_food', $channel->method);
+    
+    $this->assertNotNull($irrigation->find_channel('mutant/killer/squirrels'));
+    $this->assertNull($irrigation->find_channel('mutant/squirrels'));
+    $this->assertNull($irrigation->find_channel('mutant/killer'));
   }
 
 }

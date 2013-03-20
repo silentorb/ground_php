@@ -58,6 +58,9 @@ class Irrigation {
     if (!$pattern || !$text)
       return false;
 
+    if ($pattern == '%')
+      return true;
+    
     if ($pattern == '@trellis') {
       if ($this->ground)
         return array_key_exists($text, $this->ground->trellises);
