@@ -410,7 +410,7 @@ SQL;
 
   public function vineyard_service($bag) {
     if ($this->irrigation) {
-      $bag = Irrigation::create_bag_from_globals();
+//      $bag = Irrigation::create_bag_from_globals();
       $channel = $this->irrigation->find_channel($bag->path);
 
       if ($channel) {
