@@ -62,6 +62,10 @@ class Irrigation_Test extends Ground_Test_Case {
     $request = new Bag('kill/time');
     $this->ground->vineyard_service($request);
     $this->assertTrue($temp->called);
+
+    $request = new Bag('vineyard/kill/time');
+    $this->ground->vineyard_service($request);
+    $this->assertTrue($temp->called);
   }
 
 }

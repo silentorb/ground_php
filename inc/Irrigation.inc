@@ -8,7 +8,7 @@ class Channel {
 
   public function __construct($path, $target, $method) {
     if (is_string($path))
-      $this->path = Irrigation::convert_path_to_array($path);
+      $this->path = Irrigation::get_path_array($path, Irrigation::$base_path);
     else {
       $this->path = $path;
     }
@@ -31,7 +31,7 @@ class Bag {
 
   public function __construct($path = null) {
     if (is_string($path))
-      $this->path = Irrigation::convert_path_to_array($path);
+      $this->path = Irrigation::get_path_array($path, Irrigation::$base_path);
     else if (is_array($path))
       $this->path = $path;
     else
