@@ -4,15 +4,17 @@ core = DRUPAL_CORE_COMPATIBILITY
 package = Silent Orb
 php = 5.2
 
-files[] = inc/Object_Map.inc
 files[] = inc/Delete.inc
 files[] = inc/Dynamic_Query.inc
-files[] = inc/Link_Trellis.inc
-files[] = inc/Query.inc
-files[] = inc/Update.inc
-files[] = inc/Static_Query.inc
-files[] = inc/Trellis.inc
 files[] = inc/Ground.inc
 files[] = inc/Ground_Module.inc
+files[] = inc/Irrigation.inc
+files[] = inc/Link_Trellis.inc
 files[] = inc/Node_Query.inc
+files[] = inc/Object_Map.inc
+files[] = inc/Query.inc
+files[] = inc/Static_Query.inc
+files[] = inc/Trellis.inc
+files[] = inc/Update.inc
+
 files[] = test/Fixture.inc

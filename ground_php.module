@@ -47,18 +47,26 @@ function ground_php_get() {
   // It's more flexible if I want to get fancy with the REST.
   $trellis = arg(1);
 
-  if ($trellis === null)
-    throw new Exception('No trellis was specified.');
+  $result = new stdClass();
+  try {
+    $ground = ground_php_initialize_ground();
 
-  $ground = ground_php_initialize_ground();
+    if (!$ground)
+      throw new Exception('Ground not initialized.', 500);
 
-  if (!$ground)
-    throw new Exception('Ground not initialized.');
+    if (!$ground->db)
+      throw new Exception('Ground DB not initialized.', 500);
 
-  if (!$ground->db)
-    throw new Exception('Ground DB not initialized.');
-
-  $result = $ground->vineyard_service($trellis, arg(2), $_GET);
+    $result = $ground->vineyard_service($trellis, arg(2), $_GET);
+  }
+  catch (Exception $ex) {
+    $code = $ex->getCode();
+    if (!$code)
+      $code = '500';
+    
+    drupal_set_header('Status: ' . $code);
+    $result->message = $ex->getMessage();
+  }
   drupal_set_header('Content-Type: application/json');
   print json_encode($result);
 }

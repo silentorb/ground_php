@@ -326,6 +326,7 @@ SQL;
   }
 
   function delete_object($trellis, $data) {
+    $trellis = $this->sanitize_trellis_argument($trellis, false);
     $delete = new Delete();
     $delete->run($trellis, $data);
   }
@@ -408,6 +409,9 @@ SQL;
   }
 
   public function vineyard_service($trellis, $id = null, $args = array()) {
+    if ($trellis === null)
+      throw new Exception('No trellis was specified.', 400);
+
     $query = $this->create_query($trellis);
     if ($id) {
       $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) $id);
