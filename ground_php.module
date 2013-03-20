@@ -33,7 +33,10 @@ function ground_php_initialize_ground() {
     return Ground::$vineyard_ground;
 
   Ground::$vineyard_ground = $ground = new Ground(Ground::$default_database);
-  $ground->irrigation = new Irrigation($ground);
+  $irrigation = $ground->irrigation = new Irrigation($ground);
+  global $user;
+  $irrigation->user = $user;
+  
   module_invoke_all('vineyard', $ground, $irrigation);
 
   // Deprecated.
