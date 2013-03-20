@@ -51,7 +51,6 @@ function ground_php_model() {
 function ground_php_get() {
   // For some reason I was having a problem with the typical Drupal routing and just did this for now.
   // It's more flexible if I want to get fancy with the REST.
-  $trellis = arg(1);
 
   $result = new stdClass();
   try {
@@ -63,7 +62,8 @@ function ground_php_get() {
     if (!$ground->db)
       throw new Exception('Ground DB not initialized.', 500);
 
-    $result = $ground->vineyard_service($trellis, arg(2), $_GET);
+    $bag = Irrigation::create_bag_from_globals();
+    $result = $ground->vineyard_service($bag);
   }
   catch (Exception $ex) {
     $code = $ex->getCode();

@@ -29,6 +29,14 @@ class Bag {
   public $arguments;
   public $objects;
 
+  public function __construct($path = null) {
+    if (is_string($path))
+      $this->path = Irrigation::convert_path_to_array($path);
+    else if (is_array($path))
+      $this->path = $path;
+    else
+      $this->path = array();
+  }
 }
 
 class Irrigation {
@@ -37,7 +45,6 @@ class Irrigation {
   public $channels = array();
   // Not used yet.  Will be used for optimized routing.
   public $tree = array();
-  
   // Ground is optional.
   public $ground;
 
@@ -60,7 +67,7 @@ class Irrigation {
 
     if ($pattern == '%')
       return true;
-    
+
     if ($pattern == '@trellis') {
       if ($this->ground)
         return array_key_exists($text, $this->ground->trellises);
