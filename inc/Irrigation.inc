@@ -18,7 +18,7 @@ class Channel {
   }
 
   public function run($bag) {
-    return $this->target->{$this->function}($bag);
+    return $this->target->{$this->method}($bag);
   }
 
 }
