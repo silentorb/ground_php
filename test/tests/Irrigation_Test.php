@@ -8,6 +8,11 @@ class Temp {
 }
 
 class Irrigation_Test extends Ground_Test_Case {
+  function test_get_simple_url_path() {
+    $this->assertEquals('dragon/lair', Irrigation::get_simple_url_path('dragon/lair'));
+    $this->assertEquals('dragon/lair', Irrigation::get_simple_url_path('dragon/lair?treasure=10021903'));
+  }
+  
   function test_get_path_array() {
     $result = Irrigation::get_path_array('home/item/action', 'home');
     $this->assertEquals($result[0], 'item');
