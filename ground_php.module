@@ -2,10 +2,21 @@
 
 if (!function_exists('drupal_add_http_header')) {
   function drupal_add_http_header($name, $value, $append = FALSE) {
-    drupal_set_header($nam . ': ', $value);
+    drupal_set_header($name . ': ', $value);
   }
 
 }
+
+if (!function_exists('drupal_json')) {
+  function drupal_json($var) {
+    drupal_add_http_header('Content-Type', 'application/json');
+
+    if (isset($var)) {
+      echo json_encode($var);
+    }
+  }
+}
+
 function ground_php_menu() {
   $items['vineyard/model.json'] = array(
       'title' => 'Vineyard Model',
@@ -109,3 +120,4 @@ function ground_php_update() {
   }
   drupal_json($result);
 }
+
