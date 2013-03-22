@@ -1,5 +1,11 @@
 <?php
 
+if (!function_exists('drupal_add_http_header')) {
+  function drupal_add_http_header($name, $value, $append = FALSE) {
+    drupal_set_header($nam . ': ', $value);
+  }
+
+}
 function ground_php_menu() {
   $items['vineyard/model.json'] = array(
       'title' => 'Vineyard Model',
@@ -36,18 +42,18 @@ function ground_php_initialize_ground() {
   $irrigation = $ground->irrigation = new Irrigation($ground);
   global $user;
   $irrigation->user = $user;
-  
+
   module_invoke_all('vineyard', $ground, $irrigation);
 
   // Deprecated.
   module_invoke_all('ground', $ground, $irrigation);
-  
+
   return $ground;
 }
 
 function ground_php_model() {
   $ground = ground_php_initialize_ground();
-  drupal_set_header('Content-Type: application/json');
+  drupal_add_http_header('Content-Type', 'application/json');
   print $ground->to_json();
 }
 
@@ -73,10 +79,10 @@ function ground_php_get() {
     if (!$code)
       $code = '500';
 
-    drupal_set_header('Status: ' . $code);
+    drupal_add_http_header('Status', $code);
     $result->message = $ex->getMessage();
   }
-  drupal_set_header('Content-Type: application/json');
+  drupal_add_http_header('Content-Type', 'application/json');
   print json_encode($result);
 }
 
