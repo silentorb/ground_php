@@ -37,6 +37,7 @@ class Bag {
     else
       $this->path = array();
   }
+
 }
 
 class Irrigation {
@@ -115,7 +116,7 @@ class Irrigation {
 
   static function create_bag_from_globals() {
     $bag = new Bag();
-    $bag->path = Irrigation::get_path_array($_SERVER["REQUEST_URI"], Irrigation::$base_path);
+    $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), Irrigation::$base_path);
     $bag->arguments = $_REQUEST;
     $bag->objects = Irrigation::get_post_objects();
 
@@ -168,6 +169,16 @@ class Irrigation {
       array_splice($path, 0, $amount);
 
     return $path;
+  }
+
+  static function get_simple_url_path($url) {
+    $index = strpos($url, '?');
+    if ($index !== false) {
+      return substr($url, 0, $index);
+    }
+    else {
+      return $url;
+    }
   }
 
 }

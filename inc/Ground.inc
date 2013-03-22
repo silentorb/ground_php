@@ -418,8 +418,8 @@ SQL;
       }
     }
 
-    $trellis = $bag->path[1];
-    $id =  $bag->path[2];
+    $trellis = $bag->path[0];
+    $id =  $bag->path[1];
     $args = $bag->arguments;
     
     if ($trellis === null)
