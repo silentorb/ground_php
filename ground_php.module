@@ -2,7 +2,7 @@
 
 if (!function_exists('drupal_add_http_header')) {
   function drupal_add_http_header($name, $value, $append = FALSE) {
-    drupal_set_header($name . ': ', $value);
+    drupal_set_header($name . ': ' . $value);
   }
 
 }
