@@ -298,6 +298,11 @@ class Trellis {
     return $result;
   }
 
+  
+  function get_authorized_properties($user = null, $fortress = null) {
+    return $this->get_all_properties();
+  }
+  
   public function get_core_properties() {
     $result = array();
     foreach ($this->properties as $property) {
@@ -450,6 +455,20 @@ class Trellis {
       $query->add_source($parent, false);
 //      $parent->parent_query($query);
     }
+  }
+
+  function get_join($main_table) {
+    $result = '';
+    if ($this->parent) {
+      $parent = $this->parent;
+      $parent_table = $parent->get_table_name();
+
+      $result = 'JOIN ' . $parent->get_table_query() .
+              ' ON ' . $parent_table . '.' . $parent->primary_key .
+              ' = ' . $main_table . '.' . $this->primary_key;
+    }
+    
+    return $result;
   }
 
   public function query_primary_key() {

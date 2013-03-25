@@ -12,13 +12,13 @@ class Static_Query {
   public $name;
   public $trellis;
   public $is_static = true;
-
+  public $include_links = true;
+  
 //  public $include_links;
 
-  public function __construct($name, $trellis, $include_links = true) {
+  public function __construct($name, $trellis) {
     $this->name = $name;
     $this->trellis = $trellis;
-//    $this->include_links = $include_links;
   }
 
   function add_filter($clause) {
@@ -37,8 +37,8 @@ class Static_Query {
     $this->post_clauses[] = $clause;
   }
 
-  function create_query($include_links = true, $base_path = '') {
-    $query = new \ground\Query($this->trellis, $include_links, $base_path);
+  function create_query($base_path = '') {
+    $query = new \ground\Query($this->trellis, $base_path);
 
     $query->fields = array_merge($query->fields, $this->fields);
     $query->filters = array_merge($query->filters, $this->filters);

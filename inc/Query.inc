@@ -14,14 +14,15 @@ class Query {
   public $links = array();
   public $trellis;
   public $db;
-  public $include_links = false;
+  public $include_links = true;
+  public $fields = array();
   public $base_path;
   static public $log_queries = false;
 
-  public function __construct($trellis, $include_links = true, $base_path = null) {
+  public function __construct($trellis, $base_path = null) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
       $x = $x;
-      throw new Exception('An invalid trellis was passed to the Query constructor.');
+      throw new \Exception('An invalid trellis was passed to the Query constructor.');
     }
     $this->trellis = $trellis;
     $this->ground = $this->trellis->ground;
@@ -33,44 +34,24 @@ class Query {
     else
       $this->base_path = $this->trellis->name;
 
-    $this->add_source($trellis);
-    if (is_array($include_links))
-      $this->include_links = $include_links;
-
-    $current_trellis = $trellis;
-    do {
-      $links = $current_trellis->get_links();
-      foreach ($links as $link) {
-        if (is_array($include_links)) {
-          if (in_array($link->name, $include_links))
-            $this->add_link($link);
-        }
-        else {
-          if ($include_links) {
-            $this->add_link($link);
-          }
-        }
-      }
-    }
-    while ($current_trellis = $current_trellis->parent);
   }
 
-  function add_source($source, $include_primary_key = true) {
-    $this->sources[] = $source;
-    $table_name = $source->get_table_name();
-    $core_properties = $source->get_core_properties();
-    foreach ($core_properties as $property) {
-      if ($property->name != $source->primary_key || $include_primary_key) {
-        $field_name = $property->get_field_name();
-        $sql = $table_name . '.' . $field_name;
-        if ($field_name != $property->name)
-          $sql .= " AS  `$property->name`";
-        $this->add_field($sql);
-      }
-    }
-
-    $source->parent_query($this);
-  }
+//  function add_source($source, $include_primary_key = true) {
+//    $this->sources[] = $source;
+//    $table_name = $source->get_table_name();
+//    $core_properties = $source->get_core_properties();
+//    foreach ($core_properties as $property) {
+//      if ($property->name != $source->primary_key || $include_primary_key) {
+//        $field_name = $property->get_field_name();
+//        $sql = $table_name . '.' . $field_name;
+//        if ($field_name != $property->name)
+//          $sql .= " AS  `$property->name`";
+//        $this->add_field($sql);
+//      }
+//    }
+//
+//    $source->parent_query($this);
+//  }
 
   function add_filter($clause) {
     $this->filters[] = $clause;
@@ -113,11 +94,11 @@ class Query {
       $name = $property;
       $property = $this->trellis->properties[$name];
       if (!$property)
-        throw new Exception($this->trellis->name . ' does not have a property named ' . $name . '.');
+        throw new \Exception($this->trellis->name . ' does not have a property named ' . $name . '.');
     }
 
     if (array_key_exists($property->name, $this->links)) {
-      throw new Exception("$property->name added twice to query!");
+      throw new \Exception("$property->name added twice to query!");
     }
 
     $link = new \stdClass();
@@ -152,16 +133,22 @@ class Query {
       unset($this->trellises[$table]->fields[$field_name]);
   }
 
-  function generate_sql() {
-    global $user;
+  function generate_sql($properties) {
+    $data = $this->get_fields_and_joins($properties);
+    $fields = array_merge($data['fields'], $this->fields);
+    $joins = array_merge($data['joins'], $this->joins);
 
+    if (count($fields) == 0) {
+      throw new \Exception("No authorized fields found for trellis $this->main_table.");
+    }
+    
     $sql = 'SELECT ';
-    $sql .= implode(",\n", $this->fields);
+    $sql .= implode(",\n", $fields);
 
     $sql .= "\nFROM " . $this->main_table;
 
-    if (count($this->joins) > 0) {
-      $sql .= "\n" . implode("\n", $this->joins);
+    if (count($joins) > 0) {
+      $sql .= "\n" . implode("\n", $joins);
     }
 
     if (count($this->filters) > 0) {
@@ -178,7 +165,8 @@ class Query {
   function run() {
     $result = new \stdClass();
     $result->objects = array();
-    $sql = $this->generate_sql();
+    $properties = $this->trellis->get_all_properties();
+    $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
     if (Query::$log_queries)
@@ -186,42 +174,93 @@ class Query {
 
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
-      $this->process_row($row);
+      $this->process_row($row, $properties);
       $result->objects[] = $row;
     }
 
     $this->post_process_result($result);
     return $result->objects;
   }
-  
+
   function run_single() {
     $objects = $this->run();
     return $objects[0];
   }
 
-  function run_as_service($return_sql = false) {
+  function run_as_service($user = null) {
     $result = new \stdClass();
     $result->objects = array();
-    $sql = $this->generate_sql();
+    $properties = $this->trellis->get_authorized_properties($user, $this->fortress);
+    $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
 
     $this->sql = $paged_sql;
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
-      $this->process_row($row);
+      $this->process_row($row, $properties);
       $result->objects[] = $row;
     }
 
     $this->post_process_result($result);
 
-    if ($return_sql)
-      $result->sql = $this->sql;
+//    if ($return_sql)
+//      $result->sql = $this->sql;
 
     return $result;
   }
 
-  function process_row(&$row) {
+  function get_fields_and_joins($properties, $include_primary_key = true) {
+    $fields = array();
+    $trellises = array();
+    foreach ($properties as $property) {
+      if ($property->type == 'list')
+        continue;
+
+      if ($property->name != $source->primary_key || $include_primary_key) {
+        $field_name = $property->get_field_name();
+//        $table_name = $this->trellis->get_table_name();
+        $sql = $property->query();
+        if ($field_name != $property->name)
+          $sql .= " AS  `$property->name`";
+        $fields[] = $sql;
+        $trellises[$property->parent->name] = $property->parent;
+      }
+    }
+    $joins = array();
+    foreach ($trellises as $trellis) {
+      $join = $trellis->get_join($this->main_table);
+      if ($join)
+        $joins[] = $join;
+    }
+
+    return array(
+        'fields' => $fields,
+        'joins' => $joins,
+    );
+  }
+
+//  function get_joins($trellis, $include_links = true) {
+////    $this->add_source($trellis);
+//    $current_trellis = $trellis;
+//    do {
+//      $links = $current_trellis->get_links();
+//      foreach ($links as $link) {
+//        if (is_array($include_links)) {
+//          if (in_array($link->name, $include_links))
+//            $this->add_link($link);
+//        }
+//        else {
+//          if ($include_links) {
+//            $this->add_link($link);
+//          }
+//        }
+//      }
+//    }
+//    while ($current_trellis = $current_trellis->parent);
+//  }
+
+  function process_row(&$row, $authorized_properties = null) {
     // Map field names to bloom property names.
     foreach ($this->trellis->properties as $property) {
       $field_name = $property->get_field_name();
@@ -237,8 +276,8 @@ class Query {
       $this->trellises[$item->name]->translate($row);
     }
 
-    foreach ($this->sources as $source) {
-      foreach ($source->properties as $property) {
+    if ($authorized_properties) {
+      foreach ($authorized_properties as $property) {
         $full_name = $property->name;
 
         if (property_exists($row, $full_name)) {
@@ -246,12 +285,24 @@ class Query {
         }
       }
     }
+//    foreach ($this->sources as $source) {
+//      foreach ($source->properties as $property) {
+//        $full_name = $property->name;
+//
+//        if (property_exists($row, $full_name)) {
+//          $row->$full_name = $this->ground->convert_value($row->$full_name, $property->type);
+//        }
+//      }
+//    }
 
     $links = $this->trellis->get_all_links();
 
     foreach ($links as $name => $property) {
       $path = $this->get_path($property->name);
-      if (array_key_exists($name, $this->links) || $this->has_expansion($path)) {
+      if ($authorized_properties && !array_key_exists($name, $authorized_properties))
+        continue;
+
+      if ($this->include_links === true || $this->has_expansion($path)) {
         $other_table = $property->get_referenced_trellis();
         //$property = $link->property;
         $id = $row->{$property->parent->primary_key};
@@ -288,7 +339,8 @@ class Query {
       $other_property = $other_table->properties[$other_table->primary_key];
     }
 
-    $query = $this->ground->create_query($other_table, $this->include_links, $this->get_path($property->name));
+    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
+    $query->include_links = false;
     $query->expansions = $this->expansions;
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();

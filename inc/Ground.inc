@@ -269,11 +269,11 @@ SQL;
     $this->initialize_trellises($subset, $this->trellises);
   }
 
-  public function create_query($trellis, $include_links = true, $base_path = '') {
+  public function create_query($trellis, $base_path = '') {
     $trellis = $this->sanitize_trellis_argument($trellis, true);
 
     if ($trellis->is_static) {
-      return $trellis->create_query($include_links, $base_path);
+      return $trellis->create_query($base_path);
     }
 //    foreach ($this->queries as $key => $query) {
 //      if ($trellis->is_a($key)) {
@@ -281,12 +281,12 @@ SQL;
 //      }
 //    }
 
-    return new \ground\Query($trellis, $include_links, $base_path);
+    return new \ground\Query($trellis, $base_path);
   }
 
-  public function create_static_query($query_name, $trellis, $include_links = true) {
+  public function create_static_query($query_name, $trellis) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
-    $result = new Static_Query($query_name, $trellis, $include_links);
+    $result = new Static_Query($query_name, $trellis);
     $this->static_queries[$query_name] = $result;
     return $result;
   }

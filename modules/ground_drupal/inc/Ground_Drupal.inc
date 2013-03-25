@@ -7,7 +7,7 @@ class Ground_Drupal extends Ground_Module {
     $info->parent = 'int';
     $this->ground->property_types['file'] = new Property_Type('file', $info, $this->ground->property_types);
     $path = drupal_get_path('module', 'ground_drupal');
-    $this->ground->load_schema_from_file($path . '/ground_drupal.json');
+    $this->ground->load_schema_from_file($path . '/json/ground_drupal.json');
   }
 
   static function add_user($ground, $name, $password, $email, $roles = array()) {
