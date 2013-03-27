@@ -6,6 +6,15 @@ class Ground_Test extends Ground_Test_Case {
     $this->assertGreaterThan(0, count($this->ground->trellises));
     $this->assertEquals('object', gettype($this->ground->trellises['warrior']->parent));
   }
+  
+  function test_sanitize_string() {
+    $this->assertEquals('name', Ground_Database::sanitize_string('name'));
+    $this->assertEquals('name_2', Ground_Database::sanitize_string('name_2'));
+    $this->assertEquals(3, Ground_Database::sanitize_string('3'));
+    $this->assertEquals(2, Ground_Database::sanitize_string(2));
+    $this->assertEquals('', Ground_Database::sanitize_string("'"));
+    $this->assertEquals('', Ground_Database::sanitize_string('"'));
+  }
 
   function test_strip() {
     $sample = array(

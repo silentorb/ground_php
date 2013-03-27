@@ -9,14 +9,28 @@
       "indexes": {
         "test_index": {
           "fields": [
-          "race",
-          "age"
+            "race",
+            "age"
           ]
         }
       }
     },
     "base" : {
       "name": "base_objects"
+    },
+    "branches_deeds": {
+      "name": "deedbranch",
+      "primary_keys": [ "bid", "did" ],
+      "properties": {
+        "bid": {
+          "type": "reference",
+          "trellis": "branch"
+        },
+        "did": {
+          "type": "reference",
+          "trellis": "deed"
+        }
+      }
     }
   },
   "trellises": {
@@ -95,6 +109,10 @@
         "author": {
           "type": "int",
           "insert": "author"
+        },
+        "branches": {
+          "type": "list",
+          "trellis": "branch"
         }
       }
     },
@@ -116,6 +134,10 @@
           "type": "list",
           "trellis": "branch",
           "property": "parent"
+        },
+        "deeds": {
+          "type": "list",
+          "trellis": "deed"
         }
       }
     }

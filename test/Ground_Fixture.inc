@@ -35,4 +35,12 @@ class Ground_Fixture extends Fixture {
 //    $result = $update->run();
   }
 
+  function insert_custom_cross_table() {
+    $db = $this->ground->db;
+    // Add cross table to database.  It's not automatically added because it has no trellis.
+    $table = $this->ground->tables['branches_deeds'];
+    $sql = $table->create_sql();
+    $db->query($sql);
+  }
+
 }

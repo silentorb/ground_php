@@ -12,8 +12,9 @@ class Link_Trellis {
     $this->property = $property;
     $this->args = $this->get_arguments($property);
   }
-  
+
   public function create_trellis($ground) {
+
     $trellis = new Trellis($this->args['%table_name'], $ground);
     $trellis->plural = $trellis->name;
     $attributes = new stdClass();
@@ -46,15 +47,43 @@ class Link_Trellis {
     $temp = array($other_table, $property->parent->get_table_name());
     sort($temp);
     $this->table_name = implode('_', $temp);
-
-    return array(
+    $result = array(
         '%first_id' => $property->query(),
         '%second_id' => $other_property->query(),
-        '%table_name' => $this->table_name,
-        '%first_key' => $property->parent->name . $this->id_suffix,
-        '%second_key' => $other_property->parent->name . $this->id_suffix,
         '%back_id' => $other_property->parent->get_table_name() . '.' . $other_property->parent->primary_key,
     );
+
+    $ground = $property->parent->ground;
+    $table = $ground->tables[$this->table_name];
+    if ($table && count($table->properties) >= 2) {
+      foreach ($table->properties as $name => $field) {
+        if ($field->trellis === $property->trellis) {
+          $first_key = $name;
+        }
+        else if ($field->trellis === $other_property->trellis) {
+          $second_key = $name;
+        }
+      }
+
+      if (!$first_key || !$second_key) {
+        throw new Exception("Properties do not line up for cross table $this->table_name.");
+      }
+
+      $result = array_merge($result, array(
+          '%table_name' => $table->name,
+          '%first_key' => $first_key,
+          '%second_key' => $second_key,
+              ));
+    }
+    else {
+      $result = array_merge($result, array(
+          '%table_name' => $this->table_name,
+          '%first_key' => $property->parent->name . $this->id_suffix,
+          '%second_key' => $other_property->parent->name . $this->id_suffix,
+              ));
+    }
+
+    return $result;
   }
 
   function populate_sql($sql) {

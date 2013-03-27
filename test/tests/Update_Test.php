@@ -108,8 +108,8 @@ class Update_Test extends Ground_Test_Case {
     $this->assertEquals(7, $objects[0]->author);
     $user->uid = $storage;
   }
-  
-    function test_insert_author2() {
+
+  function test_insert_author2() {
     global $user;
     $storage = $user->uid;
     $this->fixture->load_schemas();
@@ -120,6 +120,23 @@ class Update_Test extends Ground_Test_Case {
 
     $objects = $this->ground->create_query('deed')->run();
     $this->assertSame(0, $objects[0]->author);
+  }
+
+  function test_custom_cross_table() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $this->fixture->insert_custom_cross_table();
+    $account = $this->fixture->insert_object('deed', array(
+        'branches' => array(
+            array(
+                'name' => 'no one',
+            )
+        )
+            ));
+
+    $this->assertNotNull($account->roles);
+    $objects = $this->ground->create_query('deed')->run();
+    $this->assertEquals('no one', $objects[0]->roles);
   }
 
 }

@@ -62,6 +62,70 @@ class Bloom_Property {
     throw new Exception("$this->name could not find valid field type.");
   }
 
+  public function get_field_value($value) {
+    if (is_string($value))
+      $value = str_replace("'", "\\'", $value);
+
+    if ($value === true)
+      return 'TRUE';
+    else if ($value === false)
+      return 'FALSE';
+
+    if ($this->type == 'string' || $this->type == 'text') {
+      $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
+    }
+    else if ($this->type == 'created') {
+      $value = time();
+    }
+    else if ($this->type == 'modified') {
+      $value = time();
+    }
+    else if ($this->type == 'reference') {
+      if (is_array($value)) {
+        $value = (object) $value;
+      }
+      if (is_object($value)) {
+        if ($value->trellis) {
+          $trellis = $value->trellis;
+//            $this_name = $this->parent->name . '->' . $this->name;
+//            throw new Exception("Cannot update reference because value for '$this_name' is an object that does not have an id.");
+        }
+        else {
+          $trellis = $this->trellis;
+        }
+        $ground = $this->parent->ground;
+        $trellis = $ground->trellises[$trellis];
+
+        $object = $ground->update_object($trellis, $value);
+        $other_id = $this->get_other_id($value);
+        if ($other_id !== null) {
+          $value = $other_id;
+        }
+        else {
+          $value = $object->{$trellis->primary_key};
+        }
+      }
+    }
+
+    if (!$value && $this->insert == 'author') {
+      global $user;
+      $value = $user->uid;
+    }
+
+    if ($value === null) {
+      $value = 'NULL';
+    }
+
+    if (is_object($value)) {
+      throw new Exception("Property $this->name cannot be an object.");
+    }
+
+    if (is_array($value))
+      throw new Exception("Property $this->name cannot be an array.");
+
+    return $value;
+  }
+
   public function get_default() {
     if (isset($this->default))
       return $this->default;
@@ -298,11 +362,22 @@ class Trellis {
     return $result;
   }
 
-  
-  function get_authorized_properties($user = null, $fortress = null) {
-    return $this->get_all_properties();
+  function get_authorized_properties($account = null, $fortress = null, $access = 1) {
+    if ($fortress === null)
+      return $this->get_all_properties();
+
+    $properties = $this->get_all_properties();
+    $base_path = $this->name . '/';
+    $result = array();
+    foreach ($properties as $property) {
+      $property_access = $fortress->access($account, $base_path . $property->name);
+      if ($property >= $access) {
+        $result[$property->name] = $property;
+      }
+    }
+    return $result;
   }
-  
+
   public function get_core_properties() {
     $result = array();
     foreach ($this->properties as $property) {
@@ -467,7 +542,7 @@ class Trellis {
               ' ON ' . $parent_table . '.' . $parent->primary_key .
               ' = ' . $main_table . '.' . $this->primary_key;
     }
-    
+
     return $result;
   }
 

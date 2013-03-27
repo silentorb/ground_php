@@ -1,5 +1,7 @@
 <?php
 
+require_once realpath(dirname(__FILE__)) . '/irrigation/Path.inc';
+
 class Channel {
 
   public $path;
@@ -26,7 +28,7 @@ class Channel {
 class Bag {
 
   public $path;
-  public $arguments;
+  public $arguments = array();
   public $objects;
 
   public function __construct($path = null) {
@@ -113,7 +115,7 @@ class Irrigation {
 
     return $channels[0];
   }
-
+  
   static function create_bag_from_globals() {
     $bag = new Bag();
     $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), Irrigation::$base_path);
@@ -179,6 +181,18 @@ class Irrigation {
     else {
       return $url;
     }
+  }
+
+  static function path_arrays_match($a, $b) {
+    if (count($a) != count($b))
+      return false;
+
+    foreach ($a as $key => $value) {
+      if ($b[$key] != $value)
+        return false;
+    }
+
+    return true;
   }
 
 }

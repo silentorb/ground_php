@@ -169,66 +169,7 @@ SQL;
       $value = $this->seed->{$property->name};
     }
 
-    if (is_string($value))
-      $value = str_replace("'", "\\'", $value);
-
-    if ($value === true)
-      return 'TRUE';
-    else if ($value === false)
-      return 'FALSE';
-
-    if ($property->type == 'string' || $property->type == 'text') {
-      $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
-    }
-    else if ($property->type == 'created') {
-      $value = time();
-    }
-    else if ($property->type == 'modified') {
-      $value = time();
-    }
-    else if ($property->type == 'reference') {
-      if (is_array($value)) {
-        $value = (object) $value;
-      }
-      if (is_object($value)) {
-        if ($value->trellis) {
-          $trellis = $value->trellis;
-//            $property_name = $property->parent->name . '->' . $property->name;
-//            throw new Exception("Cannot update reference because value for '$property_name' is an object that does not have an id.");
-        }
-        else {
-          $trellis = $property->trellis;
-        }
-        $trellis = $this->ground->trellises[$trellis];
-
-        $object = $this->ground->update_object($trellis, $value);
-        $other_id = $property->get_other_id($value);
-        if ($other_id !== null) {
-          $value = $other_id;
-        }
-        else {
-          $value = $object->{$trellis->primary_key};
-        }
-      }
-    }
-    
-    if (!$value && $property->insert == 'author') {
-      global $user;
-      $value = $user->uid;
-    }
-
-    if ($value === null) {
-      $value = 'NULL';
-    }
-
-    if (is_object($value)) {
-      throw new Exception("Property $property_name cannot be an object.");
-    }
-
-    if (is_array($value))
-      throw new Exception("Property $property_name cannot be an array.");
-
-    return $value;
+   return $property->get_field_value($value);
   }
 
   protected function update_links($trellis, $id, $create = false) {

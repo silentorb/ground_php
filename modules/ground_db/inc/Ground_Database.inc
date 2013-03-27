@@ -143,4 +143,7 @@ class Ground_Database {
     return $this->connection->lastInsertId($name);
   }
 
+  function sanitize_string($string) {
+    return preg_replace('/[^\w]/', '', (string)$string);
+  }
 }

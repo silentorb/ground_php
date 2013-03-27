@@ -12,7 +12,7 @@ class Irrigation_Test extends Ground_Test_Case {
     $this->assertEquals('dragon/lair', Irrigation::get_simple_url_path('dragon/lair'));
     $this->assertEquals('dragon/lair', Irrigation::get_simple_url_path('dragon/lair?treasure=10021903'));
   }
-  
+
   function test_get_path_array() {
     $result = Irrigation::get_path_array('home/item/action', 'home');
     $this->assertEquals($result[0], 'item');
@@ -71,6 +71,21 @@ class Irrigation_Test extends Ground_Test_Case {
     $request = new Bag('vineyard/kill/time');
     $this->ground->vineyard_service($request);
     $this->assertTrue($temp->called);
+  }
+
+  function test_dynamic_service_filters() {
+    $this->fixture->populate_database();
+    $irrigation = $this->ground->irrigation = new Irrigation($this->ground);
+    $this->fixture->insert_object('warrior', array(
+        'name' => 'Frank',
+        'race' => 'detective',
+        'age' => 18,
+    ));
+
+    $request = new Bag('warrior');
+    $request->arguments['name'] = 'Frank';
+    $result = $this->ground->vineyard_service($request);
+    $this->assertSame(1, count($result->objects));
   }
 
 }

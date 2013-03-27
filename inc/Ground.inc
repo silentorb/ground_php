@@ -435,7 +435,7 @@ SQL;
     foreach ($args as $key => $value) {
       if (array_key_exists($key, $properties)) {
         $property = $properties[$key];
-        $query->add_filter($property->query() . ' = ' . (int) $value);
+        $query->add_filter($property->query() . ' = ' . $property->get_field_value($value));
       }
     }
     //$query->add_post('ORDER BY name');

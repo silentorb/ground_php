@@ -1,0 +1,7 @@
+name = Fortress
+description = Ground Authorization
+core = DRUPAL_CORE_COMPATIBILITY
+package = Silent Orb
+php = 5.3
+
+files[] = inc/Fortress.inc
