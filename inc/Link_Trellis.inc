@@ -43,8 +43,11 @@ class Link_Trellis {
 
   public function get_arguments($property) {
     $other_property = $property->get_other_property();
-    $other_table = $other_property->parent->get_table_name();
-    $temp = array($other_table, $property->parent->get_table_name());
+    
+    // Since we are checking for an ideal cross table name,
+    // Use plural trellis names instead of any table name overrides.
+    $other_table = $other_property->parent->get_plural();
+    $temp = array($other_table, $property->parent->get_plural());
     sort($temp);
     $this->table_name = implode('_', $temp);
     $result = array(
