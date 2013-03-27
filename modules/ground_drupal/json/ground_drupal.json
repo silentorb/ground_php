@@ -16,6 +16,9 @@
         }
       }
     },
+    "role": {
+      "name": "role"
+    },
     "roles_users": {
       "name": "users_roles",
       "primary_keys": [ "uid", "rid" ],
