@@ -190,15 +190,6 @@
         "email": {
           "type": "string"
         },
-        "mode": {
-          "type": "bool"
-        },
-        "sort": {
-          "type": "bool"
-        },
-        "threshold": {
-          "type": "bool"
-        },
         "theme": {
           "type": "string"
         },
