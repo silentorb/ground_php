@@ -33,7 +33,6 @@ class Query {
       $this->base_path = $base_path;
     else
       $this->base_path = $this->trellis->name;
-
   }
 
 //  function add_source($source, $include_primary_key = true) {
@@ -141,7 +140,7 @@ class Query {
     if (count($fields) == 0) {
       throw new \Exception("No authorized fields found for trellis $this->main_table.");
     }
-    
+
     $sql = 'SELECT ';
     $sql .= implode(",\n", $fields);
 
@@ -324,7 +323,8 @@ class Query {
 
   function get_many_to_many_list($id, $property, $other_table) {
     $other_property = $property->get_other_property();
-    $query = $this->ground->create_query($other_table, false, $this->get_path($property->name));
+    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
+    $query->include_links = false;
     $query->expansions = $this->expansions;
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
@@ -347,7 +347,8 @@ class Query {
   }
 
   function get_reference_object($row, $property, $other_table) {
-    $query = $this->ground->create_query($other_table, false, $this->get_path($property->name));
+    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
+    $query->include_links = false;
     $query->expansions = $this->expansions;
     if (!isset($row->{$property->name})) {
       return null;

@@ -4,6 +4,8 @@ class Fortress_Test extends Ground_Test_Case {
   public function test_expansion() {
     $this->ground->add_module('Ground_Drupal');
     $this->fixture->populate_database();
+    $this->fixture->add_roles_users();
+
     $this->fixture->insert_object('user', array(
         'name' => 'The Cool One',
         'email' => 'cool@nowhere.com',
@@ -38,3 +40,4 @@ class Fortress_Test extends Ground_Test_Case {
   }
 
 }
+

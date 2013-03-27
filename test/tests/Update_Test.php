@@ -123,20 +123,20 @@ class Update_Test extends Ground_Test_Case {
   }
 
   function test_custom_cross_table() {
+    $db = $this->ground->db;
     $this->fixture->load_schemas();
     $this->fixture->prepare_database();
-    $this->fixture->insert_custom_cross_table();
-    $account = $this->fixture->insert_object('deed', array(
+    $deed = $this->fixture->insert_object('deed', array(
         'branches' => array(
             array(
                 'name' => 'no one',
             )
         )
             ));
-
-    $this->assertNotNull($account->roles);
+    $this->assertEquals('no one', $db->query_value('SELECT name FROM branches WHERE id = 1'));
+    $this->assertNotNull($deed->branches);
     $objects = $this->ground->create_query('deed')->run();
-    $this->assertEquals('no one', $objects[0]->roles);
+    $this->assertSame('no one', $objects[0]->branches[0]->name);
   }
 
 }

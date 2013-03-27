@@ -169,7 +169,7 @@ SQL;
       $value = $this->seed->{$property->name};
     }
 
-   return $property->get_field_value($value);
+    return $property->get_field_value($value);
   }
 
   protected function update_links($trellis, $id, $create = false) {
@@ -203,12 +203,14 @@ SQL;
 
   protected function update_many_to_many($property, $id, $create = false) {
     $list = $this->seed->{$property->name};
-    if (!$list)
+    if (!is_array($list))
       return;
 
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
     $currently_in_table = array();
+
+    $other_trellis = $property->get_referenced_trellis();
 
     if (!$create) {
       $rows = $join->query_rows($id);
@@ -224,6 +226,12 @@ SQL;
     }
 
     foreach ($list as $other_id) {
+      $object = $other_id;
+      $other_id = $other_trellis->get_id($object);
+      if ($other_id === null) {
+        $object = $this->ground->update_object($other_trellis, $object);
+        $other_id = $other_trellis->get_id($object);
+      }
       if (!in_array($other_id, $currently_in_table)) {
         $this->db->query($join->generate_insert($id, $other_id));
       }

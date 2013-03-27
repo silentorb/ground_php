@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Rule.inc';
+
 class Fortress extends Ground_Module {
 
   public $rules = array();
@@ -92,29 +94,3 @@ class Pattern_Condition extends Base_Condition {
   }
 
 }
-
-namespace ground\fortress;
-
-class Rule {
-
-  public $resource;
-  public $condition;
-  public $access;
-  public $weight = 0;
-
-  public function __construct($resource, $condition, $access) {
-    $this->resource = new irrigation\Path($resource);
-    $this->condition = $condition;
-    $this->access = $access;
-  }
-
-  public function check($account, $factors = null) {
-    if ($this->condition === true) {
-      return true;
-    }
-
-    return false;
-  }
-
-}
-

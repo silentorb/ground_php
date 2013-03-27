@@ -408,6 +408,17 @@ class Trellis {
     return $result;
   }
 
+  public function get_id($value) {
+    if (is_object($value)) {
+      return $value->{$this->primary_key};
+    }
+    else if (is_array($value)) {
+      return $value[$this->primary_key];
+    }
+
+    return $value;
+  }
+
   public function get_link_property($other_table) {
     foreach ($this->all_properties as $link) {
       if ($link->trellis == $other_table->name) {

@@ -77,7 +77,6 @@ class Query_Test extends Ground_Test_Case {
 
   function test_tree() {
     $this->prepare_tree();
-    $this->fixture->insert_custom_cross_table();
 
     $query = $this->ground->create_query('branch');
     $query->add_filter('branches.id = 1');
@@ -89,7 +88,6 @@ class Query_Test extends Ground_Test_Case {
 
   function test_tree_part_two() {
     $this->prepare_tree();
-    $this->fixture->insert_custom_cross_table();
 
     $this->ground->expansions[] = 'dummy/test';
     $this->ground->expansions[] = 'branch/children/children';
@@ -104,7 +102,6 @@ class Query_Test extends Ground_Test_Case {
 
   function test_cross_table_override() {
     $this->fixture->populate_database();
-    $this->fixture->insert_custom_cross_table();
     $db = $this->ground->db;
     $db->query("INSERT INTO deedbranch (bid, did) VALUES (2, 1)");
     $this->assertSame('1', $db->query_value('SELECT COUNT(*) FROM deedbranch'));

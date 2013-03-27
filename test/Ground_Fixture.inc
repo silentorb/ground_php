@@ -12,6 +12,11 @@ class Ground_Fixture extends Fixture {
     $this->trellis = $this->ground->trellises['warrior'];
   }
 
+  function prepare_database() {
+    parent::prepare_database();
+    $this->insert_custom_cross_table();
+  }
+
   function populate_database() {
     $this->load_schemas();
     $this->prepare_database();
@@ -39,8 +44,16 @@ class Ground_Fixture extends Fixture {
     $db = $this->ground->db;
     // Add cross table to database.  It's not automatically added because it has no trellis.
     $table = $this->ground->tables['branches_deeds'];
-    $sql = $table->create_sql();
-    $db->query($sql);
+    if ($table) {
+      $sql = $table->create_sql();
+      $db->query($sql);
+    }
+  }
+
+  function add_roles_users() {
+    $db = $this->ground->db;
+    $table = $this->ground->tables['roles_users'];
+    $db->query($table->create_sql());
   }
 
 }

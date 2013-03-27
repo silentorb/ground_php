@@ -5,6 +5,7 @@ class Drupal_Test extends Drupal_Test_Case {
     parent::setUp();
     $this->ground->add_module('Ground_Drupal');
     $this->fixture->prepare_database();
+    $this->fixture->add_roles_users();
   }
 
   function test_users() {

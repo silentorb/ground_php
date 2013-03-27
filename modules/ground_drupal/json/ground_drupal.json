@@ -26,7 +26,7 @@
         },
         "rid": {
           "type": "reference",
-          "trellis": "roles"
+          "trellis": "role"
         }
       }
     }
@@ -242,7 +242,7 @@
         },
         "roles": {
           "type": "list",
-          "trellis": "user"
+          "trellis": "role"
         }
       }
     },

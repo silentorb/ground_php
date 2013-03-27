@@ -1,6 +1,6 @@
 <?php
 
-require_once realpath(dirname(__FILE__)) . '/irrigation/Path.inc';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . '/irrigation/Path.inc';
 
 class Channel {
 
@@ -115,7 +115,7 @@ class Irrigation {
 
     return $channels[0];
   }
-  
+
   static function create_bag_from_globals() {
     $bag = new Bag();
     $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), Irrigation::$base_path);
@@ -193,6 +193,10 @@ class Irrigation {
     }
 
     return true;
+  }
+
+  static function import() {
+    
   }
 
 }
