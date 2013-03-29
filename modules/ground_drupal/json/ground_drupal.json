@@ -292,7 +292,7 @@
         }
       }
     },    
-    "sessions": {
+    "session": {
       "primary_key": "sid",
       "properties": {
         "uid": {
