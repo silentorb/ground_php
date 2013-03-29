@@ -291,6 +291,29 @@
           "trellis": "user"
         }
       }
+    },    
+    "sessions": {
+      "primary_key": "sid",
+      "properties": {
+        "uid": {
+          "type": "int"
+        },
+        "sid": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "int"
+        },
+        "cache": {
+          "type": "int"
+        },
+        "session": {
+          "type": "text"
+        }
+      }
     }
   }
 }
