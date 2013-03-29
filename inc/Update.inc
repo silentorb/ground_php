@@ -54,7 +54,7 @@ class Update extends Meta_Object {
       $ids = array();
       foreach ($primary_keys as $key) {
         $ids[$key] = $this->seed->{$key};
-        $conditions[] = $key . ' = ' . $ids[$key];
+        $conditions[] = $key . ' = ' . $trellis->properties[$key]->get_field_value($ids[$key]);
       }
       $condition_string = implode(' AND ', $conditions);
       if (!$condition_string) {

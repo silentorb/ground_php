@@ -133,10 +133,23 @@ class Update_Test extends Ground_Test_Case {
             )
         )
             ));
-    $this->assertEquals('no one', $db->query_value('SELECT name FROM branches WHERE id = 1'));
+    $this->assertEquals('no one', $db->query_value("SELECT name FROM branches WHERE id = '1'"));
     $this->assertNotNull($deed->branches);
     $objects = $this->ground->create_query('deed')->run();
     $this->assertSame('no one', $objects[0]->branches[0]->name);
+  }
+
+  function test_string_keys() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $this->fixture->insert_object('string_test', array(
+        'name' => 'orchard',
+        'fruit' => 'pear',
+    ));
+
+    $objects = $this->ground->create_query('string_test')->run();
+    $this->assertEquals('orchard', $objects[0]->name);
+    $this->assertEquals('pear', $objects[0]->fruit);
   }
 
 }
