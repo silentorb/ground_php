@@ -1,0 +1,37 @@
+{
+  "tables": {
+    "song": {
+      "name": "songbird_songs"
+    }
+  },
+  "trellises": {
+    "song_type": {
+      "id": {
+        "type": "int"
+      },
+      "name": {
+        "type": "string"
+      }
+    },
+    "songs": {
+      "id": {
+        "type": "int"
+      },
+      "name": {
+        "type": "string"
+      },
+      "user": {
+        "type": "reference",
+        "trellis": "user",
+        "insert": "author"
+      },
+      "type": {
+        "type": "reference",
+        "trellis": "song_type"
+      },
+      "timestamp": {
+        "type": "created",
+      }
+    }
+  }
+}
