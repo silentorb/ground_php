@@ -65,7 +65,12 @@ function ground_php_initialize_ground() {
 function ground_php_model() {
   $ground = ground_php_initialize_ground();
   drupal_add_http_header('Content-Type', 'application/json');
-  print $ground->to_json();
+  $json = $ground->to_json();
+  print $json;
+  
+  if ($_GET['update'] = 'true') {
+    file_put_contents(realpath('./') . '/model.json', $json);
+  }
 }
 
 function ground_php_get() {
