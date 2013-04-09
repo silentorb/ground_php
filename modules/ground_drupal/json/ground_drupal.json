@@ -16,6 +16,9 @@
         }
       }
     },
+    "role": {
+      "name": "role"
+    },
     "roles_users": {
       "name": "users_roles",
       "primary_keys": [ "uid", "rid" ],
@@ -286,6 +289,29 @@
         "users": {
           "type": "list",
           "trellis": "user"
+        }
+      }
+    },    
+    "session": {
+      "primary_key": "sid",
+      "properties": {
+        "uid": {
+          "type": "int"
+        },
+        "sid": {
+          "type": "string"
+        },
+        "hostname": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "int"
+        },
+        "cache": {
+          "type": "int"
+        },
+        "session": {
+          "type": "text"
         }
       }
     }

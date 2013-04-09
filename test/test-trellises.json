@@ -9,8 +9,8 @@
       "indexes": {
         "test_index": {
           "fields": [
-            "race",
-            "age"
+          "race",
+          "age"
           ]
         }
       }
@@ -138,6 +138,17 @@
         "deeds": {
           "type": "list",
           "trellis": "deed"
+        }
+      }
+    },
+    "string_test": {
+      "primary_key": "name",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "fruit": {
+          "type": "string"
         }
       }
     }

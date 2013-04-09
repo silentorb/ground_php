@@ -1,0 +1,7 @@
+name = Songbird
+description = Event and user notification system for Ground.
+core = DRUPAL_CORE_COMPATIBILITY
+package = Silent Orb
+php = 5.3
+
+files[] = inc/Songbird.inc
