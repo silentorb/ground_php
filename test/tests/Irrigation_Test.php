@@ -35,6 +35,35 @@ class Irrigation_Test extends Ground_Test_Case {
     $this->assertEquals($result[1], 12);
   }
 
+  function test_prepare_input() {
+    $parameters = array(
+        'fish' => array(
+            'type' => 'int',
+        ),
+        'toad' => array(
+            'type' => 'string',
+            'default' => 'Mr. Mosspuddle',
+        ),
+        'speed' => array(
+            'type' => 'double',
+        ),
+        'cat' => array(
+            'type' => 'bool',
+        ),
+    );
+
+    $arguments = array(
+        'fish' => '20',
+        'speed' => 20.3,
+    );
+    
+    $result =Irrigation::prepare_input($parameters, $arguments);
+    $this->assertSame(20, $result['fish']);
+    $this->assertEquals('Mr. Mosspuddle', $result['toad']);
+    $this->assertSame(20.3, $result['speed']);
+    $this->assertFalse(isset($result['cat']));
+  }
+
   function test_find_channel() {
     $this->fixture->load_schemas();
     $irrigation = new Irrigation($this->ground);

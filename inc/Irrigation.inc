@@ -2,7 +2,11 @@
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'irrigation/Path.inc';
 
-class Channel {
+interface IChannel {
+  public function run($request);
+}
+
+class Channel implements IChannel {
 
   public $path;
   public $target;
@@ -19,8 +23,8 @@ class Channel {
     $this->method = $method;
   }
 
-  public function run($bag) {
-    return $this->target->{$this->method}($bag);
+  public function run($request) {
+    return $this->target->{$this->method}($request);
   }
 
 }
@@ -199,4 +203,77 @@ class Irrigation {
     
   }
 
+  public function load_api_from_file($schema_file) {
+    $data = Ground::load_json_from_file($schema_file);
+    $this->parse_api($data);
+  }
+
+  public function parse_api($data) {
+    if (isset($data->channels)) {
+      $this->load_channels($data->channels);
+    }
+  }
+
+  public function load_channels($channels) {
+    foreach ($channels as $path => $data) {
+      $this->channels[] = new API_Channel($data->target, $data->method, $data->properties);
+    }
+  }
+
+  static function prepare_input($parameters, $arguments) {
+    $result = array();
+    foreach ($parameters as $name => $parameter) {
+      $parameter = (object) $parameter;
+      if (isset($arguments[$name])) {
+        $result[$name] = Irrigation::get_value($arguments[$name], $parameter->type);
+      }
+      else if (isset($parameter->default)) {
+        $result[$name] = $parameter->default;
+      }
+    }
+    return $result;
+  }
+
+  // Similar to the Ground version but simpler and not extendable.  (Which means less dependancies.)
+  static function get_value($value, $type) {
+    switch ($type) {
+      case 'int':
+        return (int) $value;
+        break;
+      case 'string':
+      case 'text':
+      case 'reference':
+        return $value;
+        break;
+      case 'bool':
+        return str_to_bool($value);
+        break;
+      case 'float':
+      case 'double':
+        return (float) $value;
+        break;
+    }
+
+    return null;
+  }
+
 }
+
+//class API_Channel implements IChannel {
+//
+//  public $target;
+//  public $method;
+//  public $parameters;
+//
+//  public function __construct($target, $method, $parameters) {
+//    $this->target = $target;
+//    $this->method = $method;
+//    $this->parameters = $parameters;
+//  }
+//
+//  public function run($request) {
+//    $input = Irrigation::prepare_input($this->parameters, $request);
+//    return $this->target->{$this->method}($input, $request);
+//  }
+//
+//}
