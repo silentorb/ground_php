@@ -38,7 +38,7 @@ class Dynamic_Query {
   function add_pre($clause) {
     $this->pre_clauses[] = $clause;
   }
-  
+
   function add_post($clause) {
     $this->post_clauses[] = $clause;
   }
@@ -102,7 +102,7 @@ class Dynamic_Query {
     $main_sql .= ' ' . implode(' ', $this->post_clauses);
 
     $this->main_sql = $main_sql;
-    
+
     $pre_sql = '';
     if (count($this->pre_clauses))
       $pre_sql = implode(' ', $this->pre_clauses) . ' ';
@@ -126,13 +126,25 @@ class Dynamic_Query {
 
 //    $result->sql = $paged_sql;
 //    return $result;
-    $rows = db_query($paged_sql);
-    $result->timer['main'] = microtime(true) - $start_time;
-    $result->timer['total'] = $result->timer['main'];
-    while ($row = db_fetch_object($rows)) {
-      $this->process_row($row);
-      $result->nodes[] = $row;
+    if ($this->db) {
+      $rows = $this->db->query_objects($paged_sql);
+      $result->timer['main'] = microtime(true) - $start_time;
+      $result->timer['total'] = $result->timer['main'];
+      foreach($rows as $row) {
+        $this->process_row($row);
+        $result->nodes[] = $row;
+      }
     }
+    else {
+      $rows = db_query($paged_sql);
+      $result->timer['main'] = microtime(true) - $start_time;
+      $result->timer['total'] = $result->timer['main'];
+      while ($row = db_fetch_object($rows)) {
+        $this->process_row($row);
+        $result->nodes[] = $row;
+      }
+    }
+
 
     $this->post_process_result($result, $sql);
 
@@ -165,4 +177,5 @@ class Dynamic_Query {
       $result->timer['total'] += $result->timer['count'];
     }
   }
+
 }
