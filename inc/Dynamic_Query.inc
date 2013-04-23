@@ -169,7 +169,7 @@ class Dynamic_Query {
     if ($this->pager) {
       $fields = array_merge(array('node.nid'), $this->filter_fields);
       $field_string = implode(', ', $fields);
-      $sql = "SELECT COUNT(*) FROM (SELECT $field_string" . $this->main_sql . ')';
+      $sql = "SELECT COUNT(*) FROM (SELECT $field_string" . $this->main_sql . ') tmp';
 //      $result->count_sql = $sql;
       $start_time = microtime(true);
       $result->total = db_result(db_query($sql));
