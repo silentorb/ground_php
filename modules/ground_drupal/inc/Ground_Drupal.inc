@@ -26,6 +26,21 @@ class Ground_Drupal extends Ground_Module {
     $ground->load_schema_from_file($path . '/' . $filename);
   }
 
+  static function create_node($ground, $arguments) {
+    if (!isset($arguments['type']))
+      throw new Exception('Node creation requires a type.');
+
+    if (!isset($arguments['uid']))
+      throw new Exception('Node creation requires a uid.');
+
+    $node = $ground->insert_object($arguments['type'], $arguments);
+    $arguments['nid'] = $node->nid;
+    $revision = $ground->insert_object('node_revision', $arguments);
+    $node->vid = $revision->vid;
+    $ground->db->query('UPDATE node SET vid = ? WHERE nid = ?', array($revision->vid, $node->nid));
+    return $node;
+  }
+  
   static function copy_nodes($source, $target) {
     Ground_Drupal::configure_files_expansion($source);
     $query = new Content_Query($source->trellises['node']);

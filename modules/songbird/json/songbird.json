@@ -13,7 +13,7 @@
         "type": "string"
       }
     },
-    "songs": {
+    "song": {
       "id": {
         "type": "int"
       },
@@ -31,6 +31,10 @@
       },
       "timestamp": {
         "type": "created",
+      },
+      "listeners": {
+        "type": "list",
+        "trellis": "user"
       }
     }
   }

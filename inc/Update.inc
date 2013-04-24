@@ -87,7 +87,8 @@ class Update extends Meta_Object {
               || $property->insert_trellis
               || $property->type == 'created'
               || $property->type == 'modified'
-              || $property->insert == 'author') {
+              || $property->insert == 'author'
+              || $property->insert == 'trellis') {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
@@ -130,6 +131,7 @@ class Update extends Meta_Object {
 
       if (property_exists($this->seed, $property->name)
               || $property->insert_trellis
+              || $property->insert == 'trellis'
               || $property->type == 'modified') {
         $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
@@ -162,7 +164,7 @@ SQL;
   }
 
   protected function get_field_value($property) {
-    if ($property->insert_trellis) {
+    if ($property->insert_trellis || $property->insert == 'trellis') {
       $value = $this->trellis->name;
     }
     else {

@@ -67,10 +67,14 @@ class Table {
 
     foreach ($this->properties as $name => $property) {
       $type = $this->ground->property_types[$property->type];
-      $fields[] = (object) array(
-                  'name' => $name,
-                  'type' => $type->get_field_type(),
+      $field = array(
+          'name' => $name,
+          'type' => $type->get_field_type(),
       );
+      if (isset($property->default))
+        $field['default'] = $property->default;
+
+      $fields[] = $field;
     }
 
     if (is_array($this->primary_keys) && count($this->primary_keys) > 0)
@@ -81,22 +85,29 @@ class Table {
     return Table::create_sql_from_array($this->name, $fields, $primary_keys);
   }
 
-  public static function create_sql_from_array($table_name, $source, $primary_keys) {
+  public static function create_sql_from_array($table_name, $source, $primary_keys = array()) {
     $fields = array();
 
-    foreach ($source as $field) {
-      $name = $field->name;
-      $type = $field->type;
+    foreach ($source as $key => $field) {
+      if (isset($field['name']))
+        $name = $field['name'];
+      else
+        $name = $key;
+
+      $type = $field['type'];
 
       if ($type === null)
         continue;
 
       $field_sql = "`$name` $type";
       if (in_array($name, $primary_keys)) {
-        if (strstr($type, 'INT') && $primary_keys[0] == $name)
+        if (strstr($type, 'INT') && $primary_keys[0] == $name) {
           $field_sql .= ' AUTO_INCREMENT';
+        }
       }
-
+      if (isset($field['default'])) {
+        $field_sql .= ' DEFAULT ' . Table::format_value($field['default']);
+      }
       $fields[] = $field_sql;
     }
 
@@ -140,10 +151,15 @@ class Table {
       if ($field && $field->share)
         continue;
 
-      $fields[] = (object) array(
-                  'name' => $property->get_field_name(),
-                  'type' => $property->get_field_type(),
+      $field = array(
+          'name' => $property->get_field_name(),
+          'type' => $property->get_field_type(),
       );
+
+      if (isset($property->default))
+        $field['default'] = $property->default;
+
+      $fields[] = $field;
     }
 
     if (is_array($this->primary_keys) && count($this->primary_keys) > 0)
@@ -152,6 +168,22 @@ class Table {
       $primary_keys = array($trellis->primary_key);
 
     return Table::create_sql_from_array($this->name, $fields, $primary_keys);
+  }
+
+  static function format_value($value) {
+    if (is_string($value))
+      return "'" . $value . "'";
+    
+    if ($value === null)
+      return 'NULL';
+
+    if ($value === true)
+      return 'TRUE';
+
+    if ($value === false)
+      return 'FALSE';
+    
+    return $value;
   }
 
   static function load_fields($db, $name) {

@@ -62,4 +62,28 @@ class Table_Test extends Ground_Test_Case {
     }
   }
 
+  function test_creating_tables() {
+    $db = $this->ground->db;
+    $fields = array(
+        'sid' => array(
+            'type' => 'INT(6)',
+        ),
+        'sword' => array(
+            'type' => 'VARCHAR(255)',
+            'default' => 'vorpal blade'
+        ),
+        'damage' => array(
+            'type' => 'INT(10)',
+            'default' => 16
+        )
+    );
+    $sql = Table::create_sql_from_array('test', $fields, array('sid'));
+    $db->query($sql);
+    $result = Table::load_fields($db, 'test');
+    $this->assertEquals(3, count($result));
+    $this->assertEquals('varchar(255)', $result['sword']->type);
+    $this->assertEquals('vorpal blade', $result['sword']->default);
+    $this->assertEquals(16, $result['damage']->default);
+  }
+
 }

@@ -45,4 +45,35 @@ class Drupal_Test extends Drupal_Test_Case {
     $this->assertEquals(md5('secret'), $objects[0]->password);
   }
 
+  function test_create_node() {
+    // Grab custom node types such as 'monster'.
+    $drupal_ground = $this->drupal_ground = new Ground('ground_drupal');
+    $this->drupal = $drupal_ground->add_module('Ground_Drupal');
+    $cck = $drupal_ground->add_module('CCK');
+    $cck->add_content_types($this->ground);
+    $this->fixture->prepare_database();
+
+    $data = array(
+        'type' => 'monster',
+        'title' => 'Giant Slug',
+        'body' => 'Really big and disgusting.',
+        'uid' => 7,
+    );
+
+    $node = Ground_Drupal::create_node($this->ground, $data);
+    // Right null is the expected result.
+    $this->assertNull($node->status);
+    $this->assertEquals('Giant Slug', $node->title);
+    $this->assertEquals('Really big and disgusting.', $node->body);
+    $this->assertEquals('monster', $node->type);
+
+    $objects = $this->ground->create_query('monster')->run();
+    $node = $objects[0];
+
+    $this->assertEquals(1, $node->status);
+    $this->assertEquals('Giant Slug', $node->title);
+//    $this->assertEquals('Really big and disgusting.', $node->body);
+    $this->assertEquals('monster', $node->type);
+  }
+
 }

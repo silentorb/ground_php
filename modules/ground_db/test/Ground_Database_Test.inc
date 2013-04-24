@@ -25,7 +25,7 @@ class Ground_Database_Test extends Ground_Test_Case {
   function test_create_tables() {
     $this->db->create_tables($this->ground->trellises);
     $count = count($this->db->get_tables());
-    $this->assertEquals(8, $count, "Database has 2 tables.");
+    $this->assertEquals(9, $count);
   }
 
   function test_queries() {

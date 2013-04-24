@@ -131,7 +131,7 @@
           "type": "text"
         },
         "timestamp": {
-          "type": "int"
+          "type": "modified"
         },
         "format": {
           "type": "int"
@@ -148,10 +148,12 @@
           "type": "int"
         },
         "type": {
-          "type": "string"
+          "type": "string",
+          "insert": "trellis"
         },
         "language": {
-          "type": "string"
+          "type": "string",
+          "default": ""
         },
         "title": {
           "type": "string"
@@ -160,7 +162,8 @@
           "type": "int"
         },
         "status": {
-          "type": "int"
+          "type": "int",
+          "default": 1
         },
         "created": {
           "type": "int"
@@ -169,22 +172,28 @@
           "type": "int"
         },
         "comment": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "promote": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "moderate": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "sticky": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "tnid": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "translate": {
-          "type": "int"
+          "type": "int",
+          "default": 0
         },
         "revisions": {
           "type": "list",
@@ -265,7 +274,7 @@
         "type": {
           "type": "string",
           "readonly": true,
-          "insert_trellis": true
+          "insert": "trellis"
         },
         "created": {
           "type": "created",
