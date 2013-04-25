@@ -53,6 +53,7 @@ class Property_Type {
 class Ground extends Meta_Object {
 
   public $trellises = array();
+  public $views = array();
   public $map = array();
   public $queries = array();
   public $property_types = array();
@@ -169,7 +170,7 @@ class Ground extends Meta_Object {
     }
 
     if (isset($data->views)) {
-      $this->views = $data->views;
+      $this->views = array_merge($this->views, (array)$data->views);
     }
 
     if (isset($data->tables)) {
@@ -419,9 +420,9 @@ SQL;
     }
 
     $trellis = $bag->path[0];
-    $id =  $bag->path[1];
+    $id = $bag->path[1];
     $args = $bag->arguments;
-    
+
     if ($trellis === null)
       throw new Exception('No path or trellis was specified.', 404);
 
