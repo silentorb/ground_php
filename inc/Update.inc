@@ -103,16 +103,15 @@ class Update extends Meta_Object {
     $field_string = implode(', ', $fields);
     $value_string = implode(', ', $values);
     $sql = 'INSERT INTO ' . $trellis->get_table_name() . " ($field_string) VALUES ($value_string);\n";
-    $this->invoke('created', $this->seed, $trellis);
     if (Update::$log_queries)
       echo $sql . "\n";
 
     $this->db->query($sql);
-
     // Hard coding conversion to int is a quick fix hack.  Eventually
     // I should convert it based on the type of trellis property.
     $this->seed->{$trellis->primary_key} = $id = (int) $this->db->last_insert_id($trellis->primary_key);
     $this->update_links($trellis, $id, true);
+    $this->ground->invoke('create.' . $trellis->name, $this->seed, $trellis);
     return $sql;
   }
 

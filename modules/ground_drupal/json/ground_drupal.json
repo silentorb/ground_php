@@ -4,7 +4,15 @@
       "name": "location"
     },
     "node": {
-      "name": "node"
+      "name": "node",
+      "indexes": {
+        "vid": {
+          "unique": true,
+          "fields": [
+            "vid"
+          ]
+        }
+      }
     },
     "user": {
       "properties": {

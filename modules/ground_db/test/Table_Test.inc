@@ -77,13 +77,22 @@ class Table_Test extends Ground_Test_Case {
             'default' => 16
         )
     );
-    $sql = Table::create_sql_from_array('test', $fields, array('sid'));
+    $indexes = array(
+        'sword' => array(
+            'unique' => true,
+            'fields' => array('sword'),
+        ),
+    );
+    $sql = Table::create_sql_from_array('test', $fields, array('sid'), $indexes);
     $db->query($sql);
     $result = Table::load_fields($db, 'test');
     $this->assertEquals(3, count($result));
     $this->assertEquals('varchar(255)', $result['sword']->type);
     $this->assertEquals('vorpal blade', $result['sword']->default);
     $this->assertEquals(16, $result['damage']->default);
+
+    $indexes = Table::load_indexes('test', $db);
+    $this->assertEquals(true, $indexes['sword']->unique);
   }
 
 }

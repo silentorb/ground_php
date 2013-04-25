@@ -4,6 +4,7 @@ class Table {
 
   public $name;
   public $properties = array();
+  public $indexes = array();
   public $ground;
   public $db_name;
   public $query;
@@ -85,14 +86,14 @@ class Table {
     return Table::create_sql_from_array($this->name, $fields, $primary_keys);
   }
 
-  public static function create_sql_from_array($table_name, $source, $primary_keys = array()) {
+  public static function create_sql_from_array($table_name, $source, $primary_keys = array(), $indexes = array()) {
     $fields = array();
 
-    foreach ($source as $key => $field) {
+    foreach ($source as $index => $field) {
       if (isset($field['name']))
         $name = $field['name'];
       else
-        $name = $key;
+        $name = $index;
 
       $type = $field['type'];
 
@@ -119,11 +120,18 @@ class Table {
         throw new Exception("Cannot create a table without fields: $table_name.");
     }
 
-    $keys = array();
+    $primary_fields = array();
     foreach ($primary_keys as $key) {
-      $keys[] = "`$key`";
+      $primary_fields[] = "`$key`";
     }
-    $fields[] = "PRIMARY KEY (" . implode(', ', $keys) . ")\n";
+    $fields[] = "PRIMARY KEY (" . implode(', ', $primary_fields) . ")\n";
+    foreach ($indexes as $index) {
+      $index = (object) $index;
+      if ($index->unique) {
+        $index_fields = implode(', ', $index->fields);
+        $fields[] = 'UNIQUE KEY ' . '(`' . $index_fields . "`)\n";
+      }
+    }
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $table_name . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
 
@@ -167,13 +175,13 @@ class Table {
     else
       $primary_keys = array($trellis->primary_key);
 
-    return Table::create_sql_from_array($this->name, $fields, $primary_keys);
+    return Table::create_sql_from_array($this->name, $fields, $primary_keys, $this->indexes);
   }
 
   static function format_value($value) {
     if (is_string($value))
       return "'" . $value . "'";
-    
+
     if ($value === null)
       return 'NULL';
 
@@ -182,7 +190,7 @@ class Table {
 
     if ($value === false)
       return 'FALSE';
-    
+
     return $value;
   }
 
@@ -209,7 +217,7 @@ class Table {
 
   function load_from_database() {
     $this->properties = Table::load_fields($this->ground->db, $this->name);
-    $this->indexes = $this->load_indexes();
+    $this->indexes = Table::load_indexes($this->name, $this->ground->db);
   }
 
   function load_from_schema($source) {
@@ -230,11 +238,11 @@ class Table {
 //    }
   }
 
-  function load_indexes() {
-    $rows = $this->ground->db->query_objects('SHOW INDEX FROM ' . $this->name);
+  static function load_indexes($name, $db) {
+    $rows = $db->query_objects('SHOW INDEX FROM ' . $name);
     $result = array();
     foreach ($rows as $row) {
-      $name = $index->Key_name;
+      $name = $row->Key_name;
 
       // Multiple rows from this query can be part of the same query, so combine them if they are.
       if (!isset($result[$name])) {
