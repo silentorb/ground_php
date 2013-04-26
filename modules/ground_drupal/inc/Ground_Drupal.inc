@@ -57,6 +57,9 @@ class Ground_Drupal extends Ground_Module {
 
   function on_create_node($node) {
     $revision = $this->ground->insert_object('node_revision', $node);
+    // Set the node's vid so any following tables that are attached to it
+    // such as the cck tables can have access to it.
+    $node->vid = $revision->vid;
     $this->ground->db->query('UPDATE node SET vid = ? WHERE nid = ?', array($revision->vid, $node->nid));
   }
 

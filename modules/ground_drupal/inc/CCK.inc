@@ -43,15 +43,21 @@ class CCK extends Ground_Module {
     foreach ($content_types as $name => $fields) {
       $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_type_');
       $cck_trellis->trellis->set_parent($node);
+      $attributes = new stdClass();
+      $attributes->type = 'int';
+      $trellis = $cck_trellis->trellis;
+      $trellis->add_property('vid', $attributes);
       $cck_trellis->create_properties($fields);
       $result['trellises'][$name] = $cck_trellis->trellis;
       $result['tables'][$name] = $cck_trellis->table;
       $this->trellises[$name] = $cck_trellis->trellis;
 
-      $attributes = new stdClass();
-      $attributes->type = 'int';
-      $trellis = $cck_trellis->trellis;
-      $trellis->add_property('vid', $attributes);
+      $cck_trellis->table->indexes['vid'] = array(
+          'unique' => true,
+          'fields' => array(
+              'vid',
+          ),
+      );
     }
     return $result;
   }
@@ -82,6 +88,13 @@ class CCK extends Ground_Module {
         $trellis->add_property('delta', $attributes);
         $cck_trellis->table->primary_keys = array('nid', 'delta');
       }
+
+      $cck_trellis->table->indexes['vid'] = array(
+          'unique' => true,
+          'fields' => array(
+              'vid',
+          ),
+      );
 
       $trellis->primary_key = 'nid';
       $cck_trellis->create_properties(array($new_field), true);
