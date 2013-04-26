@@ -56,6 +56,7 @@ class Ground_Drupal extends Ground_Module {
   }
 
   function on_create_node($node) {
+    unset($node->vid);
     $revision = $this->ground->insert_object('node_revision', $node);
     // Set the node's vid so any following tables that are attached to it
     // such as the cck tables can have access to it.

@@ -175,10 +175,10 @@
           "default": 1
         },
         "created": {
-          "type": "int"
+          "type": "created"
         },
         "changed": {
-          "type": "int"
+          "type": "modified"
         },
         "comment": {
           "type": "int",
