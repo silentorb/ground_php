@@ -163,14 +163,17 @@ class Ground extends Meta_Object {
     $this->parse_schema($data);
   }
 
-  public function parse_schema($data) {
+  public function module($name) {
+    return $this->add_module($name);
+  }
 
+  public function parse_schema($data) {
     if (isset($data->trellises)) {
       $this->load_trellises($data->trellises);
     }
 
     if (isset($data->views)) {
-      $this->views = array_merge($this->views, (array)$data->views);
+      $this->views = array_merge($this->views, (array) $data->views);
     }
 
     if (isset($data->tables)) {
@@ -421,7 +424,7 @@ SQL;
           $result = new stdClass();
           $result->objects = $objects;
         }
-        
+
         return $result;
       }
     }
