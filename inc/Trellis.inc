@@ -74,12 +74,6 @@ class Bloom_Property {
     if ($this->type == 'string' || $this->type == 'text') {
       $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
     }
-    else if ($this->type == 'created') {
-      $value = time();
-    }
-    else if ($this->type == 'modified') {
-      $value = time();
-    }
     else if ($this->type == 'reference') {
       if (is_array($value)) {
         $value = (object) $value;
@@ -87,8 +81,6 @@ class Bloom_Property {
       if (is_object($value)) {
         if ($value->trellis) {
           $trellis = $value->trellis;
-//            $this_name = $this->parent->name . '->' . $this->name;
-//            throw new Exception("Cannot update reference because value for '$this_name' is an object that does not have an id.");
         }
         else {
           $trellis = $this->trellis;
@@ -105,11 +97,6 @@ class Bloom_Property {
           $value = $object->{$trellis->primary_key};
         }
       }
-    }
-
-    if (!$value && $this->insert == 'author') {
-      global $user;
-      $value = $user->uid;
     }
 
     if ($value === null) {
@@ -535,8 +522,8 @@ class Trellis {
       $parent = $this->parent;
       $parent_table = $parent->get_table_name();
       $query->add_join('JOIN ' . $parent->get_table_query() .
-              ' ON ' . $parent_table . '.' . $parent->primary_key .
-              ' = ' . $query->main_table . '.' . $this->primary_key);
+          ' ON ' . $parent_table . '.' . $parent->primary_key .
+          ' = ' . $query->main_table . '.' . $this->primary_key);
 
       $query->add_source($parent, false);
 //      $parent->parent_query($query);
@@ -550,8 +537,8 @@ class Trellis {
       $parent_table = $parent->get_table_name();
 
       $result = 'JOIN ' . $parent->get_table_query() .
-              ' ON ' . $parent_table . '.' . $parent->primary_key .
-              ' = ' . $main_table . '.' . $this->primary_key;
+          ' ON ' . $parent_table . '.' . $parent->primary_key .
+          ' = ' . $main_table . '.' . $this->primary_key;
     }
 
     return $result;

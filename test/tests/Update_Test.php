@@ -22,7 +22,7 @@ class Update_Test extends Ground_Test_Case {
     $axe = $this->fixture->insert_object('character_item', array(
         'name' => 'axe',
         'owner' => $this->fixture->ninja_bob->id,
-            ));
+        ));
 
     $this->assertEquals(2, $axe->id);
 
@@ -39,7 +39,7 @@ class Update_Test extends Ground_Test_Case {
                 'name' => 'laser',
             )
         )
-            ));
+        ));
 
     $objects = $this->ground->create_query('character_item')->run();
     $this->assertEquals('laser', $objects[2]->name);
@@ -60,7 +60,7 @@ class Update_Test extends Ground_Test_Case {
         'id' => $this->cyborg->id,
         'name' => 'Cirguit',
         'age' => 2,
-            ));
+        ));
 
     $objects = $this->ground->create_query('warrior')->run();
     $this->assertEquals(2, count($objects));
@@ -85,7 +85,7 @@ class Update_Test extends Ground_Test_Case {
             'race' => 'cyborg',
             'age' => 1,
         )
-            ));
+        ));
 
     $objects = $this->ground->create_query('warrior')->run();
     $this->assertEquals(1, count($objects));
@@ -127,29 +127,32 @@ class Update_Test extends Ground_Test_Case {
     $this->fixture->load_schemas();
     $this->fixture->prepare_database();
     $deed = $this->fixture->insert_object('deed', array(
+        'id' => 2,
         'branches' => array(
             array(
                 'name' => 'no one',
             )
         )
-            ));
+        ));
     $this->assertEquals('no one', $db->query_value("SELECT name FROM branches WHERE id = '1'"));
     $this->assertNotNull($deed->branches);
     $objects = $this->ground->create_query('deed')->run();
     $this->assertSame('no one', $objects[0]->branches[0]->name);
+
+    $cross = $db->query_objects("SELECT * FROM deedbranch");
+    $this->assertEquals(1, count($cross));
   }
 
-  function test_string_keys() {
-    $this->fixture->load_schemas();
-    $this->fixture->prepare_database();
-    $this->fixture->insert_object('string_test', array(
-        'name' => 'orchard',
-        'fruit' => 'pear',
-    ));
-
-    $objects = $this->ground->create_query('string_test')->run();
-    $this->assertEquals('orchard', $objects[0]->name);
-    $this->assertEquals('pear', $objects[0]->fruit);
-  }
-
+//  function test_string_keys() {
+//    $this->fixture->load_schemas();
+//    $this->fixture->prepare_database();
+//    $this->fixture->insert_object('string_test', array(
+//        'name' => 'orchard',
+//        'fruit' => 'pear',
+//    ));
+//
+//    $objects = $this->ground->create_query('string_test')->run();
+//    $this->assertEquals('orchard', $objects[0]->name);
+//    $this->assertEquals('pear', $objects[0]->fruit);
+//  }
 }

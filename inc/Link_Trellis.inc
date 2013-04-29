@@ -25,8 +25,8 @@ class Link_Trellis {
   }
 
   public function generate_join($id) {
-    $sql = "JOIN %table_name ON %table_name.%first_key = $id" .
-            " AND %table_name.%second_key = %back_id\n";
+    $sql = "JOIN %table_name ON %table_name.%second_key = $id" .
+            " AND %table_name.%first_key = %back_id\n";
     return $this->populate_sql($sql);
   }
 

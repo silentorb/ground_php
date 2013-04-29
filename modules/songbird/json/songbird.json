@@ -1,40 +1,54 @@
 {
   "tables": {
-    "song": {
-      "name": "songbird_songs"
+    "songs_users": {
+      "primary_keys": [ "song", "user"],
+      "properties": {
+        "song": {
+          "type": "reference",
+          "trellis": "song"
+        },
+        "user": {
+          "type": "reference",
+          "trellis": "user"
+        }
+      }
     }
   },
   "trellises": {
     "song_type": {
-      "id": {
-        "type": "int"
-      },
-      "name": {
-        "type": "string"
-      }
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "name": {
+          "type": "string"
+        } 
+      }      
     },
     "song": {
-      "id": {
-        "type": "int"
-      },
-      "name": {
-        "type": "string"
-      },
-      "user": {
-        "type": "reference",
-        "trellis": "user",
-        "insert": "author"
-      },
-      "type": {
-        "type": "reference",
-        "trellis": "song_type"
-      },
-      "timestamp": {
-        "type": "created",
-      },
-      "listeners": {
-        "type": "list",
-        "trellis": "user"
+      "properties": {
+        "id": {
+          "type": "int"
+        },
+        "user": {
+          "type": "reference",
+          "trellis": "user",
+          "insert": "author"
+        },
+        "type": {
+          "type": "reference",
+          "trellis": "song_type"
+        },
+        "timestamp": {
+          "type": "created"
+        },
+        "listeners": {
+          "type": "list",
+          "trellis": "user"
+        },
+        "data": {
+          "type": "string"
+        }
       }
     }
   }

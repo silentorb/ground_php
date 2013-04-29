@@ -2,9 +2,6 @@
 
 class Ground_Fixture extends Fixture {
   function load_schemas() {
-//    foreach ($this->modules as $module) {
-//      $this->ground->add_module($module);
-//    }
     $path = drupal_get_path('module', 'ground_php');
     $this->ground->load_schema_from_file($path . '/vineyard.json');
     $this->ground->load_schema_from_file($path . '/test/test-trellises.json');

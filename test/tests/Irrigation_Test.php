@@ -3,6 +3,9 @@
 class Temp {
   function nothing() {
     $this->called = true;
+    return array(
+        'first item'
+    );
   }
 
 }
@@ -94,8 +97,9 @@ class Irrigation_Test extends Ground_Test_Case {
     $irrigation = $this->ground->irrigation = new Irrigation($this->ground);
     $irrigation->add_channel('kill/%', $temp, 'nothing');
     $request = new Bag('kill/time');
-    $this->ground->vineyard_service($request);
+    $result = $this->ground->vineyard_service($request);
     $this->assertTrue($temp->called);
+    $this->assertEquals('first item', $result->objects[0]);
 
     $request = new Bag('vineyard/kill/time');
     $this->ground->vineyard_service($request);

@@ -62,7 +62,7 @@ class Update extends Meta_Object {
       }
 
       $sql = 'SELECT ' . implode(', ', $primary_keys) . ' FROM ' . $trellis->get_table_name()
-              . ' WHERE ' . $condition_string;
+          . ' WHERE ' . $condition_string;
 
       $id_result = $this->db->query_array($sql);
       if (!$id_result) {
@@ -84,11 +84,11 @@ class Update extends Meta_Object {
         continue;
 
       if (property_exists($this->seed, $property->name)
-              || $property->insert_trellis
-              || $property->type == 'created'
-              || $property->type == 'modified'
-              || $property->insert == 'author'
-              || $property->insert == 'trellis') {
+          || $property->insert_trellis
+          || $property->type == 'created'
+          || $property->type == 'modified'
+          || $property->insert == 'author'
+          || $property->insert == 'trellis') {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
@@ -129,9 +129,9 @@ class Update extends Meta_Object {
         continue;
 
       if (property_exists($this->seed, $property->name)
-              || $property->insert_trellis
-              || $property->insert == 'trellis'
-              || $property->type == 'modified') {
+          || $property->insert_trellis
+          || $property->insert == 'trellis'
+          || $property->type == 'modified') {
         $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         $updates[] = "$field = $value";
@@ -162,15 +162,34 @@ SQL;
     return $sql;
   }
 
-  protected function get_field_value($property) {
+  protected function apply_insert($property, $value) {
     if ($property->insert_trellis || $property->insert == 'trellis') {
-      $value = $this->trellis->name;
-    }
-    else {
-      $value = $this->seed->{$property->name};
+      return $this->trellis->name;
     }
 
-    return $property->get_field_value($value);
+    if ($property->type == 'created') {
+      return time();
+    }
+    if ($property->type == 'modified') {
+      return time();
+    }
+    if (!$value && $property->insert == 'author') {
+      global $user;
+      return $user->uid;
+    }
+
+    return $value;
+  }
+
+  protected function get_field_value($property) {
+    $value = $this->seed->{$property->name};
+
+    $value = $this->apply_insert($property, $value);
+    $this->seed->{$property->name} = $value;
+
+    $result = $property->get_field_value($value);
+
+    return $result;
   }
 
   protected function update_links($trellis, $id, $create = false) {
@@ -234,7 +253,7 @@ SQL;
         $other_id = $other_trellis->get_id($object);
       }
       if (!in_array($other_id, $currently_in_table)) {
-        $this->db->query($join->generate_insert($id, $other_id));
+        $this->db->query($join->generate_insert($other_id, $id));
       }
     }
   }

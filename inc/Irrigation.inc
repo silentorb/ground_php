@@ -256,6 +256,10 @@ class Irrigation {
 
     return null;
   }
+  
+  public function service($request) {
+    return $this->ground->vineyard_service($request);
+  }
 
 }
 

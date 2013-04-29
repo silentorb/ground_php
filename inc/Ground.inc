@@ -409,19 +409,26 @@ SQL;
     return $trellis;
   }
 
-  public function vineyard_service($bag) {
+  public function vineyard_service($request) {
     if ($this->irrigation) {
 //      $bag = Irrigation::create_bag_from_globals();
-      $channel = $this->irrigation->find_channel($bag->path);
+      $channel = $this->irrigation->find_channel($request->path);
 
       if ($channel) {
-        return $channel->run($bag);
+        $result = $channel->run($request);
+        if (is_array($result)) {
+          $objects = $result;
+          $result = new stdClass();
+          $result->objects = $objects;
+        }
+        
+        return $result;
       }
     }
 
-    $trellis = $bag->path[0];
-    $id = $bag->path[1];
-    $args = $bag->arguments;
+    $trellis = $request->path[0];
+    $id = $request->path[1];
+    $args = $request->arguments;
 
     if ($trellis === null)
       throw new Exception('No path or trellis was specified.', 404);
@@ -440,6 +447,7 @@ SQL;
       }
     }
     //$query->add_post('ORDER BY name');
+    $this->invoke('query.' . $trellis, $query, $request);
 
     return $query->run_as_service(true);
   }

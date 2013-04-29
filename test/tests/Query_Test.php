@@ -108,7 +108,7 @@ class Query_Test extends Ground_Test_Case {
     $property =$this->ground->trellises['deed']->properties['branches'];
     $link = new Link_Trellis($property);
     $sql = $link->generate_join(1);
-    $this->assertRegExp('/\s*JOIN deedbranch ON deedbranch\.bid = 1 AND deedbranch\.did = branches\.id\s*/', $sql);
+    $this->assertRegExp('/\s*JOIN deedbranch ON deedbranch\.did = 1 AND deedbranch\.bid = branches\.id\s*/', $sql);
   }
 
 }
