@@ -92,7 +92,7 @@ class Update extends Meta_Object {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
-          $this->get_field_value($property);
+//          $this->get_field_value($property);
           throw new Exception("Field value was empty for inserting $property->name in $trellis->name.");
         }
 

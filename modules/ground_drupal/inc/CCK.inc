@@ -41,6 +41,9 @@ class CCK extends Ground_Module {
       throw new Exception("Node table missing.  It must be loaded before the CCK tables are loaded.");
 
     foreach ($content_types as $name => $fields) {
+      if (isset($ground->trellises[$name]))
+          continue;
+      
       $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_type_');
       $cck_trellis->trellis->set_parent($node);
       $attributes = new stdClass();
