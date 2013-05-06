@@ -117,7 +117,7 @@ class Dynamic_Query {
 
   function run($return_sql = false) {
     $result = new stdClass();
-    $result->nodes = array();
+    $result->objects = array();
     $sql = $this->generate_sql();
     $sql = str_replace("\r", "\n", $sql);
     $result->timer = array();
@@ -132,7 +132,7 @@ class Dynamic_Query {
       $result->timer['total'] = $result->timer['main'];
       foreach($rows as $row) {
         $this->process_row($row);
-        $result->nodes[] = $row;
+        $result->objects[] = $row;
       }
     }
     else {
@@ -141,7 +141,7 @@ class Dynamic_Query {
       $result->timer['total'] = $result->timer['main'];
       while ($row = db_fetch_object($rows)) {
         $this->process_row($row);
-        $result->nodes[] = $row;
+        $result->objects[] = $row;
       }
     }
 
