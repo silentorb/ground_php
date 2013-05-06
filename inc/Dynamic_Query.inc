@@ -156,7 +156,7 @@ class Dynamic_Query {
 
   function run_simple() {
     $sql = $this->generate_sql();
-    return db_query($sql);
+    return $this->db->query_objects($sql);
   }
 
   function process_row(&$row) {
@@ -172,7 +172,7 @@ class Dynamic_Query {
       $sql = "SELECT COUNT(*) FROM (SELECT $field_string" . $this->main_sql . ') tmp';
 //      $result->count_sql = $sql;
       $start_time = microtime(true);
-      $result->total = db_result(db_query($sql));
+      $result->total = (int)$this->db->query_value($sql);
       $result->timer['count'] = microtime(true) - $start_time;
       $result->timer['total'] += $result->timer['count'];
     }
