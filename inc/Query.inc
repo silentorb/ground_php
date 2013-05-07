@@ -77,7 +77,7 @@ class Query {
       if ($limit == 0)
         return '';
       else
-        return " () LIMIT $limit";
+        return " LIMIT $limit";
     }
     else {
       if ($limit == 0) {
@@ -201,6 +201,10 @@ class Query {
       $result->objects[] = $row;
     }
 
+//    $fields = array_merge(array('node.nid'), $this->filter_fields);
+//    $field_string = implode(', ', $fields);
+    $count_sql = 'SELECT COUNT(*) FROM (' . $sql . ') tmp';
+    $result->total = (int) $this->db->query_value($count_sql);
     $this->post_process_result($result);
 
 //    if ($return_sql)

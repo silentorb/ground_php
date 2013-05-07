@@ -452,6 +452,14 @@ SQL;
     //$query->add_post('ORDER BY name');
     $this->invoke('query.' . $trellis, $query, $request);
 
+    if (isset($_GET['limit'])) {
+      $offset = 0;
+      if (isset($_GET['offset']))
+        $offset = (int)$_GET['offset'];
+      
+      $query->limit = $query->generate_pager($offset, (int) $_GET['limit']);
+    }
+
     return $query->run_as_service(true);
   }
 
