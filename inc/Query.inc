@@ -194,21 +194,24 @@ class Query {
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
 
+    $prohibit_count = 0;
     $this->sql = $paged_sql;
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
       if (is_object($this->ground->fortress)) {
         // User needs an access level of at least 1 to view these objects
         $access = $this->ground->fortress->access(null, $row, array('trellis' => $this->trellis));
-        if ($access == 0)
-          continue;
+        if ($access == 0) {
+          ++$prohibit_count;
+                    continue;
+        }
       }
       $this->process_row($row, $properties);
       $result->objects[] = $row;
     }
 
     $count_sql = 'SELECT COUNT(*) FROM (' . $sql . ') tmp';
-    $result->total = (int) $this->db->query_value($count_sql);
+    $result->total = ((int) $this->db->query_value($count_sql)) - $prohibit_count;
     $this->post_process_result($result);
 
 //    if ($return_sql)
