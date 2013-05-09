@@ -12,32 +12,34 @@ class Fortress extends Ground_Module {
       $this->ground = $ground;
   }
 
-  public function lay_brick($resource, $condition, $allow) {
-    $brick = new Brick($resource, $condition, $allow);
+  public function lay_brick($brick) {
     $this->bricks[] = $brick;
     return $brick;
   }
 
   public function access($account, $resource, $factors = null) {
-    $access = 1;
-    foreach ($this->bricks as $rule) {
-      if ($rule->resource->match($resource) && $rule->check($account, $resource)) {
-        $access = $rule->access;
+    if (!$account || !$resource)
+      return 0;
+
+    $access = 0;
+    foreach ($this->bricks as $brick) {
+      if ($brick->access > $access && $brick->check($account, $resource)) {
+        $access = $brick->access;
       }
     }
 
     return $access;
   }
 
-  public static function get_owner_uid($resource) {
+  static function get_owner_id($resource) {
     if (!is_object($resource))
       return null;
 
     if (isset($resource->owner)) {
-      $owner - $$resource->owner;
+      $owner = $resource->owner;
     }
     else if (isset($resource->author)) {
-      $owner - $$resource->author;
+      $owner = $resource->author;
     }
 
     if (is_object($owner)) {
@@ -57,12 +59,45 @@ class Fortress extends Ground_Module {
     return $owner;
   }
 
+  static function get_resource_trellis($resource) {
+    if (!$resource)
+      return null;
+
+    if (isset($resource->trellis)) {
+      $trellis = $resource->trellis;
+    }
+    else if (isset($resource->type)) {
+      $trellis = $resource->type;
+    }
+    else {
+      return null;
+    }
+
+    if (is_object($trellis)) {
+      if (!isset($trellis->name))
+        return null;
+
+      $trellis = $trellis->name;
+    }
+
+    return $trellis;
+  }
+
   public static function user_has_role($user, $name) {
     if (!$user->roles)
       return false;
 
     foreach ($user->roles as $role) {
-      if ($role->name == $name)
+      if (is_object($role)) {
+        if ($role->name == $name)
+          return true;
+      }
+      if (is_array($role)) {
+        if ($role[name] == $name)
+          return true;
+      }
+
+      if ($role == $name)
         return true;
     }
 

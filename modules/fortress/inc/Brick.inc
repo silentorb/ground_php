@@ -9,7 +9,7 @@ class Brick {
 //  public $weight = 0;
 
   public function check($account, $resource, $factors = null) {
-    return true;
+    return false;
   }
 
 }
@@ -18,9 +18,9 @@ class Admin_Brick extends Brick {
 
   public $role;
   public $access = 3;
-  
+
   public function __construct($role = 'admin') {
-    $this->role = 'admin';
+    $this->role = $role;
   }
 
   public function check($account, $resource, $factors = null) {
@@ -38,7 +38,11 @@ class Public_Trellis_Brick extends Brick {
   }
 
   public function check($account, $resource, $factors = null) {
-    return in_array($resource->type, $this->trellises);
+    $trellis = Fortress::get_resource_trellis($resource);
+    if (!$trellis)
+      return false;
+
+    return in_array($trellis, $this->trellises);
   }
 
 }
@@ -48,7 +52,7 @@ class Owner_Brick extends Brick {
   public $access = 3;
 
   public function check($account, $resource, $factors = null) {
-    return $account->uid == Fortress::get_owner_uid ($resource->owner->uid);
+    return $account->uid == Fortress::get_owner_id($resource);
   }
 
 }
