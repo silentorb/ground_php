@@ -33,12 +33,20 @@ class Public_Trellis_Brick extends Brick {
 
   public $trellises;
 
-  public function __construct($trellises = array()) {
+  public function __construct($trellises = array(), $access = 1) {
     $this->trellises = $trellises;
+    $this->access = $access;
   }
 
   public function check($account, $resource, $factors = null) {
-    $trellis = Fortress::get_resource_trellis($resource);
+    if (is_array($factors) && isset($factors['trellis'])) {
+      $trellis = $factors['trellis'];
+      if (is_object($trellis))
+        $trellis = $trellis->name;
+    }
+    else {
+      $trellis = Fortress::get_resource_trellis($resource);
+    }
     if (!$trellis)
       return false;
 

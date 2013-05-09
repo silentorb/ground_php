@@ -6,10 +6,15 @@ class Fortress extends Ground_Module {
 
   public $bricks = array();
   public $ground;
+  
+  // Set this to have a global, default user.
+  public $account;
 
   public function __construct($ground = null) {
     if ($ground)
       $this->ground = $ground;
+    
+    $ground->fortress = $this;
   }
 
   public function lay_brick($brick) {
@@ -18,12 +23,16 @@ class Fortress extends Ground_Module {
   }
 
   public function access($account, $resource, $factors = null) {
+    if (!$account) {
+      $account = $this->account;
+    }
+    
     if (!$account || !$resource)
       return 0;
 
     $access = 0;
     foreach ($this->bricks as $brick) {
-      if ($brick->access > $access && $brick->check($account, $resource)) {
+      if ($brick->access > $access && $brick->check($account, $resource, $factors)) {
         $access = $brick->access;
       }
     }

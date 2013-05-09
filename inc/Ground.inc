@@ -71,6 +71,8 @@ class Ground extends Meta_Object {
   public $expansions = array();
   // These might be better called query templates.
   public $static_queries = array();
+  // Attach a Fortress object to apply access restriction to query and update services
+  public $fortress;
 
   public function __construct($database = null) {
     if ($database) {
@@ -361,10 +363,24 @@ SQL;
   }
 
   function update_objects($objects) {
+    $result = new stdClass();
+    $result->successes = array();
+    $result->failures = array();
     foreach ($objects as $seed) {
       $seed = (object) $seed;
-      $result = $this->update_object($seed->trellis, $seed);
+
+      if (is_object($this->fortress)) {
+        $access = $this->fortress->access(null, $seed);
+        if ($access < 2) {
+          $result->failures[] = $seed;
+          continue;
+        }
+      }
+      $object = $this->update_object($seed->trellis, $seed);
+      $result->successes[] = $object;
     }
+
+    return $result;
   }
 
   public function prepare_for_serialization() {
@@ -455,8 +471,8 @@ SQL;
     if (isset($_GET['limit'])) {
       $offset = 0;
       if (isset($_GET['offset']))
-        $offset = (int)$_GET['offset'];
-      
+        $offset = (int) $_GET['offset'];
+
       $query->limit = $query->generate_pager($offset, (int) $_GET['limit']);
     }
 

@@ -59,8 +59,8 @@ class Irrigation_Test extends Ground_Test_Case {
         'fish' => '20',
         'speed' => 20.3,
     );
-    
-    $result =Irrigation::prepare_input($parameters, $arguments);
+
+    $result = Irrigation::prepare_input($parameters, $arguments);
     $this->assertSame(20, $result['fish']);
     $this->assertEquals('Mr. Mosspuddle', $result['toad']);
     $this->assertSame(20.3, $result['speed']);

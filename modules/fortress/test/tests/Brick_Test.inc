@@ -48,6 +48,7 @@ class Brick_Test extends Ground_Test_Case {
     $this->assertSame(0, $fortress->access($account, $resource));
     $fortress->lay_brick(new Public_Trellis_Brick(array('ninja pig')));
     $this->assertSame(1, $fortress->access($account, $resource));
+    $this->assertSame(1, $fortress->access($account, new stdClass(), array('trellis' => 'ninja pig')));
   }
 
   public function test_owner_brick() {

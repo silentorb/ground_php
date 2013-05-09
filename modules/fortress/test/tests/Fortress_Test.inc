@@ -96,5 +96,47 @@ class Fortress_Test extends Ground_Test_Case {
     $this->assertTrue(Fortress::user_has_role($account, 'king'));
   }
 
+  function test_query_integration() {
+    $this->fixture->populate_database();
+    $request = new Bag('vineyard/warrior');
+    $result = $this->ground->vineyard_service($request);
+    $this->assertGreaterThan(0, count($result->objects));
+
+    $fortress = new Fortress($this->ground);
+    $account = new stdClass();
+    $account->uid = 7;
+    $fortress->account = $account;
+    $result = $this->ground->vineyard_service($request);
+    $this->assertEquals(0, count($result->objects));
+
+    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior')));
+
+    $result = $this->ground->vineyard_service($request);
+    $this->assertGreaterThan(0, count($result->objects));
+  }
+
+  function test_update_integration() {
+    $this->fixture->populate_database();
+    $fortress = new Fortress($this->ground);
+    $account = new stdClass();
+    $account->uid = 7;
+    $fortress->account = $account;
+    $hero = array(
+        'name' => 'Orion',
+        'trellis' => 'warrior',
+    );
+    $data = array($hero);
+
+    $result = $this->ground->update_objects($data);
+    $this->assertEquals(0, count($result->successes));
+    $this->assertEquals(1, count($result->failures));
+
+    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior'), 2));
+
+    $result = $this->ground->update_objects($data);
+    $this->assertEquals(1, count($result->successes));
+    $this->assertEquals(0, count($result->failures));
+  }
+
 }
 

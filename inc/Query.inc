@@ -197,12 +197,16 @@ class Query {
     $this->sql = $paged_sql;
     $rows = $this->db->query_objects($paged_sql);
     foreach ($rows as $row) {
+      if (is_object($this->ground->fortress)) {
+        // User needs an access level of at least 1 to view these objects
+        $access = $this->ground->fortress->access(null, $row, array('trellis' => $this->trellis));
+        if ($access == 0)
+          continue;
+      }
       $this->process_row($row, $properties);
       $result->objects[] = $row;
     }
 
-//    $fields = array_merge(array('node.nid'), $this->filter_fields);
-//    $field_string = implode(', ', $fields);
     $count_sql = 'SELECT COUNT(*) FROM (' . $sql . ') tmp';
     $result->total = (int) $this->db->query_value($count_sql);
     $this->post_process_result($result);
