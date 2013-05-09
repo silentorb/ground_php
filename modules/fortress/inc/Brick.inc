@@ -12,6 +12,10 @@ class Brick {
     return false;
   }
 
+  public function check_create() {
+    return false;
+  }
+
 }
 
 class Admin_Brick extends Brick {
@@ -25,6 +29,10 @@ class Admin_Brick extends Brick {
 
   public function check($account, $resource, $factors = null) {
     return Fortress::user_has_role($account, $this->role);
+  }
+
+  public function check_create($account, $trellis) {
+    return true;
   }
 
 }
@@ -51,6 +59,23 @@ class Public_Trellis_Brick extends Brick {
       return false;
 
     return in_array($trellis, $this->trellises);
+  }
+}
+
+class Object_Creation_Brick extends Brick {
+
+  public $trellises;
+
+  public function __construct($trellises = array()) {
+    $this->trellises = $trellises;
+  }
+
+  public function check($account, $resource, $factors = null) {
+    return false;
+  }
+
+  public function check_create($account, $trellis) {
+    return in_array($trellis->name, $this->trellises);
   }
 
 }

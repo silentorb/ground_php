@@ -362,22 +362,44 @@ SQL;
     }
   }
 
+  protected function update_object_with_fortress($seed) {
+    $seed = (object) $seed;
+    if (!isset($seed->trellis) && !isset($this->trellises[$seed->trellis])) {
+      return null;
+    }
+
+    if (is_object($this->fortress)) {
+      $trellis = $this->trellises[$seed->trellis];
+      $id = $seed->{$trellis->primary_key};
+      if (!$id && $id !== 0) { // Create mode
+        $access = $this->fortress->creation_access(null, $trellis);
+        if (!$access) {
+          return null;
+        }
+      }
+      else {
+        $access = $this->fortress->access(null, $seed);
+        if ($access < 2) {
+          return null;
+        }
+      }
+    }
+
+    return $this->update_object($seed->trellis, $seed);
+  }
+
   function update_objects($objects) {
     $result = new stdClass();
     $result->successes = array();
     $result->failures = array();
     foreach ($objects as $seed) {
-      $seed = (object) $seed;
-
-      if (is_object($this->fortress)) {
-        $access = $this->fortress->access(null, $seed);
-        if ($access < 2) {
-          $result->failures[] = $seed;
-          continue;
-        }
+      $seed = $this->update_object_with_fortress((object) $seed);
+      if ($seed) {
+        $result->successes[] = $seed;
       }
-      $object = $this->update_object($seed->trellis, $seed);
-      $result->successes[] = $object;
+      else {
+        $result->failures[] = $seed;
+      }
     }
 
     return $result;

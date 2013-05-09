@@ -127,12 +127,25 @@ class Fortress_Test extends Ground_Test_Case {
     );
     $data = array($hero);
 
+    // Initial create should fail
     $result = $this->ground->update_objects($data);
     $this->assertEquals(0, count($result->successes));
     $this->assertEquals(1, count($result->failures));
 
-    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior'), 2));
+    // Allow creation
+    $fortress->lay_brick(new Object_Creation_Brick(array('warrior')));
+    $result = $this->ground->update_objects($data);
+    $this->assertEquals(1, count($result->successes));
+    $this->assertEquals(0, count($result->failures));
 
+    // Initial updating should fail
+    $data = array($result->successes[0]);
+    $result = $this->ground->update_objects($data);
+    $this->assertEquals(0, count($result->successes));
+    $this->assertEquals(1, count($result->failures));
+
+    // Allow updating
+    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior'), 2));
     $result = $this->ground->update_objects($data);
     $this->assertEquals(1, count($result->successes));
     $this->assertEquals(0, count($result->failures));
