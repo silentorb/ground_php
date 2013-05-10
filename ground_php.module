@@ -127,7 +127,7 @@ function ground_php_update() {
     }
     $result->result = $ground->update_objects($objects);
     if (count($result->result->failures) > 0) {
-     drupal_add_http_header('Status', 505);
+     drupal_add_http_header('Status', 500);
      $result->success = false;
     }
     else {
