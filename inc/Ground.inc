@@ -378,7 +378,10 @@ SQL;
         }
       }
       else {
-        $access = $this->fortress->access(null, $seed);
+        $query = $this->create_query($trellis);
+        $query->add_filter($trellis->query_primary_key() . ' = ' . $id);
+        $original = $query->run_single();
+        $access = $this->fortress->access(null, $original);
         if ($access < 2) {
           return 'No update access';
         }

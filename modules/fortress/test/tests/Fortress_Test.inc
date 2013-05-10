@@ -124,6 +124,7 @@ class Fortress_Test extends Ground_Test_Case {
     $hero = array(
         'name' => 'Orion',
         'trellis' => 'warrior',
+        'owner' => 7,
     );
     $data = array($hero);
 
@@ -145,7 +146,7 @@ class Fortress_Test extends Ground_Test_Case {
     $this->assertEquals(1, count($result->failures));
 
     // Allow updating
-    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior'), 2));
+    $fortress->lay_brick(new Owner_Brick());
     $result = $this->ground->update_objects($data);
     $this->assertEquals(1, count($result->successes));
     $this->assertEquals(0, count($result->failures));

@@ -71,6 +71,9 @@
         "modified": {
           "type": "modified",
           "readonly": true
+        },
+        "owner": {
+          "type": "int"
         }
       }
     },
