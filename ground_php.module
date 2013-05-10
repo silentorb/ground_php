@@ -120,14 +120,15 @@ function ground_php_update() {
   $ground = ground_php_initialize_ground();
   try {
     if (!$objects) {
-      throw new Exception('Missing object list');
+      throw new Exception('Missing object list', 400);
     }
     if (!count($objects)) {
-      throw new Exception('Object list is empty');
+      throw new Exception('Object list is empty', 400);
     }
     $result->result = $ground->update_objects($objects);
     if (count($result->result->failures) > 0) {
-      $result->success = false;
+     drupal_add_http_header('Status', 505);
+     $result->success = false;
     }
     else {
       $result->success = true;
