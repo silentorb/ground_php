@@ -126,7 +126,12 @@ function ground_php_update() {
       throw new Exception('Object list is empty');
     }
     $result->result = $ground->update_objects($objects);
-    $result->success = true;
+    if (count($result->result->failures) > 0) {
+      $result->success = false;
+    }
+    else {
+      $result->success = true;
+    }
   }
   catch (Exception $ex) {
     $code = $ex->getCode();
