@@ -105,6 +105,7 @@ function ground_php_get() {
 function ground_php_update() {
   $result = new stdClass();
   $result->message = null;
+  $result->result = new stdClass();
 
   if (isset($_POST['objects'])) {
     $objects = $_POST['objects'];
@@ -124,7 +125,8 @@ function ground_php_update() {
     if (!count($objects)) {
       throw new Exception('Object list is empty');
     }
-    $ground->update_objects($objects);
+    $result->result = $ground->update_objects($objects);
+    $result->success = true;
   }
   catch (Exception $ex) {
     $code = $ex->getCode();
@@ -134,8 +136,10 @@ function ground_php_update() {
     drupal_add_http_header('Status', $code);
     $result->message = $ex->getMessage();
     $result->objects = $objects;
+    $result->success = false;
   }
-  
+  $result->objects = $objects;
+
   drupal_add_http_header('Content-Type', 'application/json');
   print json_encode($result);
 }
