@@ -365,7 +365,7 @@ SQL;
   protected function update_object_with_fortress($seed) {
     $seed = (object) $seed;
     if (!isset($seed->trellis) && !isset($this->trellises[$seed->trellis])) {
-      return null;
+      return 'Missing Trellis';
     }
 
     if (is_object($this->fortress)) {
@@ -374,13 +374,13 @@ SQL;
       if (!$id && $id !== 0) { // Create mode
         $access = $this->fortress->creation_access(null, $trellis);
         if (!$access) {
-          return null;
+          return 'No creation access';
         }
       }
       else {
         $access = $this->fortress->access(null, $seed);
         if ($access < 2) {
-          return null;
+          return 'No update access';
         }
       }
     }
