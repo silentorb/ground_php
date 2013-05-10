@@ -18,6 +18,7 @@ class Fortress extends Ground_Module {
 
   public function lay_brick($brick) {
     $this->bricks[] = $brick;
+    $brick->fortress = $this;
     return $brick;
   }
 

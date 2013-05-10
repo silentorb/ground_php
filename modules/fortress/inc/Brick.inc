@@ -5,6 +5,7 @@ Irrigation::import();
 class Brick {
 
   public $access = 1;
+  public $fortress;
 
 //  public $weight = 0;
 
