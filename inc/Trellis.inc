@@ -113,6 +113,15 @@ class Bloom_Property {
     return $value;
   }
 
+  function get_filter($value) {
+    if ($value === 'null' && $this->type != 'string') {
+      return $this->query() . ' IS NULL';
+    }
+    else {
+      return $this->query() . ' = ' . $this->get_field_value($value);
+    }
+  }
+
   public function get_default() {
     if (isset($this->default))
       return $this->default;

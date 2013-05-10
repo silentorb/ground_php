@@ -51,4 +51,13 @@ class Trellis_Test extends Ground_Test_Case {
     $this->assertEquals('Pretend_Link', $trellis->table->properties['prop']->link_class);
   }
 
+  function test_get_filter() {
+    $trellis = $this->ground->trellises['warrior'];
+    $properties = $trellis->properties;
+    $this->assertEquals("warriors.race = 'Urga'", $properties['race']->get_filter('Urga'));
+    $this->assertEquals("warriors.race = 'null'", $properties['race']->get_filter('null'));
+    $this->assertEquals("warriors.warrior_age = 10", $properties['age']->get_filter(10));
+    $this->assertEquals("warriors.warrior_age IS NULL", $properties['age']->get_filter('null'));
+  }
+
 }
