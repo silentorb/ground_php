@@ -394,7 +394,7 @@ SQL;
     $result->failures = array();
     foreach ($objects as $seed) {
       $seed = $this->update_object_with_fortress((object) $seed);
-      if ($seed) {
+      if ($seed && !is_string($seed)) {
         $result->successes[] = $seed;
       }
       else {
