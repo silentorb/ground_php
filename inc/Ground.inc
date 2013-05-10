@@ -342,23 +342,23 @@ SQL;
     return $this->update_object($trellis, $data);
   }
 
-  function update_object($trellis, $data = null) {
+  function update_object($trellis, $seed = null) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
-    if (is_array($data))
-      $data = (object) $data;
+    if (is_array($seed))
+      $seed = (object) $seed;
 
     // If $_deleted is an object than it is a list of links to delete
     // which will be handled by Update.
     // If $data is simply TRUE than the object itself is marked for deletion.
-    if ($data->_deleted && !is_object($data->_deleted)) {
-      $this->delete_object($trellis, $data);
+    if ($seed->_deleted && !is_object($seed->_deleted)) {
+      $this->delete_object($trellis, $seed);
     }
     else {
-      $object = $trellis->create_object();
-      MetaHub::extend($object, $data);
-      $update = new Update($trellis, $object, $this);
+//      $object = $trellis->create_object();
+//      MetaHub::extend($object, $seed);
+      $update = new Update($trellis, $seed, $this);
       $result = $update->run();
-      return $object;
+      return $seed;
     }
   }
 

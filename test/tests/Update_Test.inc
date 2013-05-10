@@ -155,4 +155,21 @@ class Update_Test extends Ground_Test_Case {
 //    $this->assertEquals('orchard', $objects[0]->name);
 //    $this->assertEquals('pear', $objects[0]->fruit);
 //  }
+
+  function test_selective_update() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $this->fixture->populate_database();
+    $this->ground->insert_object('warrior', array(
+        'id' => $this->fixture->ninja_bob->id,
+        'age' => 32
+        )
+    );
+
+    $objects = $this->ground->create_query('warrior')->run();
+    $this->assertEquals(1, count($objects));
+    $this->assertEquals(32, $objects[0]->age);
+    $this->assertEquals('legendary', $objects[0]->race);
+  }
+
 }
