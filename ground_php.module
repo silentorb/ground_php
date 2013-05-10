@@ -15,8 +15,8 @@ if (!function_exists('drupal_json')) {
       echo json_encode($var);
     }
   }
-}
 
+}
 function ground_php_menu() {
   $items['vineyard/model.json'] = array(
       'title' => 'Vineyard Model',
@@ -67,7 +67,7 @@ function ground_php_model() {
   drupal_add_http_header('Content-Type', 'application/json');
   $json = $ground->to_json();
   print $json;
-  
+
   if ($_GET['update'] = 'true') {
     file_put_contents(realpath('./') . '/model.json', $json);
   }
@@ -103,6 +103,9 @@ function ground_php_get() {
 }
 
 function ground_php_update() {
+  $result = new stdClass();
+  $result->message = null;
+
   if (isset($_POST['objects'])) {
     $objects = $_POST['objects'];
   }
@@ -114,15 +117,26 @@ function ground_php_update() {
   }
 
   $ground = ground_php_initialize_ground();
-
   try {
+    if (!$objects) {
+      throw new Exception('Missing object list');
+    }
+    if (!count($objects)) {
+      throw new Exception('Object list is empty');
+    }
     $ground->update_objects($objects);
-    $result->success = true;
   }
   catch (Exception $ex) {
+    $code = $ex->getCode();
+    if (!$code)
+      $code = '500';
+
+    drupal_add_http_header('Status', $code);
     $result->message = $ex->getMessage();
-    $result->success = false;
+    $result->objects = $objects;
   }
-  drupal_json($result);
+  
+  drupal_add_http_header('Content-Type', 'application/json');
+  print json_encode($result);
 }
 
