@@ -17,6 +17,9 @@ class Brick {
     return false;
   }
 
+  public function get_access() {
+    return $this->access;
+  }
 }
 
 class Admin_Brick extends Brick {

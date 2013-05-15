@@ -41,10 +41,17 @@ class CCK extends Ground_Module {
       throw new Exception("Node table missing.  It must be loaded before the CCK tables are loaded.");
 
     foreach ($content_types as $name => $fields) {
-      if (isset($ground->trellises[$name]))
+      if (isset($ground->trellises[$name])) {
+        if (get_class($ground->trellises[$name]) == 'CCK_Trellis')
           continue;
-      
-      $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_type_');
+        else {
+          $name = 'content_' . $name;
+          if (isset($ground->trellises[$name]))
+            continue;
+        }
+      }
+
+      $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_type_' . $name);
       $cck_trellis->trellis->set_parent($node);
       $attributes = new stdClass();
       $attributes->type = 'int';
@@ -74,12 +81,21 @@ class CCK extends Ground_Module {
     if (!$node)
       throw new Exception("Node table missing.  It must be loaded before the CCK tables are loaded.");
 
-    foreach ($content_types as $name => $field) {
-
+    foreach ($content_types as $field) {
+      $name = $field->name;
+      if (isset($ground->trellises[$name])) {
+        if (get_class($ground->trellises[$name]) == 'CCK_Trellis')
+          continue;
+        else {
+          $name = 'field_' . $name;
+          if (isset($ground->trellises[$name]))
+            continue;
+        }
+      }
       $new_field = new stdClass();
       $new_field->name = $field->name;
       $new_field->type = $field->type;
-      $cck_trellis = new CCK_Trellis($ground, $field->name, $this->field_types, 'content_field_');
+      $cck_trellis = new CCK_Trellis($ground, $name, $this->field_types, 'content_field_' . $name);
       $attributes = new stdClass();
       $attributes->type = 'int';
       $trellis = $cck_trellis->trellis;
