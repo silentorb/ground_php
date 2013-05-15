@@ -125,8 +125,8 @@ class Table {
       $primary_fields[] = "`$key`";
     }
     $fields[] = "PRIMARY KEY (" . implode(', ', $primary_fields) . ")\n";
-    foreach ($indexes as $index) {
-      $fields[] = Table::generate_index_sql($index);
+    foreach ($indexes as $index_key => $index) {
+      $fields[] = Table::generate_index_sql($index_key, $index);
     }
     $sql = 'CREATE TABLE IF NOT EXISTS `' . $table_name . "` (\n";
     $sql .= implode(",\n", $fields) . "\n";
@@ -205,14 +205,18 @@ class Table {
     return $result;
   }
 
-  static function generate_index_sql($index) {
+  static function generate_index_sql($name, $index) {
     $index = (object) $index;
-    $index_fields = implode(', ', $index->fields);
+    $index_fields = implode('`, `', $index->fields);
     $result = '';
-    if ($index->unique)
+    if ($index->unique) {
       $result .= 'UNIQUE ';
-
-    $result .= 'KEY ' . '(`' . $index_fields . "`)\n";
+      $name = '';
+    }
+    else {
+      $name = "`$name`";
+    }
+    $result .= "KEY $name (`" . $index_fields . "`)\n";
 
     return $result;
   }
