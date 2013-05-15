@@ -75,6 +75,9 @@ class Update extends Meta_Object {
   protected function create_record($trellis) {
     $fields = array();
     $values = array();
+    if ($trellis->name == 'node_revision') {
+      $trellis = $trellis;
+    }
     $core_properties = $trellis->get_core_properties();
     foreach ($core_properties as $property) {
 

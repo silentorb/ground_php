@@ -33,6 +33,8 @@ class Query {
       $this->base_path = $base_path;
     else
       $this->base_path = $this->trellis->name;
+
+    $this->ground->invoke('construct.query.' . $trellis->name, $this);
   }
 
 //  function add_source($source, $include_primary_key = true) {
@@ -203,7 +205,7 @@ class Query {
         $access = $this->ground->fortress->access(null, $row, array('trellis' => $this->trellis));
         if ($access == 0) {
           ++$prohibit_count;
-                    continue;
+          continue;
         }
       }
       $this->process_row($row, $properties);

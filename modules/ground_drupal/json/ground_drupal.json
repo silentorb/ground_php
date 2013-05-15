@@ -117,8 +117,7 @@
       "primary_key": "vid",
       "properties": {
         "nid": {
-          "type": "reference",
-          "trellis": "node"
+          "type": "int"
         },
         "vid": {
           "type": "int"
@@ -203,10 +202,6 @@
         "translate": {
           "type": "int",
           "default": 0
-        },
-        "revisions": {
-          "type": "list",
-          "trellis": "node_revision"
         }
       }
     },

@@ -10,6 +10,7 @@ class Ground_Drupal extends Ground_Module {
     $this->ground->load_schema_from_file($path . '/json/ground_drupal.json');
 
     $this->listen($ground, 'create.node', 'on_create_node');
+    $this->listen($ground, 'construct.query.node', 'on_query_node');
   }
 
   static function add_user($ground, $name, $password, $email, $roles = array()) {
@@ -62,6 +63,14 @@ class Ground_Drupal extends Ground_Module {
     // such as the cck tables can have access to it.
     $node->vid = $revision->vid;
     $this->ground->db->query('UPDATE node SET vid = ? WHERE nid = ?', array($revision->vid, $node->nid));
+  }
+
+  function on_query_node($query, $request) {
+    $query->add_join('JOIN node_revisions ON node.nid = node_revisions.nid AND node.vid = node_revisions.vid');
+    $query->add_field('node_revisions.body');
+    $query->add_field('node_revisions.teaser');
+    $query->add_field('node_revisions.log');
+    $query->add_field('node_revisions.format');
   }
 
 }

@@ -89,13 +89,13 @@ class CCK extends Ground_Module {
       // This is not accurate but practical.  CCK's real primary keys are "vid, delta".
       if ($field->multiple) {
         $trellis->add_property('delta', $attributes);
-        $cck_trellis->table->primary_keys = array('nid', 'delta');
+        $cck_trellis->table->primary_keys = array('vid', 'delta');
       }
 
-      $cck_trellis->table->indexes['vid'] = array(
-          'unique' => true,
+      $cck_trellis->table->indexes['nid'] = array(
+          'unique' => false,
           'fields' => array(
-              'vid',
+              'nid',
           ),
       );
 
