@@ -7,7 +7,7 @@ class CCK_Trellis {
   public $table;
   public $field_types;
 
-  public function __construct($ground, $name, $field_types, $prefix) {
+  public function __construct($ground, $name, $field_types, $fullname) {
     $this->ground = $ground;
     $this->field_types = $field_types;
 
@@ -16,7 +16,7 @@ class CCK_Trellis {
     $this->trellis = $ground->add_trellis($name, null, false);
 
     // Create Table
-    $this->table = new Table($prefix . $name, $ground);
+    $this->table = new Table($fullname, $ground);
     $this->table->connect_trellis($this->trellis);
     $ground->tables[$name] = $this->table;
   }

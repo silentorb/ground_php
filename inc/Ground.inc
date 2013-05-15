@@ -352,6 +352,7 @@ SQL;
     // If $data is simply TRUE than the object itself is marked for deletion.
     if ($seed->_deleted && !is_object($seed->_deleted)) {
       $this->delete_object($trellis, $seed);
+      return new stdClass();
     }
     else {
 //      $object = $trellis->create_object();

@@ -32,7 +32,8 @@ class Fortress extends Ground_Module {
 
     $access = 0;
     foreach ($this->bricks as $brick) {
-      if ($brick->access > $access && $brick->check($account, $resource, $factors)) {
+      $new_access = $brick->get_access($account, $resource, $factors);
+      if ($new_access > $access && $brick->check($account, $resource, $factors)) {
         $access = $brick->access;
       }
     }
