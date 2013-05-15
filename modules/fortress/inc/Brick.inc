@@ -17,7 +17,7 @@ class Brick {
     return false;
   }
 
-  public function get_access() {
+  public function get_access($account, $resource, $factors = null) {
     return $this->access;
   }
 }
