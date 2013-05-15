@@ -71,5 +71,5 @@ class Brick_Test extends Ground_Test_Case {
     $this->assertSame(3, $fortress->access($farmer, $resource));
     $this->assertSame(0, $fortress->access($shambler, $resource));
   }
-
+  
 }

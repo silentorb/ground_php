@@ -21,6 +21,16 @@ class Fortress_Test extends Ground_Test_Case {
 
     $this->assertSame(0, $fortress->access(null, $resource));
     $this->assertSame(0, $fortress->access($account, null));
+
+    $wall = new Dummy_Brick();
+    $wall->check_result = 2;
+    $courtyard = new Dummy_Brick();
+    $courtyard->check_result = 3;
+    $fortress->lay_brick($wall);
+    $fortress->lay_brick($courtyard);
+    $this->assertSame(3, $fortress->access($account, $resource));
+    $this->assertSame(2, $fortress->access($account, $resource, null, 1));
+    $this->assertSame(2, $fortress->access($account, $resource, null, 2));
   }
 
   function test_get_owner_id() {

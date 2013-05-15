@@ -21,3 +21,11 @@ class Fortress_Fixture extends Ground_Fixture {
   }
 
 }
+
+class Dummy_Brick extends Brick {
+  public $check_result = 3;
+  
+  public function check($account, $resource, $factors = null) {
+    return $this->check_result;
+  }
+}

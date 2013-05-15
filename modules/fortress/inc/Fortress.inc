@@ -22,7 +22,7 @@ class Fortress extends Ground_Module {
     return $brick;
   }
 
-  public function access($account, $resource, $factors = null) {
+  public function access($account, $resource, $factors = null, $max = 3) {
     if (!$account) {
       $account = $this->account;
     }
@@ -32,10 +32,20 @@ class Fortress extends Ground_Module {
 
     $access = 0;
     foreach ($this->bricks as $brick) {
-      $new_access = $brick->get_access($account, $resource, $factors);
-      if ($new_access > $access && $brick->check($account, $resource, $factors)) {
-        $access = $brick->access;
+      if ($brick->max_access > $access) {
+//        $new_access = $brick->get_access($account, $resource, $factors);
+        $result = $brick->check($account, $resource, $factors);
+        if ($result === true) {
+          $access = $brick->access;
+        }
+        else if (is_int($result)) {
+          if ($result > $access) {
+            $access = $result;
+          }
+        }
       }
+      if ($access >= $max)
+        break;
     }
 
     return $access;

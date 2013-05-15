@@ -6,8 +6,7 @@ class Brick {
 
   public $access = 1;
   public $fortress;
-
-//  public $weight = 0;
+  public $max_access = 3;
 
   public function check($account, $resource, $factors = null) {
     return false;
