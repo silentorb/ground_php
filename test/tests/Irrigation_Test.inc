@@ -117,6 +117,7 @@ class Irrigation_Test extends Ground_Test_Case {
 
     $request = new Bag('warrior');
     $request->arguments['name'] = 'Frank';
+    $this->ground->public_vineyard_services = true;
     $result = $this->ground->vineyard_service($request);
     $this->assertSame(1, count($result->objects));
   }

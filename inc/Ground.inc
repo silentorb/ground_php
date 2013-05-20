@@ -73,6 +73,8 @@ class Ground extends Meta_Object {
   public $static_queries = array();
   // Attach a Fortress object to apply access restriction to query and update services
   public $fortress;
+  
+  public $public_vineyard_services = false;
 
   public function __construct($database = null) {
     if ($database) {
@@ -471,6 +473,9 @@ SQL;
       }
     }
 
+    if (!$this->public_vineyard_services)
+      throw new Exception('Path not found.', 404);
+    
     $trellis = $request->path[0];
     $id = $request->path[1];
     $args = $request->arguments;

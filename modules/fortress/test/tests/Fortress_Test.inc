@@ -109,6 +109,7 @@ class Fortress_Test extends Ground_Test_Case {
   function test_query_integration() {
     $this->fixture->populate_database();
     $request = new Bag('vineyard/warrior');
+    $this->ground->public_vineyard_services = true;
     $result = $this->ground->vineyard_service($request);
     $this->assertGreaterThan(0, count($result->objects));
 
