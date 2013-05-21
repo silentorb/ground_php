@@ -105,10 +105,26 @@ class Query_Test extends Ground_Test_Case {
     $db = $this->ground->db;
     $db->query("INSERT INTO deedbranch (bid, did) VALUES (2, 1)");
     $this->assertSame('1', $db->query_value('SELECT COUNT(*) FROM deedbranch'));
-    $property =$this->ground->trellises['deed']->properties['branches'];
+    $property = $this->ground->trellises['deed']->properties['branches'];
     $link = new Link_Trellis($property);
     $sql = $link->generate_join(1);
     $this->assertRegExp('/\s*JOIN deedbranch ON deedbranch\.did = 1 AND deedbranch\.bid = branches\.id\s*/', $sql);
+  }
+
+  function test_prepared_statement_arguments() {
+    $this->fixture->populate_database();
+
+    $this->ground->insert_object('warrior', array(
+        'name' => 'Frank',
+        'race' => 'detective',
+        'age' => 32,
+    ));
+
+    $query = $this->ground->create_query('warrior');
+    $query->add_filter('race = :race', array(':race' => 'detective'));
+    $objects = $query->run();
+    $this->assertEquals(1, count($objects));
+    $this->assertEquals('Frank', $objects[0]->name);
   }
 
 }

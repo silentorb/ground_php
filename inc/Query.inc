@@ -17,6 +17,7 @@ class Query {
   public $include_links = true;
   public $fields = array();
   public $base_path;
+  public $arguments = array();
   static public $log_queries = false;
 
   public function __construct($trellis, $base_path = null) {
@@ -37,37 +38,36 @@ class Query {
     $this->ground->invoke('construct.query.' . $trellis->name, $this);
   }
 
-//  function add_source($source, $include_primary_key = true) {
-//    $this->sources[] = $source;
-//    $table_name = $source->get_table_name();
-//    $core_properties = $source->get_core_properties();
-//    foreach ($core_properties as $property) {
-//      if ($property->name != $source->primary_key || $include_primary_key) {
-//        $field_name = $property->get_field_name();
-//        $sql = $table_name . '.' . $field_name;
-//        if ($field_name != $property->name)
-//          $sql .= " AS  `$property->name`";
-//        $this->add_field($sql);
-//      }
-//    }
-//
-//    $source->parent_query($this);
-//  }
+  function add_arguments($arguments) {
+    $this->arguments = array_merge($this->arguments, $arguments);
+  }
 
-  function add_filter($clause) {
+  function add_filter($clause, $arguments = null) {
     $this->filters[] = $clause;
+    if ($arguments) {
+      $this->add_arguments($arguments);
+    }
   }
 
-  function add_field($clause) {
+  function add_field($clause, $arguments = null) {
     $this->fields[] = $clause;
+    if ($arguments) {
+      $this->add_arguments($arguments);
+    }
   }
 
-  function add_join($clause) {
+  function add_join($clause, $arguments = null) {
     $this->joins[] = $clause;
+    if ($arguments) {
+      $this->add_arguments($arguments);
+    }
   }
 
-  function add_post($clause) {
+  function add_post($clause, $arguments = null) {
     $this->post_clauses[] = $clause;
+    if ($arguments) {
+      $this->add_arguments($arguments);
+    }
   }
 
   function add_expansion($clause) {
@@ -173,7 +173,7 @@ class Query {
     if (Query::$log_queries)
       echo $sql . "\n\n";
 
-    $rows = $this->db->query_objects($paged_sql);
+    $rows = $this->db->query_objects($paged_sql, $this->arguments);
     foreach ($rows as $row) {
       $this->process_row($row, $properties);
       $result->objects[] = $row;
