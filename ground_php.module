@@ -80,6 +80,7 @@ function ground_php_get() {
   $result = new stdClass();
   try {
     $ground = ground_php_initialize_ground();
+    throw new Exception("hello");
 
     if (!$ground)
       throw new Exception('Ground not initialized.', 500);
@@ -95,8 +96,15 @@ function ground_php_get() {
     if (!$code)
       $code = '500';
 
-    drupal_add_http_header('Status', $code);
-    $result->message = $ex->getMessage();
+    // For security reasons, don't show specific messages for 500 errors
+    if ($code == 500) {
+      $result->message = 'Internal Server Error';
+      drupal_add_http_header('Status', $code);
+    }
+    else {
+      $result->message = $ex->getMessage();
+      drupal_add_http_header('Status', $code . ' ' . $ex->getMessage());
+    }
   }
   drupal_add_http_header('Content-Type', 'application/json');
   print json_encode($result);
@@ -127,8 +135,8 @@ function ground_php_update() {
     }
     $result->result = $ground->update_objects($objects);
     if (count($result->result->failures) > 0) {
-     drupal_add_http_header('Status', 500);
-     $result->success = false;
+      drupal_add_http_header('Status', 500);
+      $result->success = false;
     }
     else {
       $result->success = true;
