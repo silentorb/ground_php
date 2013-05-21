@@ -80,7 +80,6 @@ function ground_php_get() {
   $result = new stdClass();
   try {
     $ground = ground_php_initialize_ground();
-    throw new Exception("hello");
 
     if (!$ground)
       throw new Exception('Ground not initialized.', 500);
