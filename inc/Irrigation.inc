@@ -122,7 +122,8 @@ class Irrigation {
 
   static function create_bag_from_globals() {
     $bag = new Bag();
-    $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), Irrigation::$base_path);
+    $base = dirname($_SERVER['SCRIPT_NAME']) . '/' . Irrigation::$base_path;
+    $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), $base);
     $bag->arguments = $_REQUEST;
     $bag->objects = Irrigation::get_post_objects();
 
