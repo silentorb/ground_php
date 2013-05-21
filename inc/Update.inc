@@ -110,9 +110,15 @@ class Update extends Meta_Object {
       echo $sql . "\n";
 
     $this->db->query($sql);
-    // Hard coding conversion to int is a quick fix hack.  Eventually
-    // I should convert it based on the type of trellis property.
-    $this->seed->{$trellis->primary_key} = $id = (int) $this->db->last_insert_id($trellis->primary_key);
+
+    if (isset($this->seed->{$trellis->primary_key})) {
+      $id = $this->seed->{$trellis->primary_key};
+    }
+    else {
+      $id = (int)$this->db->last_insert_id($trellis->primary_key);
+      $this->seed->{$trellis->primary_key} = $id;
+    }
+
     $this->update_links($trellis, $id, true);
     $this->ground->invoke('create.' . $trellis->name, $this->seed, $trellis);
     return $sql;

@@ -143,18 +143,19 @@ class Update_Test extends Ground_Test_Case {
     $this->assertEquals(1, count($cross));
   }
 
-//  function test_string_keys() {
-//    $this->fixture->load_schemas();
-//    $this->fixture->prepare_database();
-//    $this->fixture->insert_object('string_test', array(
-//        'name' => 'orchard',
-//        'fruit' => 'pear',
-//    ));
-//
-//    $objects = $this->ground->create_query('string_test')->run();
-//    $this->assertEquals('orchard', $objects[0]->name);
-//    $this->assertEquals('pear', $objects[0]->fruit);
-//  }
+  function test_string_keys() {
+    $this->fixture->load_schemas();
+    $this->fixture->prepare_database();
+    $result = $this->fixture->insert_object('string_test', array(
+        'name' => 'orchard',
+        'fruit' => 'pear',
+    ));
+    $this->assertEquals('orchard', $result->name);
+
+    $objects = $this->ground->create_query('string_test')->run();
+    $this->assertEquals('orchard', $objects[0]->name);
+    $this->assertEquals('pear', $objects[0]->fruit);
+  }
 
   function test_selective_update() {
     $this->fixture->load_schemas();
