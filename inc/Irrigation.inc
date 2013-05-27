@@ -124,8 +124,13 @@ class Irrigation {
     $bag = new Bag();
     
     // In case the current website is inside a subpath:
-    $base = dirname($_SERVER['SCRIPT_NAME']) . '/' . Irrigation::$base_path;
-    
+    $script_name = dirname($_SERVER['SCRIPT_NAME']);
+    if (strlen($script_name) > 1) {
+    $base = $script_name . '/' . Irrigation::$base_path;
+    }
+    else {
+      $base = Irrigation::$base_path;
+    }
     $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), $base);
     $bag->arguments = $_REQUEST;
     $bag->objects = Irrigation::get_post_objects();
