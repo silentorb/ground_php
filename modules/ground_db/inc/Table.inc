@@ -1,5 +1,7 @@
 <?php
 
+//namespace silentorb\ground\db;
+
 class Table {
 
   public $name;

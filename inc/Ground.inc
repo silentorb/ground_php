@@ -1,5 +1,7 @@
 <?php
 
+//namespace silentorb\ground;
+
 require_once dirname(__FILE__) . '/Query.inc';
 
 if (!function_exists('str_to_bool')) {
