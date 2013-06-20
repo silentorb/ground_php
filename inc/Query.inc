@@ -332,6 +332,8 @@ class Query {
         }
       }
     }
+
+    $this->ground->invoke('process.row.' . $trellis->name, $row, $this, $trellis);
   }
 
   function get_many_to_many_list($id, $property, $other_table) {
