@@ -76,4 +76,25 @@ class Drupal_Test extends Drupal_Test_Case {
     $this->assertEquals('monster', $node->type);
   }
 
+  // Ensure that vids can not be externally modified.
+  function test_no_updating_vid() {
+    $node = $this->ground->insert_object('node', array(
+        'title' => 'A Node',
+        'type' => 'test',
+        'body' => '<i>This is the body</i>',
+        ));
+
+    $this->assertEquals(1, $node->vid);
+
+    $node->vid = 128;
+    $this->ground->update_object('node', $node);
+    $node = $this->ground->create_query('node')->run_single();
+    $this->assertEquals(1, $node->vid);
+
+    $node->vid = 0;
+    $this->ground->update_object('node', $node);
+    $node = $this->ground->create_query('node')->run_single();
+    $this->assertEquals(1, $node->vid);
+  }
+
 }

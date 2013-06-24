@@ -10,6 +10,7 @@ class Ground_Drupal extends Ground_Module {
     $this->ground->load_schema_from_file($path . '/json/ground_drupal.json');
 
     $this->listen($ground, 'create.node', 'on_create_node');
+    $this->listen($ground, 'update.node', 'on_update_node');
     $this->listen($ground, 'construct.query.node', 'on_query_node');
   }
 
@@ -71,6 +72,10 @@ class Ground_Drupal extends Ground_Module {
     $query->add_field('node_revisions.teaser');
     $query->add_field('node_revisions.log');
     $query->add_field('node_revisions.format');
+  }
+  
+  function on_update_node($node) {
+    unset($node->vid);    
   }
 
 }
