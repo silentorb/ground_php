@@ -75,7 +75,6 @@ class Ground extends Meta_Object {
   public $static_queries = array();
   // Attach a Fortress object to apply access restriction to query and update services
   public $fortress;
-  
   public $public_vineyard_services = false;
 
   public function __construct($database = null) {
@@ -122,6 +121,28 @@ class Ground extends Meta_Object {
 
   public function on_connect_query($query) {
     $this->listen($query, 'all', 'respond');
+  }
+
+  static function remove_private_fields_from_array(&$fields, $trellis) {
+    foreach ($fields as $key => $field) {
+      if (isset($trellis->properties[$key]) && $trellis->properties[$key]->private) {
+        unset($fields[$key]);
+      }
+    }
+
+    return $fields;
+  }
+
+  static function remove_private_and_readonly_fields_from_object($object, $trellis) {
+    foreach ($object as $key => $field) {
+      if (isset($trellis->properties[$key])) {
+        if ($trellis->properties[$key]->private || $trellis->properties[$key]->readonly) {
+          unset($object->{$key});
+        }
+      }
+    }
+
+    return $fields;
   }
 
   public function respond() {
@@ -363,7 +384,7 @@ SQL;
       // and not as low level as the 'updated' event which is
       // a part of the Update class.
       $this->invoke('update.' . $trellis->name, $seed, $trellis);
-      
+
       $update = new Update($trellis, $seed, $this);
       $result = $update->run();
       return $seed;
@@ -396,7 +417,12 @@ SQL;
       }
     }
 
-    return $this->update_object($seed->trellis, $seed);
+    return $this->update_object_with_service($seed->trellis, $seed);
+  }
+
+  function update_object_with_service($trellis, $seed) {
+    Ground::remove_private_and_readonly_fields_from_object($seed, $trellis);
+    return $this->update_object($trellis, $seed);
   }
 
   function update_objects($objects) {
@@ -480,7 +506,7 @@ SQL;
 
     if (!$this->public_vineyard_services)
       throw new Exception('Path not found.', 404);
-    
+
     $trellis = $request->path[0];
     $id = $request->path[1];
     $args = $request->arguments;

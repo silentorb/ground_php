@@ -191,6 +191,7 @@ class Query {
   function run_as_service($user = null) {
     $result = new \stdClass();
     $result->objects = array();
+    \Ground::remove_private_fields_from_array($this->fields, $this->trellis);
     $properties = $this->trellis->get_authorized_properties($user, $this->fortress);
     $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);

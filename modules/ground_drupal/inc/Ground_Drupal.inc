@@ -75,7 +75,7 @@ class Ground_Drupal extends Ground_Module {
   }
   
   function on_update_node($node) {
-    unset($node->vid);    
+//    unset($node->vid);    
   }
 
 }

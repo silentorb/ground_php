@@ -152,26 +152,31 @@
           "type": "int"
         },
         "vid": {
-          "type": "int"
+          "type": "int",
+          "private": true
         },
         "type": {
           "type": "string",
-          "insert": "trellis"
+          "insert": "trellis",
+          "readonly": true
         },
         "language": {
           "type": "string",
-          "default": ""
+          "default": "",
+          "private": true
         },
         "title": {
           "type": "string"
         },
         "uid": {
           "type": "int",
-          "insert": "author"
+          "insert": "author",
+          "readonly": true
         },
         "status": {
           "type": "int",
-          "default": 1
+          "default": 1,
+          "private": true
         },
         "created": {
           "type": "created"
@@ -181,27 +186,33 @@
         },
         "comment": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         },
         "promote": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         },
         "moderate": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         },
         "sticky": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         },
         "tnid": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         },
         "translate": {
           "type": "int",
-          "default": 0
+          "default": 0,
+          "private": true
         }
       }
     },

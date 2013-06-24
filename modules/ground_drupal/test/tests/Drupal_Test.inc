@@ -77,7 +77,7 @@ class Drupal_Test extends Drupal_Test_Case {
   }
 
   // Ensure that vids can not be externally modified.
-  function test_no_updating_vid() {
+  function test_no_updating_private_fields() {
     $node = $this->ground->insert_object('node', array(
         'title' => 'A Node',
         'type' => 'test',
@@ -86,15 +86,19 @@ class Drupal_Test extends Drupal_Test_Case {
 
     $this->assertEquals(1, $node->vid);
 
+    $trellis = $this->ground->trellises['node'];
     $node->vid = 128;
-    $this->ground->update_object('node', $node);
-    $node = $this->ground->create_query('node')->run_single();
-    $this->assertEquals(1, $node->vid);
+    $this->ground->update_object_with_service($trellis, $node);
+    $node = $this->ground->create_query('node')->run_as_service();
+    $this->assertNull($node->vid);
+    $vid = $this->ground->db->query_value("SELECT vid FROM node");
+    $this->assertEquals(1, $vid);
 
     $node->vid = 0;
-    $this->ground->update_object('node', $node);
-    $node = $this->ground->create_query('node')->run_single();
-    $this->assertEquals(1, $node->vid);
+    $this->ground->update_object_with_service($trellis, $node);
+    $vid = $this->ground->db->query_value("SELECT vid FROM node");
+    $this->assertEquals(1, $vid);
+
   }
 
 }

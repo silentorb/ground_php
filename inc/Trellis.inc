@@ -17,6 +17,7 @@ class Bloom_Property {
   public $link_class = null;
   public $property = null; // String reference to the property this connects to on the other trellis.
   public $default;
+  public $private = false;
 
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
