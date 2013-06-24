@@ -341,26 +341,29 @@ SQL;
     $delete->run($trellis, $data);
   }
 
-  // Deprecated in favor of update_object():
   function insert_object($trellis, $data = array()) {
     return $this->update_object($trellis, $data);
   }
 
-  function update_object($trellis, $seed = null) {
+  function update_object($trellis, $seed) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
     if (is_array($seed))
       $seed = (object) $seed;
 
-    // If $_deleted is an object than it is a list of links to delete
-    // which will be handled by Update.
-    // If $data is simply TRUE than the object itself is marked for deletion.
+    // If $_deleted is an object then it is a list of links
+    // to delete which will be handled by Update.
+    // If $data is simply TRUE then the seed itself is marked for deletion.
     if ($seed->_deleted && !is_object($seed->_deleted)) {
       $this->delete_object($trellis, $seed);
       return new stdClass();
     }
     else {
-//      $object = $trellis->create_object();
-//      MetaHub::extend($object, $seed);
+      // This maybe should eventually be placed in the Update class,
+      // but right now I see this more as a preprocessor for services
+      // and not as low level as the 'updated' event which is
+      // a part of the Update class.
+      $this->invoke('update.' . $trellis->name, $seed, $trellis);
+      
       $update = new Update($trellis, $seed, $this);
       $result = $update->run();
       return $seed;
