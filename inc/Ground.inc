@@ -397,8 +397,8 @@ SQL;
       return 'Missing Trellis';
     }
 
+    $trellis = $this->trellises[$seed->trellis];
     if (is_object($this->fortress)) {
-      $trellis = $this->trellises[$seed->trellis];
       $id = $seed->{$trellis->primary_key};
       if (!$id && $id !== 0) { // Create mode
         $access = $this->fortress->creation_access(null, $trellis);
@@ -417,7 +417,7 @@ SQL;
       }
     }
 
-    return $this->update_object_with_service($seed->trellis, $seed);
+    return $this->update_object_with_service($trellis, $seed);
   }
 
   function update_object_with_service($trellis, $seed) {
