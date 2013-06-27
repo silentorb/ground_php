@@ -178,6 +178,7 @@ SQL;
     $this->db->query($sql);
     $this->update_links($trellis, $id);
     $this->invoke('updated', $this->seed, $trellis);
+    $this->ground->invoke('updated.' . $trellis->name, $this->seed, $trellis);
     return $sql;
   }
 

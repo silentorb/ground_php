@@ -98,7 +98,36 @@ class Drupal_Test extends Drupal_Test_Case {
     $this->ground->update_object_with_service($trellis, $node);
     $vid = $this->ground->db->query_value("SELECT vid FROM node");
     $this->assertEquals(1, $vid);
+  }
 
+  function test_node_revisions() {
+    $body = '<i>This is the body</i>';
+    $node = $this->ground->insert_object('node', array(
+        'title' => 'A Node',
+        'type' => 'test',
+        'body' => 'hello',
+        ));
+
+    $node->body = $body;
+    $this->ground->update_object('node', $node);
+
+    $revision_count = (int) $this->ground->db->query_value("SELECT COUNT(*) FROM node_revisions");
+    $this->assertEquals(1, $revision_count);
+    $node = $this->ground->create_query('node')->run_single();
+    $this->assertEquals($body, $node->body);
+
+    // Ensure that the update works both when the node object includes a vid
+    // and when it doesn't
+    $node->body = 'silverlight';
+    $node->title = 'A New Node';
+    unset($node->vid);
+    $this->ground->update_object('node', $node);
+
+    $revision_count = (int) $this->ground->db->query_value("SELECT COUNT(*) FROM node_revisions");
+    $this->assertEquals(1, $revision_count);
+    $node = $this->ground->create_query('node')->run_single();
+    $this->assertEquals('silverlight', $node->body);
+    $this->assertEquals('A New Node', $node->title);
   }
 
 }
