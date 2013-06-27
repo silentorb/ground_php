@@ -48,6 +48,9 @@ class Bloom_Property {
     if ($this->readonly)
       $result->readonly = $this->readonly;
 
+    if ($this->private)
+      $result->private = $this->private;
+
     if ($this->insert_trellis)
       $result->insert_trellis = $this->insert_trellis;
 
