@@ -9,8 +9,13 @@
         "vid": {
           "unique": true,
           "fields": [
-            "vid"
+          "vid"
           ]
+        }
+      },
+      "properties": {
+        "body": {
+          "virtual": true
         }
       }
     },
@@ -213,6 +218,9 @@
           "type": "int",
           "default": 0,
           "private": true
+        },
+        "body": {
+          "type": "text"
         }
       }
     },

@@ -86,6 +86,11 @@ class Update extends Meta_Object {
       if ($field && $field->share)
         continue;
 
+      // Virtual properties aren't saved to the database.
+      // Useful when you define custom serialization hooks
+      if ($field->virtual)
+        continue;
+
       if (property_exists($this->seed, $property->name)
           || $property->insert_trellis
           || $property->type == 'created'
@@ -115,7 +120,7 @@ class Update extends Meta_Object {
       $id = $this->seed->{$trellis->primary_key};
     }
     else {
-      $id = (int)$this->db->last_insert_id($trellis->primary_key);
+      $id = (int) $this->db->last_insert_id($trellis->primary_key);
       $this->seed->{$trellis->primary_key} = $id;
     }
 
@@ -135,6 +140,11 @@ class Update extends Meta_Object {
       // Ignore shared fields
       $field = $property->get_field_override();
       if ($field && $field->share)
+        continue;
+
+      // Virtual properties aren't saved to the database.
+      // Useful when you define custom serialization hooks
+      if ($field->virtual)
         continue;
 
       if (property_exists($this->seed, $property->name)

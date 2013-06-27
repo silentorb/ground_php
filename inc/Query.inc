@@ -230,6 +230,12 @@ class Query {
       if ($property->type == 'list')
         continue;
 
+      $field = $property->get_field_override();
+      // Virtual properties aren't saved to the database.
+      // Useful when you define custom serialization hooks
+      if ($field->virtual)
+        continue;
+
       if ($property->name != $source->primary_key || $include_primary_key) {
         $field_name = $property->get_field_name();
 //        $table_name = $this->trellis->get_table_name();
