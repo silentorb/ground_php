@@ -158,24 +158,26 @@ class Update extends Meta_Object {
     }
 
     // Check if there's nothing to add.
-    if (count($updates) === 0)
-      return '';
+    if (count($updates) !== 0) {
 
-    $update_list_string = implode(', ', $updates);
-    $table_name = $trellis->get_table_name();
-    $primary_key = $trellis->query_primary_key();
 
-    $sql = <<<SQL
+      $update_list_string = implode(', ', $updates);
+      $table_name = $trellis->get_table_name();
+      $primary_key = $trellis->query_primary_key();
+
+      $sql = <<<SQL
 UPDATE $table_name
 SET $update_list_string
 WHERE $key_condition
 
 SQL;
 
-    if (Update::$log_queries)
-      echo $sql . "\n";
+      if (Update::$log_queries)
+        echo $sql . "\n";
 
-    $this->db->query($sql);
+      $this->db->query($sql);
+    }
+
     $this->update_links($trellis, $id);
     $this->invoke('updated', $this->seed, $trellis);
     $this->ground->invoke('updated.' . $trellis->name, $this->seed, $trellis);
