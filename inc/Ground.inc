@@ -526,8 +526,11 @@ SQL;
         $property = $properties[$key];
         $query->add_filter($property->get_filter($value));
       }
+      else if ($key == 'order') {
+        $order_string = Ground::format_order_string($value, $query->trellis);
+        $query->add_post('ORDER BY ' . $order_string);
+      }
     }
-    //$query->add_post('ORDER BY name');
     $this->invoke('query.' . $trellis, $query, $request);
 
     if (isset($_GET['limit'])) {
@@ -539,6 +542,19 @@ SQL;
     }
 
     return $query->run_as_service(true);
+  }
+
+  public static function format_order_string($string, $trellis) {
+    $properties = $trellis->get_all_properties();
+    $tokens = explode(' ', $string);
+    foreach ($tokens as $key => $token) {
+      $text = strtolower($token);
+      if ($text != 'desc' && $text != 'asc' && !isset($properties[$token])) {
+        $tokens[$key] = '';
+      }
+    }
+
+    return implode($tokens);
   }
 
   public static function strip(&$object, $strip_properties = array()) {

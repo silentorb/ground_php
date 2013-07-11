@@ -199,7 +199,7 @@ class Query {
 
     $prohibit_count = 0;
     $this->sql = $paged_sql;
-    $rows = $this->db->query_objects($paged_sql);
+    $rows = $this->db->query_objects($paged_sql, $this->arguments);
     foreach ($rows as $row) {
       if (is_object($this->ground->fortress)) {
         // User needs an access level of at least 1 to view these objects
@@ -214,7 +214,7 @@ class Query {
     }
 
     $count_sql = 'SELECT COUNT(*) FROM (' . $sql . ') tmp';
-    $result->total = ((int) $this->db->query_value($count_sql)) - $prohibit_count;
+    $result->total = ((int) $this->db->query_value($count_sql, $this->arguments)) - $prohibit_count;
     $this->post_process_result($result);
 
 //    if ($return_sql)
