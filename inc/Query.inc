@@ -163,7 +163,7 @@ class Query {
     return $sql;
   }
 
-  function run() {
+  function run($arguments = array()) {
     $result = new \stdClass();
     $result->objects = array();
     $properties = $this->trellis->get_all_properties();
@@ -173,7 +173,8 @@ class Query {
     if (Query::$log_queries)
       echo $sql . "\n\n";
 
-    $rows = $this->db->query_objects($paged_sql, $this->arguments);
+    $arguments = array_merge($this->arguments, $arguments);
+    $rows = $this->db->query_objects($paged_sql, $arguments);
     foreach ($rows as $row) {
       $this->process_row($row, $properties);
       $result->objects[] = $row;
@@ -183,8 +184,8 @@ class Query {
     return $result->objects;
   }
 
-  function run_single() {
-    $objects = $this->run();
+  function run_single($arguments) {
+    $objects = $this->run($arguments);
     return $objects[0];
   }
 
