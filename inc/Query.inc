@@ -341,7 +341,7 @@ class Query {
       }
     }
 
-    $this->ground->invoke('process.row.' . $trellis->name, $row, $this, $trellis);
+    $this->ground->invoke('process.row.' . $this->trellis->name, $row, $this, $trellis);
   }
 
   function get_many_to_many_list($id, $property, $other_table) {

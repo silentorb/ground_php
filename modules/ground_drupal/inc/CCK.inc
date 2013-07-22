@@ -45,7 +45,7 @@ class CCK extends Ground_Module {
         if (get_class($ground->trellises[$name]) == 'CCK_Trellis')
           continue;
         else {
-          $name = 'content_' . $name;
+//          $name = 'content_' . $name;
           if (isset($ground->trellises[$name]))
             continue;
         }
