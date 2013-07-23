@@ -184,7 +184,7 @@ class Query {
     return $result->objects;
   }
 
-  function run_single($arguments) {
+  function run_single($arguments = array()) {
     $objects = $this->run($arguments);
     return $objects[0];
   }
