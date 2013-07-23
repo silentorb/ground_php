@@ -66,7 +66,7 @@ class Ground_Drupal extends Ground_Module {
     $this->ground->db->query('UPDATE node SET vid = ? WHERE nid = ?', array($revision->vid, $node->nid));
   }
 
-  function on_query_node($query, $request) {
+  function on_query_node($query, $request = null) {
     $query->add_join('JOIN node_revisions ON node.nid = node_revisions.nid AND node.vid = node_revisions.vid');
     $query->add_field('node_revisions.body');
     $query->add_field('node_revisions.teaser');
