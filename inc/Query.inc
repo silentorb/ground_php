@@ -193,7 +193,7 @@ class Query {
     $result = new \stdClass();
     $result->objects = array();
     \Ground::remove_private_fields_from_array($this->fields, $this->trellis);
-    $properties = $this->trellis->get_authorized_properties($user, $this->fortress);
+    $properties = $this->trellis->get_authorized_properties($user, $this->ground->fortress);
     $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);

@@ -370,6 +370,9 @@ class Trellis {
     $base_path = $this->name . '/';
     $result = array();
     foreach ($properties as $property) {
+      if ($property->private)
+        continue;
+      
       $property_access = $fortress->access($account, $base_path . $property->name);
       if ($property >= $access) {
         $result[$property->name] = $property;

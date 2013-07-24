@@ -234,7 +234,8 @@
           "type": "string"
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "private": true
         },
         "email": {
           "type": "string"
@@ -252,13 +253,16 @@
           "type": "datetime"
         },
         "access": {
-          "type": "datetime"
+          "type": "datetime",
+          "private": true
         },
         "login": {
-          "type": "datetime"
+          "type": "datetime",
+          "private": true
         },
         "status": {
-          "type": "bool"
+          "type": "bool",
+          "private": true
         },
         "timezone": {
           "type": "string"
@@ -270,10 +274,12 @@
           "type": "string"
         },
         "init": {
-          "type": "string"
+          "type": "string",
+          "private": true
         },
         "data": {
-          "type": "text"
+          "type": "text",
+          "private": true
         },
         "roles": {
           "type": "list",
