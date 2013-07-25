@@ -255,7 +255,7 @@ SQL;
     $other_trellis = $property->get_referenced_trellis();
 
     if (!$create) {
-      $rows = $join->query_rows($id);
+      $rows = $join->query_rows($id, $this->db);
 
       foreach ($rows as $other_id) {
         if (!in_array($other_id, $list)) {

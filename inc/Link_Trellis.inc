@@ -93,10 +93,10 @@ class Link_Trellis {
     return str_replace(array_keys($this->args), $this->args, $sql);
   }
 
-  public function query_rows($id) {
+  public function query_rows($id, $db) {
     $sql = $this->populate_sql("SELECT %table_name.%first_key FROM %table_name" .
             "WHERE %table_name.%second_key = %second_id\n");
-    return $this->db->query_values($sql);
+    return $db->query_values($sql);
   }
 
 }

@@ -283,7 +283,8 @@
         },
         "roles": {
           "type": "list",
-          "trellis": "role"
+          "trellis": "role",
+          "readonly": true
         }
       }
     },
