@@ -9,6 +9,7 @@ class Update extends Meta_Object {
   public $main_table = 'node';
   public $ground;
   public $db;
+  public $is_service = false;
   static public $log_queries = false;
 
   public function __construct($trellis, $seed, $ground = null) {
@@ -217,6 +218,11 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
+      if ($this->is_service) {
+        if ($property->readonly || $property->private)
+          continue;
+      }
+      
       switch ($property->get_relationship()) {
         case RELATIONSHIP_ONE_TO_ONE:
           // I think the new code I added earlier in the pipeline should

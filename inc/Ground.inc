@@ -366,7 +366,7 @@ SQL;
     return $this->update_object($trellis, $data);
   }
 
-  function update_object($trellis, $seed) {
+  function update_object($trellis, $seed, $as_service = false) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
     if (is_array($seed))
       $seed = (object) $seed;
@@ -386,6 +386,7 @@ SQL;
       $this->invoke('update.' . $trellis->name, $seed, $trellis);
 
       $update = new Update($trellis, $seed, $this);
+      $update->is_service =$as_service;
       $result = $update->run();
       return $seed;
     }
@@ -422,7 +423,7 @@ SQL;
 
   function update_object_with_service($trellis, $seed) {
     Ground::remove_private_and_readonly_fields_from_object($seed, $trellis);
-    return $this->update_object($trellis, $seed);
+    return $this->update_object($trellis, $seed, true);
   }
 
   function update_objects($objects) {
