@@ -66,7 +66,7 @@ class Bloom_Property {
     throw new Exception("$this->name could not find valid field type.");
   }
 
-  public function get_field_value($value) {
+  public function get_field_value($value, $as_service = false) {
     if (is_string($value))
       $value = str_replace("'", "\\'", $value);
 
@@ -92,7 +92,7 @@ class Bloom_Property {
         $ground = $this->parent->ground;
         $trellis = $ground->trellises[$trellis];
 
-        $object = $ground->update_object($trellis, $value);
+        $object = $ground->update_object($trellis, $value, $as_service);
         $other_id = $this->get_other_id($value);
         if ($other_id !== null) {
           $value = $other_id;
@@ -372,7 +372,7 @@ class Trellis {
     foreach ($properties as $property) {
       if ($property->private)
         continue;
-      
+
       $property_access = $fortress->access($account, $base_path . $property->name);
       if ($property >= $access) {
         $result[$property->name] = $property;
