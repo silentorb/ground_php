@@ -218,7 +218,7 @@ SQL;
   protected function update_links($trellis, $id, $create = false) {
     $links = $trellis->get_links();
     foreach ($links as $property) {
-      if ($this->is_service) {
+      if ($this->is_service && !$create) {
         if ($property->readonly || $property->private)
           continue;
       }
