@@ -413,7 +413,7 @@ SQL;
         $original = $query->run_single();
         $access = $this->fortress->access(null, $original);
         if ($access < 2) {
-          return "No update access: ' . $trellis->name . '->' . $trellis->query_primary_key() . ' = ' . $id;
+          return 'No update access: ' . $trellis->query_primary_key() . ' = ' . $id;
         }
       }
     }
