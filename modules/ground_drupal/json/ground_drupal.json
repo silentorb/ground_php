@@ -299,7 +299,8 @@
         "author": {
           "type": "reference",
           "trellis": "user",
-          "insert": "author"
+          "insert": "author",
+          "readonly": true
         },
         "type": {
           "type": "string",

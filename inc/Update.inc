@@ -210,7 +210,7 @@ SQL;
     $value = $this->apply_insert($property, $value);
     $this->seed->{$property->name} = $value;
 
-    $result = $property->get_field_value($value);
+    $result = $property->get_field_value($value, $this->is_service);
 
     return $result;
   }

@@ -79,6 +79,9 @@ class Fortress extends Ground_Module {
     else if (isset($resource->author)) {
       $owner = $resource->author;
     }
+    else if (isset($resource->uid)) {
+      $owner = $resource->uid;
+    }
 
     if (is_object($owner)) {
       if (isset($owner->id))
