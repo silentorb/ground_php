@@ -171,6 +171,9 @@ class Table {
     if (is_array($this->primary_keys) && count($this->primary_keys) > 0) {
       $primary_keys = array();
       foreach ($this->primary_keys as $name) {
+        if (!isset($trellis->properties[$name]))
+          throw new Exception("Error creating $trellis->name; it does not have a primary key named $name.");
+        
         $primary_keys[] = $trellis->properties[$name]->get_field_name();
       }
     }
