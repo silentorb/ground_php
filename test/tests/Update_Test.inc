@@ -134,7 +134,7 @@ class Update_Test extends Ground_Test_Case {
             )
         )
         ));
-    $this->assertEquals('no one', $db->query_value("SELECT name FROM branches WHERE id = '1'"));
+    $this->assertEquals('no one', $db->query_value("SELECT name FROM branches WHERE bid = '1'"));
     $this->assertNotNull($deed->branches);
     $objects = $this->ground->create_query('deed')->run();
     $this->assertSame('no one', $objects[0]->branches[0]->name);

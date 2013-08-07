@@ -79,7 +79,7 @@ class Query_Test extends Ground_Test_Case {
     $this->prepare_tree();
 
     $query = $this->ground->create_query('branch');
-    $query->add_filter('branches.id = 1');
+    $query->add_filter('branches.bid = 1');
     $objects = $query->run();
     $this->assertSame(1, count($query));
     $this->assertEquals('B', $objects[0]->children[0]->name);
@@ -92,7 +92,7 @@ class Query_Test extends Ground_Test_Case {
     $this->ground->expansions[] = 'dummy/test';
     $this->ground->expansions[] = 'branch/children/children';
     $query = $this->ground->create_query('branch');
-    $query->add_filter('branches.id = 1');
+    $query->add_filter('branches.bid = 1');
     $objects = $query->run();
     $this->assertSame(1, count($query));
     $this->assertEquals('B', $objects[0]->children[0]->name);
@@ -108,7 +108,7 @@ class Query_Test extends Ground_Test_Case {
     $property = $this->ground->trellises['deed']->properties['branches'];
     $link = new Link_Trellis($property);
     $sql = $link->generate_join(1);
-    $this->assertRegExp('/\s*JOIN deedbranch ON deedbranch\.did = 1 AND deedbranch\.bid = branches\.id\s*/', $sql);
+    $this->assertRegExp('/\s*JOIN deedbranch ON deedbranch\.did = 1 AND deedbranch\.bid = branches\.bid\s*/', $sql);
   }
 
   function test_prepared_statement_arguments() {

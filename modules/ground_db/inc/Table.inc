@@ -168,10 +168,15 @@ class Table {
       $fields[] = $field;
     }
 
-    if (is_array($this->primary_keys) && count($this->primary_keys) > 0)
-      $primary_keys = $this->primary_keys;
-    else
-      $primary_keys = array($trellis->primary_key);
+    if (is_array($this->primary_keys) && count($this->primary_keys) > 0) {
+      $primary_keys = array();
+      foreach ($this->primary_keys as $name) {
+        $primary_keys[] = $trellis->properties[$name]->get_field_name();
+      }
+    }
+    else {
+      $primary_keys = array($trellis->properties[$trellis->primary_key]->get_field_name());
+    }
 
     return Table::create_sql_from_array($this->name, $fields, $primary_keys, $this->indexes);
   }

@@ -227,6 +227,9 @@ class Query {
   function get_fields_and_joins($properties, $include_primary_key = true) {
     $fields = array();
     $trellises = array();
+    if ($this->trellis->name == 'branch') {
+      $key = 1;
+    }
     foreach ($properties as $property) {
       if ($property->type == 'list')
         continue;

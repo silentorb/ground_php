@@ -18,6 +18,13 @@
     "base" : {
       "name": "base_objects"
     },
+    "branch": {
+      "properties": {
+        "id": {
+          "name": "bid"
+        }
+      }
+    },
     "branches_deeds": {
       "name": "deedbranch",
       "primary_keys": [ "bid", "did" ],

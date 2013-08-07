@@ -372,7 +372,7 @@ class Trellis {
     foreach ($properties as $property) {
       if ($property->private)
         continue;
-      
+
       $property_access = $fortress->access($account, $base_path . $property->name);
       if ($property >= $access) {
         $result[$property->name] = $property;
@@ -473,6 +473,10 @@ class Trellis {
     return $this->all_properties[$this->primary_key];
   }
 
+  public function get_primary_field_name() {
+    return $this->properties[$this->primary_key]->get_field_name();
+  }
+
   public function get_table_name() {
     if ($this->table) {
       if ($this->table->db_name)
@@ -550,18 +554,18 @@ class Trellis {
     $result = '';
     if ($this->parent) {
       $parent = $this->parent;
-      $parent_table = $parent->get_table_name();
+//      $parent_table = $parent->get_table_name();
 
       $result = 'JOIN ' . $parent->get_table_query() .
-          ' ON ' . $parent_table . '.' . $parent->primary_key .
-          ' = ' . $main_table . '.' . $this->primary_key;
+          ' ON ' . $parent->query_primary_key() .
+          ' = ' . $main_table . '.' . $this->properties[$this->primary_key]->get_field_name();
     }
 
     return $result;
   }
 
   public function query_primary_key() {
-    return $this->get_table_name() . '.' . $this->primary_key;
+    return $this->get_table_name() . '.' . $this->properties[$this->primary_key]->get_field_name();
   }
 
   public function query_property($property) {

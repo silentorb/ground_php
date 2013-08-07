@@ -53,7 +53,7 @@ class Link_Trellis {
     $result = array(
         '%first_id' => $property->query(),
         '%second_id' => $other_property->query(),
-        '%back_id' => $other_property->parent->get_table_name() . '.' . $other_property->parent->primary_key,
+        '%back_id' => $other_property->parent->get_table_name() . '.' . $other_property->parent->get_primary_field_name(),
     );
 
     $ground = $property->parent->ground;
