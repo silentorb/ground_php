@@ -22,9 +22,9 @@ class Fortress_Test extends Ground_Test_Case {
     $this->assertSame(0, $fortress->access(null, $resource));
     $this->assertSame(0, $fortress->access($account, null));
 
-    $wall = new Dummy_Brick();
+    $wall = new Dummy_Gate();
     $wall->check_result = 2;
-    $courtyard = new Dummy_Brick();
+    $courtyard = new Dummy_Gate();
     $courtyard->check_result = 3;
     $fortress->lay_brick($wall);
     $fortress->lay_brick($courtyard);
@@ -120,7 +120,7 @@ class Fortress_Test extends Ground_Test_Case {
     $result = $this->ground->vineyard_service($request);
     $this->assertEquals(0, count($result->objects));
 
-    $fortress->lay_brick(new Public_Trellis_Brick(array('warrior')));
+    $fortress->lay_brick(new Public_Trellis_Gate(array('warrior')));
 
     $result = $this->ground->vineyard_service($request);
     $this->assertGreaterThan(0, count($result->objects));
@@ -145,7 +145,7 @@ class Fortress_Test extends Ground_Test_Case {
     $this->assertEquals(1, count($result->failures));
 
     // Allow creation
-    $fortress->lay_brick(new Object_Creation_Brick(array('warrior')));
+    $fortress->lay_brick(new Object_Creation_Gate(array('warrior')));
     $result = $this->ground->update_objects($data);
     $this->assertEquals(1, count($result->successes));
     $this->assertEquals(0, count($result->failures));
@@ -157,7 +157,7 @@ class Fortress_Test extends Ground_Test_Case {
     $this->assertEquals(1, count($result->failures));
 
     // Allow updating
-    $fortress->lay_brick(new Owner_Brick());
+    $fortress->lay_brick(new Owner_Gate());
     $result = $this->ground->update_objects($data);
     $this->assertEquals(1, count($result->successes));
     $this->assertEquals(0, count($result->failures));

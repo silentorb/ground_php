@@ -2,7 +2,7 @@
 
 Irrigation::import();
 
-class Brick {
+class Gate {
 
   public $access = 1;
   public $fortress;
@@ -21,7 +21,7 @@ class Brick {
   }
 }
 
-class Admin_Brick extends Brick {
+class Admin_Gate extends Gate {
 
   public $role;
   public $access = 3;
@@ -40,7 +40,7 @@ class Admin_Brick extends Brick {
 
 }
 
-class Public_Trellis_Brick extends Brick {
+class Public_Trellis_Gate extends Gate {
 
   public $trellises;
 
@@ -65,7 +65,7 @@ class Public_Trellis_Brick extends Brick {
   }
 }
 
-class Object_Creation_Brick extends Brick {
+class Object_Creation_Gate extends Gate {
 
   public $trellises;
 
@@ -83,7 +83,7 @@ class Object_Creation_Brick extends Brick {
 
 }
 
-class Owner_Brick extends Brick {
+class Owner_Gate extends Gate {
 
   public $access = 3;
 

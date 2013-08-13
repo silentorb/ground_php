@@ -22,7 +22,7 @@ class Fortress_Fixture extends Ground_Fixture {
 
 }
 
-class Dummy_Brick extends Brick {
+class Dummy_Gate extends Gate {
   public $check_result = 3;
   
   public function check($account, $resource, $factors = null) {

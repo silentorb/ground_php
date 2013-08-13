@@ -11,8 +11,9 @@ class Channel implements IChannel {
   public $path;
   public $target;
   public $method;
+  public $bricks = array();
 
-  public function __construct($path, $target, $method) {
+  public function __construct($path, $target, $method, $bricks = null) {
     if (is_string($path))
       $this->path = Irrigation::get_path_array($path, Irrigation::$base_path);
     else {
@@ -21,6 +22,10 @@ class Channel implements IChannel {
 
     $this->target = $target;
     $this->method = $method;
+
+    if (is_array($bricks)) {
+      $this->bricks = $bricks;
+    }
   }
 
   public function run($request) {
@@ -59,8 +64,8 @@ class Irrigation {
     $this->ground = $ground;
   }
 
-  public function add_channel($path, $target, $method) {
-    $channel = new Channel($path, $target, $method);
+  public function add_channel($path, $target, $method, $bricks = null) {
+    $channel = new Channel($path, $target, $method, $bricks);
     $this->channels[] = $channel;
   }
 

@@ -1,10 +1,10 @@
 <?php
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Brick.inc';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Gate.inc';
 
 class Fortress extends Ground_Module {
 
-  public $bricks = array();
+  public $gates = array();
   public $ground;
   // Set this to have a global, default user.
   public $account;
@@ -16,10 +16,10 @@ class Fortress extends Ground_Module {
     $ground->fortress = $this;
   }
 
-  public function lay_brick($brick) {
-    $this->bricks[] = $brick;
-    $brick->fortress = $this;
-    return $brick;
+  public function lay_gate($gate) {
+    $this->gates[] = $gate;
+    $gate->fortress = $this;
+    return $gate;
   }
 
   public function access($account, $resource, $factors = null, $max = 3) {
@@ -31,12 +31,12 @@ class Fortress extends Ground_Module {
       return 0;
 
     $access = 0;
-    foreach ($this->bricks as $brick) {
-      if ($brick->max_access > $access) {
-//        $new_access = $brick->get_access($account, $resource, $factors);
-        $result = $brick->check($account, $resource, $factors);
+    foreach ($this->gates as $gate) {
+      if ($gate->max_access > $access) {
+//        $new_access = $gate->get_access($account, $resource, $factors);
+        $result = $gate->check($account, $resource, $factors);
         if ($result === true) {
-          $access = $brick->access;
+          $access = $gate->access;
         }
         else if (is_int($result)) {
           if ($result > $access) {
@@ -60,9 +60,9 @@ class Fortress extends Ground_Module {
       return 0;
 
     $access = 0;
-    foreach ($this->bricks as $brick) {
-      if ($brick->access > $access && $brick->check_create($account, $trellis)) {
-        $access = $brick->access;
+    foreach ($this->gates as $gate) {
+      if ($gate->access > $access && $gate->check_create($account, $trellis)) {
+        $access = $gate->access;
       }
     }
 
@@ -143,58 +143,6 @@ class Fortress extends Ground_Module {
     }
 
     return false;
-  }
-
-}
-
-abstract class Base_Condition {
-  
-}
-
-class Anonymous_Condition extends Base_Condition {
-
-  public $function;
-
-  public function __construct($function) {
-    $this->function = $function;
-  }
-
-  public function check($account, $factors) {
-    return false;
-  }
-
-}
-
-class Method_Condition extends Base_Condition {
-
-  public $target;
-  public $method;
-  public $factors;
-
-  public function __construct($target, $method, $factors = null) {
-    $this->target = $target;
-    $this->method = $method;
-    $this->factors = $factors;
-  }
-
-  public function check($account, $factors) {
-    return false;
-  }
-
-}
-
-class Pattern_Condition extends Base_Condition {
-
-  public $pattern;
-  public $irrigation;
-
-  public function __construct($pattern, $irrigation) {
-    $this->pattern = $pattern;
-    $this->irrigation = $irrigation;
-  }
-
-  public function check($account, $factors) {
-    return $irrigation->expand($account, $this->pattern);
   }
 
 }

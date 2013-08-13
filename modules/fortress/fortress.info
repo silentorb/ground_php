@@ -5,4 +5,4 @@ package = Silent Orb
 php = 5.3
 
 files[] = inc/Fortress.inc
-files[] = inc/Brick.inc
+files[] = inc/Gate.inc

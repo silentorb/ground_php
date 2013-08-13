@@ -9,7 +9,7 @@ class Brick_Test extends Ground_Test_Case {
 
   public function test_admin_brick() {
     $fortress = new Fortress($this->ground);
-    $fortress->lay_brick(new Admin_Brick());
+    $fortress->lay_brick(new Admin_Gate());
 
     $resource = (object) array(
             'trellis' => 'ninja pig',
@@ -27,7 +27,7 @@ class Brick_Test extends Ground_Test_Case {
     // At first I felt I was being over-the-top writing this variation
     // of the test, but it actually broke and revealed a bug with Admin_Brick initialization!
     $fortress = new Fortress($this->ground);
-    $fortress->lay_brick(new Admin_Brick('king'));
+    $fortress->lay_brick(new Admin_Gate('king'));
     $this->assertSame(0, $fortress->access($shambler, $resource));
     $shambler->roles = array('king');
     $this->assertSame(3, $fortress->access($shambler, $resource));
@@ -44,9 +44,9 @@ class Brick_Test extends Ground_Test_Case {
     );
 
     $this->assertSame(0, $fortress->access($account, $resource));
-    $fortress->lay_brick(new Public_Trellis_Brick(array('frog')));
+    $fortress->lay_brick(new Public_Trellis_Gate(array('frog')));
     $this->assertSame(0, $fortress->access($account, $resource));
-    $fortress->lay_brick(new Public_Trellis_Brick(array('ninja pig')));
+    $fortress->lay_brick(new Public_Trellis_Gate(array('ninja pig')));
     $this->assertSame(1, $fortress->access($account, $resource));
     $this->assertSame(1, $fortress->access($account, new stdClass(), array('trellis' => 'ninja pig')));
   }
@@ -67,7 +67,7 @@ class Brick_Test extends Ground_Test_Case {
 
     $this->assertSame(0, $fortress->access($farmer, $resource));
     $this->assertSame(0, $fortress->access($shambler, $resource));
-    $fortress->lay_brick(new Owner_Brick());
+    $fortress->lay_brick(new Owner_Gate());
     $this->assertSame(3, $fortress->access($farmer, $resource));
     $this->assertSame(0, $fortress->access($shambler, $resource));
   }
