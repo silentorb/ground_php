@@ -122,4 +122,15 @@ class Irrigation_Test extends Ground_Test_Case {
     $this->assertSame(1, count($result->objects));
   }
 
+  function test_request_resources() {
+    $this->fixture->populate_database();
+    $irrigation = $this->ground->irrigation = new Irrigation($this->ground);
+    $irrigation->add_channel('test/%warrior', $this, 'resurrect');
+
+    $request = new Bag();
+    $irrigation->find_channel('test/1', $request);
+    $this->assertEquals(1, count($request->resources));
+    $this->assertEquals('Bob', $request->resources[0]->name);
+  }
+
 }

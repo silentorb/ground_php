@@ -12,6 +12,7 @@ class Channel implements IChannel {
   public $target;
   public $method;
   public $bricks = array();
+  public $ground;
 
   public function __construct($path, $target, $method, $bricks = null) {
     if (is_string($path))
@@ -25,6 +26,11 @@ class Channel implements IChannel {
 
     if (is_array($bricks)) {
       $this->bricks = $bricks;
+      if (isset($this->ground) && isset($this->ground->fortress)) {
+        foreach ($bricks as $bricks) {
+          $brick->fortress = $this->ground->fortress;
+        }
+      }
     }
   }
 
@@ -39,6 +45,7 @@ class Bag {
   public $path;
   public $arguments = array();
   public $objects;
+  public $resources = array();
 
   public function __construct($path = null) {
     if (is_string($path))
@@ -66,6 +73,7 @@ class Irrigation {
 
   public function add_channel($path, $target, $method, $bricks = null) {
     $channel = new Channel($path, $target, $method, $bricks);
+    $channel->ground = $this->ground;
     $this->channels[] = $channel;
   }
 
@@ -73,12 +81,25 @@ class Irrigation {
     // Later
   }
 
-  public function compare($pattern, $text) {
+  public function compare($pattern, $text, $request = null) {
     if (!$pattern || !$text)
       return false;
 
-    if ($pattern == '%')
+    if ($pattern[0] == '%') {
+      $key = substr($pattern, 1);
+      if (isset($this->ground->trellises[$key])) {
+        $query = $this->ground->create_query($key);
+        $query->add_key_filter($text);
+        $object = $query->run_single();
+        if (!$object)
+          return false;
+
+        if (is_object($request))
+          $request->resources[] = $object;
+      }
+
       return true;
+    }
 
     if ($pattern == '@trellis') {
       if ($this->ground)
@@ -90,17 +111,17 @@ class Irrigation {
     return $pattern == $text;
   }
 
-  public function process($path, $bag) {
-    $channel = $this->find_channel($path);
+  public function process($path, $request) {
+    $channel = $this->find_channel($path, $request);
 
     if (!$channel) {
       throw new Exception('Path not found', 404);
     }
 
-    $channel->run($bag);
+    $channel->run($request);
   }
 
-  public function find_channel($path) {
+  public function find_channel($path, $request = null) {
     if (is_string($path))
       $path = Irrigation::get_path_array($path, Irrigation::$base_path);
 
@@ -115,7 +136,7 @@ class Irrigation {
     foreach ($path as $step) {
       $next_channels = array();
       foreach ($channels as $channel) {
-        if ($this->compare($channel->path[$x], $step))
+        if ($this->compare($channel->path[$x], $step, $request))
           $next_channels[] = $channel;
       }
       $channels = $next_channels;
@@ -127,11 +148,11 @@ class Irrigation {
 
   static function create_bag_from_globals() {
     $bag = new Bag();
-    
+
     // In case the current website is inside a subpath:
     $script_name = dirname($_SERVER['SCRIPT_NAME']);
     if (strlen($script_name) > 1) {
-    $base = $script_name . '/' . Irrigation::$base_path;
+      $base = $script_name . '/' . Irrigation::$base_path;
     }
     else {
       $base = Irrigation::$base_path;
@@ -270,7 +291,7 @@ class Irrigation {
 
     return null;
   }
-  
+
   public function service($request) {
     return $this->ground->vineyard_service($request);
   }

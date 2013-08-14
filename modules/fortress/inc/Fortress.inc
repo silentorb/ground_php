@@ -1,6 +1,8 @@
 <?php
 
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Gate.inc';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Brick.inc';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Guide.inc';
 
 class Fortress extends Ground_Module {
 
@@ -49,6 +51,23 @@ class Fortress extends Ground_Module {
     }
 
     return $access;
+  }
+
+  public function channel_access($account, $channel, $request) {
+    if (!$account) {
+      $account = $this->account;
+    }
+
+    if (!$account || !$resource)
+      return 0;
+
+    foreach ($channel->bricks as $brick) {
+      if ($brick->collide($channel, $request)) {
+        
+      }
+    }
+    
+    return true;
   }
 
   public function creation_access($account, $trellis) {
@@ -145,4 +164,7 @@ class Fortress extends Ground_Module {
     return false;
   }
 
+  public static function load() {
+    // Dummy function to trigger the included files at the top of this file.
+  }
 }

@@ -386,7 +386,7 @@ SQL;
       $this->invoke('update.' . $trellis->name, $seed, $trellis);
 
       $update = new Update($trellis, $seed, $this);
-      $update->is_service =$as_service;
+      $update->is_service = $as_service;
       $result = $update->run();
       return $seed;
     }
@@ -494,6 +494,14 @@ SQL;
       $channel = $this->irrigation->find_channel($request->path);
 
       if ($channel) {
+        if (is_object($this->fortress)) {
+          $access = $this->fortress->channel_access(null, $channel, $request);
+          
+          // If not true, $access is a Brick
+          if ($access !== true) {
+            throw new Exception($access->repel(), 400);
+          }
+        }
         $result = $channel->run($request);
         if (is_array($result)) {
           $objects = $result;

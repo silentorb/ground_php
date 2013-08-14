@@ -22,6 +22,8 @@ class Fortress_Fixture extends Ground_Fixture {
 
 }
 
+Fortress::load();
+
 class Dummy_Gate extends Gate {
   public $check_result = 3;
   

@@ -49,6 +49,11 @@ class Query {
     }
   }
 
+  function add_key_filter($value) {
+    $this->filters[] = $this->trellis->query_primary_key() . ' = :primary_key';
+    $this->add_arguments(array(':primary_key' => $value));
+  }
+
   function add_field($clause, $arguments = null) {
     $this->fields[] = $clause;
     if ($arguments) {
