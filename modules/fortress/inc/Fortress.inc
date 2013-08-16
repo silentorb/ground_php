@@ -62,7 +62,7 @@ class Fortress extends Ground_Module {
       throw new Exception('Missing account in channel reference.');
 
     foreach ($channel->walls as $wall) {
-      if (!$wall->has_gate($channel, $request)) {
+      if (!$wall->has_gate($account, $request)) {
         return $wall;
       }
     }
