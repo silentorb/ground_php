@@ -11,10 +11,10 @@ class Channel implements IChannel {
   public $path;
   public $target;
   public $method;
-  public $bricks = array();
+  public $walls = array();
   public $ground;
 
-  public function __construct($path, $target, $method, $bricks = null) {
+  public function __construct($path, $target, $method, $walls = null) {
     if (is_string($path))
       $this->path = Irrigation::get_path_array($path, Irrigation::$base_path);
     else {
@@ -24,11 +24,11 @@ class Channel implements IChannel {
     $this->target = $target;
     $this->method = $method;
 
-    if (is_array($bricks)) {
-      $this->bricks = $bricks;
+    if (is_array($walls)) {
+      $this->walls = $walls;
       if (isset($this->ground) && isset($this->ground->fortress)) {
-        foreach ($bricks as $bricks) {
-          $brick->fortress = $this->ground->fortress;
+        foreach ($walls as $walls) {
+          $wall->fortress = $this->ground->fortress;
         }
       }
     }
@@ -71,8 +71,8 @@ class Irrigation {
     $this->ground = $ground;
   }
 
-  public function add_channel($path, $target, $method, $bricks = null) {
-    $channel = new Channel($path, $target, $method, $bricks);
+  public function add_channel($path, $target, $method, $walls = null) {
+    $channel = new Channel($path, $target, $method, $walls);
     $channel->ground = $this->ground;
     $this->channels[] = $channel;
   }

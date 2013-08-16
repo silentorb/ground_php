@@ -1,7 +1,7 @@
 <?php
 
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Wall.inc';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Gate.inc';
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Brick.inc';
 require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Guide.inc';
 
 class Fortress extends Ground_Module {
@@ -61,8 +61,8 @@ class Fortress extends Ground_Module {
     if (!$account || !$resource)
       return 0;
 
-    foreach ($channel->bricks as $brick) {
-      if ($brick->collide($channel, $request)) {
+    foreach ($channel->walls as $wall) {
+      if ($wall->collide($channel, $request)) {
         
       }
     }

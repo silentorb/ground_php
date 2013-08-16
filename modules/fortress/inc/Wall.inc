@@ -1,6 +1,6 @@
 <?php
 
-class Brick {
+class Wall {
 
   public $fortress;
 
@@ -14,7 +14,7 @@ class Brick {
 
 }
 
-class Resource_Brick extends Brick{
+class Resource_Wall extends Wall{
 
   public $level;
   public $resource_key;
@@ -34,7 +34,7 @@ class Resource_Brick extends Brick{
   }
 }
 
-class Drupal_Brick extends Brick {
+class Drupal_Wall extends Wall {
 
   public $permission;
 

@@ -497,7 +497,7 @@ SQL;
         if (is_object($this->fortress)) {
           $access = $this->fortress->channel_access(null, $channel, $request);
           
-          // If not true, $access is a Brick
+          // If not true, $access is a Wall
           if ($access !== true) {
             throw new Exception($access->repel(), 400);
           }
