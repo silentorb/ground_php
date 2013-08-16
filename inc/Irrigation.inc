@@ -14,7 +14,7 @@ class Channel implements IChannel {
   public $walls = array();
   public $ground;
 
-  public function __construct($path, $target, $method, $walls = null) {
+  public function __construct($path, $target, $method) {
     if (is_string($path))
       $this->path = Irrigation::get_path_array($path, Irrigation::$base_path);
     else {
@@ -23,15 +23,6 @@ class Channel implements IChannel {
 
     $this->target = $target;
     $this->method = $method;
-
-    if (is_array($walls)) {
-      $this->walls = $walls;
-      if (isset($this->ground) && isset($this->ground->fortress)) {
-        foreach ($walls as $walls) {
-          $wall->fortress = $this->ground->fortress;
-        }
-      }
-    }
   }
 
   public function run($request) {
@@ -72,9 +63,18 @@ class Irrigation {
   }
 
   public function add_channel($path, $target, $method, $walls = null) {
-    $channel = new Channel($path, $target, $method, $walls);
+    $channel = new Channel($path, $target, $method);
     $channel->ground = $this->ground;
     $this->channels[] = $channel;
+
+    if (is_array($walls)) {
+      $channel->walls = $walls;
+      if (isset($channel->ground) && isset($channel->ground->fortress)) {
+        foreach ($channel->walls as $wall) {
+          $wall->fortress = $channel->ground->fortress;
+        }
+      }
+    }
   }
 
   public function generate_tree() {

@@ -58,15 +58,15 @@ class Fortress extends Ground_Module {
       $account = $this->account;
     }
 
-    if (!$account || !$resource)
-      return 0;
+    if (!$account)
+      throw new Exception('Missing account in channel reference.');
 
     foreach ($channel->walls as $wall) {
-      if ($wall->collide($channel, $request)) {
-        
+      if (!$wall->has_gate($channel, $request)) {
+        return $wall;
       }
     }
-    
+
     return true;
   }
 
@@ -167,4 +167,5 @@ class Fortress extends Ground_Module {
   public static function load() {
     // Dummy function to trigger the included files at the top of this file.
   }
+
 }

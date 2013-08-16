@@ -1,7 +1,7 @@
 <?php
 
 class Guide {
-  public function guide($request) {
+  public function get($request) {
     return null;
   }
 
@@ -15,7 +15,7 @@ class Resource_Guide extends Guide {
     $this->index = $index;
   }
 
-  public function guide($request) {
+  public function get($request) {
     return $request->resources[$this->index];
   }
 

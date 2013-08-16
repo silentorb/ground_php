@@ -4,7 +4,7 @@ class Wall {
 
   public $fortress;
 
-  public function collide($account, $factors = array()) {
+  public function has_gate($account, $factors = array()) {
     return false;
   }
 
@@ -17,15 +17,19 @@ class Wall {
 class Resource_Wall extends Wall{
 
   public $level;
-  public $resource_key;
+  public $guide;
 
-  public function __construct($level, $resource_key = 'resource') {
+  public function __construct($level, $guide) {
     $this->level = $level;
-    $this->resource_key = $resource_key;
+    $this->guide = $guide;
   }
 
-  public function collide($account, $factors = array()) {
-    $access = $this->fortress->access($account, $factors[$this->resource_key]);
+  public function has_gate($account, $request) {
+    $resource = $this->guide->get($request);
+    if (!$resource)
+      throw new Exception('Resource_Wall could not find the requested resource.');
+    
+    $access = $this->fortress->access($account, $resource);
     return $access >= $this->level;
   }
 
@@ -42,7 +46,7 @@ class Drupal_Wall extends Wall {
     $this->permission = $permission;
   }
 
-  public function collide($account, $factors = array()) {
+  public function has_gate($account, $factors = array()) {
     return user_access($this->permission, $account);
   }
 
