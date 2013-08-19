@@ -159,24 +159,26 @@ class Irrigation {
     }
     $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), $base);
     $bag->arguments = $_REQUEST;
-    $bag->objects = Irrigation::get_post_objects();
+    $bag->GET = $_GET;
+    $bag->POST = $_POST;
+    $bag->objects = Irrigation::get_post_objects('objects');
 
     return $bag;
   }
 
-  static function get_post_objects() {
-    $objects = array();
-    if (isset($_POST['objects'])) {
-      $objects = $_POST['objects'];
+  static function get_post_objects($name) {
+    $result = array();
+    if (isset($_POST[$name])) {
+      $result = $_POST[$name];
     }
     else {
       $json = file_get_contents("php://input");
       $data = json_decode(utf8_encode($json));
       if ($data)
-        $objects = $data->objects;
+        $result = $data->{$name};
     }
 
-    return $objects;
+    return $result;
   }
 
   static function convert_path_to_array($path) {
