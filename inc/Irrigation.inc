@@ -37,6 +37,8 @@ class Bag {
   public $arguments = array();
   public $objects;
   public $resources = array();
+  public $GET = array();
+  public $POST = array();
 
   public function __construct($path = null) {
     if (is_string($path))
@@ -153,32 +155,26 @@ class Irrigation {
     $script_name = dirname($_SERVER['SCRIPT_NAME']);
     if (strlen($script_name) > 1) {
       $base = $script_name . '/' . Irrigation::$base_path;
-    }
-    else {
+    } else {
       $base = Irrigation::$base_path;
     }
     $bag->path = Irrigation::get_path_array(Irrigation::get_simple_url_path($_SERVER["REQUEST_URI"]), $base);
     $bag->arguments = $_REQUEST;
     $bag->GET = $_GET;
-    $bag->POST = $_POST;
-    $bag->objects = Irrigation::get_post_objects('objects');
-
-    return $bag;
-  }
-
-  static function get_post_objects($name) {
-    $result = array();
-    if (isset($_POST[$name])) {
-      $result = $_POST[$name];
-    }
-    else {
+    if (count($_POST) > 0) {
+      $bag->POST = $_POST;
+    } else {
       $json = file_get_contents("php://input");
       $data = json_decode(utf8_encode($json));
       if ($data)
-        $result = $data->{$name};
+        $bag->POST = (array)$data;
+
+      if (isset($bag->POST['objects'])) {
+        $objects = $bag->POST['objects'];
+      }
     }
 
-    return $result;
+    return $bag;
   }
 
   static function convert_path_to_array($path) {
@@ -202,8 +198,7 @@ class Irrigation {
     foreach ($base as $i => $item) {
       if ($item == $path[$i]) {
         $amount++;
-      }
-      else {
+      } else {
         break;
       }
     }
@@ -218,8 +213,7 @@ class Irrigation {
     $index = strpos($url, '?');
     if ($index !== false) {
       return substr($url, 0, $index);
-    }
-    else {
+    } else {
       return $url;
     }
   }
@@ -237,7 +231,7 @@ class Irrigation {
   }
 
   static function import() {
-    
+
   }
 
   public function load_api_from_file($schema_file) {
@@ -260,11 +254,10 @@ class Irrigation {
   static function prepare_input($parameters, $arguments) {
     $result = array();
     foreach ($parameters as $name => $parameter) {
-      $parameter = (object) $parameter;
+      $parameter = (object)$parameter;
       if (isset($arguments[$name])) {
         $result[$name] = Irrigation::get_value($arguments[$name], $parameter->type);
-      }
-      else if (isset($parameter->default)) {
+      } else if (isset($parameter->default)) {
         $result[$name] = $parameter->default;
       }
     }
@@ -275,7 +268,7 @@ class Irrigation {
   static function get_value($value, $type) {
     switch ($type) {
       case 'int':
-        return (int) $value;
+        return (int)$value;
         break;
       case 'string':
       case 'text':
@@ -287,7 +280,7 @@ class Irrigation {
         break;
       case 'float':
       case 'double':
-        return (float) $value;
+        return (float)$value;
         break;
     }
 

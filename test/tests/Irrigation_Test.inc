@@ -133,4 +133,19 @@ class Irrigation_Test extends Ground_Test_Case {
     $this->assertEquals('Bob', $request->resources[0]->name);
   }
 
+  function test_service_expansions() {
+    $this->fixture->populate_database();
+    $request = new Bag('warrior');
+    $this->ground->public_vineyard_services = true;
+    $result = $this->ground->vineyard_service($request);
+    $this->assertEquals(1, $result->objects[0]->inventory[0]->owner);
+
+    $settings = new stdClass();
+    $settings->expansions = array('warrior/inventory/owner');
+    $request->POST['query'] = $settings;
+    $result = $this->ground->vineyard_service($request);
+    $this->assertEquals('object', gettype($result->objects[0]->inventory[0]->owner));
+    $this->assertEquals('Bob', $result->objects[0]->inventory[0]->owner->name);
+  }
+
 }

@@ -9,7 +9,7 @@ class Wall_Test extends Ground_Test_Case {
 
   public function test_admin_wall() {
     $fortress = new Fortress($this->ground);
-    $fortress->lay_wall(new Admin_Gate());
+    $fortress->lay_gate(new Admin_Gate());
 
     $resource = (object) array(
             'trellis' => 'ninja pig',
@@ -27,7 +27,7 @@ class Wall_Test extends Ground_Test_Case {
     // At first I felt I was being over-the-top writing this variation
     // of the test, but it actually broke and revealed a bug with Admin_Wall initialization!
     $fortress = new Fortress($this->ground);
-    $fortress->lay_wall(new Admin_Gate('king'));
+    $fortress->lay_gate(new Admin_Gate('king'));
     $this->assertSame(0, $fortress->access($shambler, $resource));
     $shambler->roles = array('king');
     $this->assertSame(3, $fortress->access($shambler, $resource));
@@ -44,9 +44,9 @@ class Wall_Test extends Ground_Test_Case {
     );
 
     $this->assertSame(0, $fortress->access($account, $resource));
-    $fortress->lay_wall(new Public_Trellis_Gate(array('frog')));
+    $fortress->lay_gate(new Public_Trellis_Gate(array('frog')));
     $this->assertSame(0, $fortress->access($account, $resource));
-    $fortress->lay_wall(new Public_Trellis_Gate(array('ninja pig')));
+    $fortress->lay_gate(new Public_Trellis_Gate(array('ninja pig')));
     $this->assertSame(1, $fortress->access($account, $resource));
     $this->assertSame(1, $fortress->access($account, new stdClass(), array('trellis' => 'ninja pig')));
   }
@@ -67,7 +67,7 @@ class Wall_Test extends Ground_Test_Case {
 
     $this->assertSame(0, $fortress->access($farmer, $resource));
     $this->assertSame(0, $fortress->access($shambler, $resource));
-    $fortress->lay_wall(new Owner_Gate());
+    $fortress->lay_gate(new Owner_Gate());
     $this->assertSame(3, $fortress->access($farmer, $resource));
     $this->assertSame(0, $fortress->access($shambler, $resource));
   }

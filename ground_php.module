@@ -96,7 +96,8 @@ function ground_php_get() {
       $code = '500';
 
     // For security reasons, don't show specific messages for 500 errors
-    if ($code == 500) {
+    // unless the user is an admin.
+    if ($code == 500 && !user_access('administer permissions')) {
       $result->message = 'Internal Server Error';
       drupal_add_http_header('Status', $code);
     }
