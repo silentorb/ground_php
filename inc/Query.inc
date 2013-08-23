@@ -49,6 +49,20 @@ class Query {
     }
   }
 
+  function add_property_filter($property, $value) {
+    $placeholder = ':' . $property->name . '_filter';
+    if ($value === 'null' && $this->type != 'string') {
+      $this->filters[] = "$property->name IS NULL";
+    }
+    else {
+      $this->filters[] = "$property->name = $placeholder";
+      $this->add_arguments(array($placeholder => $value));
+      if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
+        $this->add_property_join($property, $placeholder);
+      }
+    }
+  }
+
   function add_key_filter($value) {
     $this->filters[] = $this->trellis->query_primary_key() . ' = :primary_key';
     $this->add_arguments(array(':primary_key' => $value));
@@ -66,6 +80,13 @@ class Query {
     if ($arguments) {
       $this->add_arguments($arguments);
     }
+  }
+
+  function add_property_join($property, $id) {
+    $link_class = $property->get_link_class();
+    $join = new $link_class($property);
+    $join_sql = $join->generate_join($id);
+    $this->add_join($join_sql);
   }
 
   function add_post($clause, $arguments = null) {
@@ -357,10 +378,7 @@ class Query {
     $query = $this->ground->create_query($other_table, $this->get_path($property->name));
     $query->include_links = false;
     $query->expansions = $this->expansions;
-    $link_class = $property->get_link_class();
-    $join = new $link_class($property);
-    $join_sql = $join->generate_join($id);
-    $query->add_join($join_sql);
+    $query->add_property_join($property, $id);
     return $query->run();
   }
 

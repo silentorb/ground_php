@@ -534,7 +534,7 @@ SQL;
     foreach ($args as $key => $value) {
       if (array_key_exists($key, $properties)) {
         $property = $properties[$key];
-        $query->add_filter($property->get_filter($value));
+        $query->add__property_filter($property, $value);
       } else if ($key == 'order') {
         $order_string = Ground::format_order_string($value, $query->trellis);
         $query->add_post('ORDER BY ' . $order_string);
