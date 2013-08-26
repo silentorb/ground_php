@@ -567,6 +567,8 @@ SQL;
       foreach ($settings->expansions as $expansion) {
         $query->add_expansion($expansion);
       }
+    }
+    if (isset($settings->filters)) {
       foreach ($settings->filters as $filter) {
         if (!is_object($filter))
           throw new Exception('Invalid filter', 400);
@@ -575,7 +577,8 @@ SQL;
         if (!array_key_exists($filter->property, $properties))
           throw new Exception("Invalid trellis property in filter: $filter->property");
 
-        $query->add_property_filter($filter->property, $filter->value, $filter->like);
+        $property = $properties[$filter->property];
+        $query->add_property_filter($property, $filter->value, $filter->like);
       }
     }
   }
