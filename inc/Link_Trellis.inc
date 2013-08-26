@@ -24,9 +24,15 @@ class Link_Trellis {
     return $trellis;
   }
 
-  public function generate_join($id) {
-    $sql = "JOIN %table_name ON %table_name.%second_key = $id" .
-            " AND %table_name.%first_key = %back_id\n";
+  public function generate_join($id, $reverse = false) {
+    if ($reverse) {
+      $sql = "JOIN %table_name ON %table_name.%second_key = %forward_id" .
+              " AND %table_name.%first_key = $id\n";
+    }
+    else {
+      $sql = "JOIN %table_name ON %table_name.%second_key = $id" .
+              " AND %table_name.%first_key = %back_id\n";
+    }
     return $this->populate_sql($sql);
   }
 
@@ -37,13 +43,13 @@ class Link_Trellis {
   }
 
   public function generate_insert($first_id, $second_id) {
-    $sql = "INSERT INTO %table_name (%first_key, %second_key) VALUES ($first_id, $second_id)\n;";
+    $sql = "INSERT INTO %table_name (`%first_key`, `%second_key`) VALUES ($first_id, $second_id)\n;";
     return $this->populate_sql($sql);
   }
 
   public function get_arguments($property) {
     $other_property = $property->get_other_property();
-    
+
     // Since we are checking for an ideal cross table name,
     // Use plural trellis names instead of any table name overrides.
     $other_table = $other_property->parent->get_plural();
@@ -53,7 +59,8 @@ class Link_Trellis {
     $result = array(
         '%first_id' => $property->query(),
         '%second_id' => $other_property->query(),
-        '%back_id' => $other_property->parent->get_table_name() . '.' . $other_property->parent->get_primary_field_name(),
+        '%back_id' => $other_property->parent->query_primary_key(),
+        '%forward_id' => $property->parent->query_primary_key(),
     );
 
     $ground = $property->parent->ground;
@@ -76,14 +83,14 @@ class Link_Trellis {
           '%table_name' => $table->name,
           '%first_key' => $first_key,
           '%second_key' => $second_key,
-              ));
+      ));
     }
     else {
       $result = array_merge($result, array(
           '%table_name' => $this->table_name,
           '%first_key' => $property->parent->name . $this->id_suffix,
           '%second_key' => $other_property->parent->name . $this->id_suffix,
-              ));
+      ));
     }
 
     return $result;

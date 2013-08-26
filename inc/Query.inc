@@ -55,10 +55,12 @@ class Query {
       $this->filters[] = "$property->name IS NULL";
     }
     else {
-      $this->filters[] = "$property->name = $placeholder";
       $this->add_arguments(array($placeholder => $value));
       if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
-        $this->add_property_join($property, $placeholder);
+        $this->add_property_join($property, $placeholder, true);
+      }
+      else {
+        $this->filters[] = "$property->name = $placeholder";      
       }
     }
   }
@@ -82,10 +84,10 @@ class Query {
     }
   }
 
-  function add_property_join($property, $id) {
+  function add_property_join($property, $id, $reverse = false) {
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
-    $join_sql = $join->generate_join($id);
+    $join_sql = $join->generate_join($id, $reverse);
     $this->add_join($join_sql);
   }
 
