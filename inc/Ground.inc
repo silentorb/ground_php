@@ -26,7 +26,8 @@ class Property_Type {
       $parent = $types[$info->parent];
       MetaHub::extend($this, $parent);
       $this->parent = $parent;
-    } else {
+    }
+    else {
       $this->field_type = $info->field_type;
     }
 
@@ -100,7 +101,8 @@ class Ground extends Meta_Object {
     if (get_class($object) === 'Trellis') {
       $trellis = $object;
       $trellis->ground = $this;
-    } else {
+    }
+    else {
       $trellis = new Trellis($name, $this);
       if ($object)
         $trellis->load_from_object($object);
@@ -198,7 +200,7 @@ class Ground extends Meta_Object {
     }
 
     if (isset($data->views)) {
-      $this->views = array_merge($this->views, (array)$data->views);
+      $this->views = array_merge($this->views, (array) $data->views);
     }
 
     if (isset($data->tables)) {
@@ -335,7 +337,7 @@ SQL;
     }
     switch ($type) {
       case 'int':
-        return (int)$value;
+        return (int) $value;
         break;
       case 'string':
       case 'text':
@@ -347,7 +349,7 @@ SQL;
         break;
       case 'float':
       case 'double':
-        return (float)$value;
+        return (float) $value;
         break;
     }
 
@@ -367,7 +369,7 @@ SQL;
   function update_object($trellis, $seed, $as_service = false) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
     if (is_array($seed))
-      $seed = (object)$seed;
+      $seed = (object) $seed;
 
     // If $_deleted is an object then it is a list of links
     // to delete which will be handled by Update.
@@ -375,7 +377,8 @@ SQL;
     if ($seed->_deleted && !is_object($seed->_deleted)) {
       $this->delete_object($trellis, $seed);
       return new stdClass();
-    } else {
+    }
+    else {
       // This maybe should eventually be placed in the Update class,
       // but right now I see this more as a preprocessor for services
       // and not as low level as the 'updated' event which is
@@ -390,7 +393,7 @@ SQL;
   }
 
   protected function update_object_with_fortress($seed) {
-    $seed = (object)$seed;
+    $seed = (object) $seed;
     if (!isset($seed->trellis) && !isset($this->trellises[$seed->trellis])) {
       return 'Missing Trellis';
     }
@@ -403,7 +406,8 @@ SQL;
         if (!$access) {
           return 'No creation access';
         }
-      } else {
+      }
+      else {
         $query = $this->create_query($trellis);
         $query->add_filter($trellis->query_primary_key() . ' = ' . $id);
         $original = $query->run_single();
@@ -427,10 +431,11 @@ SQL;
     $result->successes = array();
     $result->failures = array();
     foreach ($objects as $seed) {
-      $seed = $this->update_object_with_fortress((object)$seed);
+      $seed = $this->update_object_with_fortress((object) $seed);
       if ($seed && !is_string($seed)) {
         $result->successes[] = $seed;
-      } else {
+      }
+      else {
         $result->failures[] = $seed;
       }
     }
@@ -472,7 +477,8 @@ SQL;
       $trellis_name = $trellis;
       if ($this->static_queries[$trellis_name]) {
         $trellis = $this->static_queries[$trellis_name];
-      } else {
+      }
+      else {
         $trellis = $this->trellises[$trellis_name];
         if (!$trellis)
           throw new Exception("Trellis $trellis_name not found.");
@@ -526,7 +532,7 @@ SQL;
     $trellis = $request->path[0];
 
     if ($id) {
-      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int)$id);
+      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) $id);
     }
 
     // Currently only works for int types.
@@ -535,7 +541,8 @@ SQL;
       if (array_key_exists($key, $properties)) {
         $property = $properties[$key];
         $query->add_property_filter($property, $value);
-      } else if ($key == 'order') {
+      }
+      else if ($key == 'order') {
         $order_string = Ground::format_order_string($value, $query->trellis);
         $query->add_post('ORDER BY ' . $order_string);
       }
@@ -545,9 +552,9 @@ SQL;
     if (isset($args['limit'])) {
       $offset = 0;
       if (isset($args['offset']))
-        $offset = (int)$args['offset'];
+        $offset = (int) $args['offset'];
 
-      $query->limit = $query->generate_pager($offset, (int)$args['limit']);
+      $query->limit = $query->generate_pager($offset, (int) $args['limit']);
     }
 
     if (isset($request->POST['query'])) {
@@ -557,8 +564,18 @@ SQL;
 
   public function customize_query_from_object($query, $settings) {
     if (isset($settings->expansions)) {
-      foreach($settings->expansions as $expansion) {
+      foreach ($settings->expansions as $expansion) {
         $query->add_expansion($expansion);
+      }
+      foreach ($settings->filters as $filter) {
+        if (!is_object($filter))
+          throw new Exception('Invalid filter', 400);
+
+        $properties = $query->trellis->get_all_properties();
+        if (!array_key_exists($filter->property, $properties))
+          throw new Exception("Invalid trellis property in filter: $filter->property");
+
+        $query->add_property_filter($filter->property, $filter->value, $filter->like);
       }
     }
   }
@@ -590,7 +607,8 @@ SQL;
           $object->{$name} = Ground::strip($value, $strip_properties);
         }
       }
-    } else if (is_array($object)) {
+    }
+    else if (is_array($object)) {
       foreach ($strip_properties as $name) {
         unset($object[$name]);
       }

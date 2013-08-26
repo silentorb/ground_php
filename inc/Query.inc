@@ -49,20 +49,28 @@ class Query {
     }
   }
 
-  function add_property_filter($property, $value) {
+  // LIKE is not currently supported for JOIN filters
+  function add_property_filter($property, $value, $like = false) {
     $placeholder = ':' . $property->name . '_filter';
     if ($value === 'null' && $this->type != 'string') {
       $this->filters[] = "$property->name IS NULL";
+      return;
+    }
+
+    if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
+      $this->add_property_join($property, $placeholder, true);
     }
     else {
-      $this->add_arguments(array($placeholder => $value));
-      if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
-        $this->add_property_join($property, $placeholder, true);
+      if ($like) {
+        $this->filters[] = $property->query() . ' LIKE ' . $placeholder;
+        $value = '%' . (string)$value . '%';
       }
       else {
         $this->filters[] = $property->query() . ' = ' . $placeholder;
       }
     }
+
+    $this->add_arguments(array($placeholder => $value));
   }
 
   function add_key_filter($value) {
