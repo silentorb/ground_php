@@ -60,7 +60,7 @@ class Query {
         $this->add_property_join($property, $placeholder, true);
       }
       else {
-        $this->filters[] = "$property->name = $placeholder";      
+        $this->filters[] = $property->query() . ' = ' . $placeholder;
       }
     }
   }
