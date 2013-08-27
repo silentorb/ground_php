@@ -38,7 +38,7 @@ class Link_Trellis {
 
   public function generate_delete_row($first_id, $second_id) {
     $sql = "DELETE FROM %table_name WHERE %table_name.%first_key = $second_id" .
-            " AND %table_name.%second_key = %first_id\n";
+            " AND %table_name.%second_key = $second_id\n";
     return $this->populate_sql($sql);
   }
 
@@ -101,8 +101,8 @@ class Link_Trellis {
   }
 
   public function query_rows($id, $db) {
-    $sql = $this->populate_sql("SELECT %table_name.%first_key FROM %table_name" .
-            "WHERE %table_name.%second_key = %second_id\n");
+    $sql = $this->populate_sql("SELECT %table_name.%first_key FROM %table_name " .
+            "WHERE %table_name.%second_key = $id\n");
     return $db->query_values($sql);
   }
 

@@ -147,10 +147,21 @@ function ground_php_update() {
     if (!$code)
       $code = '500';
 
-    drupal_add_http_header('Status', $code);
-    $result->message = $ex->getMessage();
     $result->objects = $objects;
     $result->success = false;
+
+    if ($code == 500 && !user_access('administer permissions')) {
+      $result->message = 'Internal Server Error';
+      drupal_add_http_header('Status', $code);
+    }
+    else {
+      $result->message = $ex->getMessage();
+      $result->stack_trace = $ex->getTraceAsString();
+      if (strlen($result->message) < 32)
+        drupal_add_http_header('Status', $code . ' ' . $ex->getMessage());
+      else
+        drupal_add_http_header('Status', $code . ' ' . substr($result->message, 0, 32) . '...');
+    }
   }
   $result->objects = $objects;
 
