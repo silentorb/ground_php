@@ -490,7 +490,7 @@ SQL;
 
   public function vineyard_service($request) {
     if ($this->irrigation) {
-      $channel = $this->irrigation->find_channel($request->path);
+      $channel = $this->irrigation->find_channel($request->path, $request);
 
       if ($channel) {
         if (is_object($this->fortress)) {

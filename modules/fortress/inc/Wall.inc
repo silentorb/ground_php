@@ -26,8 +26,9 @@ class Resource_Wall extends Wall{
 
   public function has_gate($account, $request) {
     $resource = $this->guide->get($request);
-    if (!$resource)
+    if (!$resource) {
       throw new Exception('Resource_Wall could not find the requested resource.');
+    }
     
     $access = $this->fortress->access($account, $resource);
     return $access >= $this->level;
