@@ -241,7 +241,7 @@ SQL;
     }
   }
 
-  protected function update_many_to_many($property, $id, $create = false) {
+  protected function  update_many_to_many($property, $id, $create = false) {
     $list = $this->seed->{$property->name};
     if (!is_array($list))
       return;

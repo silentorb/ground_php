@@ -8,7 +8,7 @@ class Delete {
     $other_property = $link->get_other_property();
     $other_trellis = $other_property->parent;
     $query = $other_trellis->ground->create_query($other_trellis);
-    $query->add_filter($other_trellis->get_table_name() . '.parent = ' . $id);
+    $query->add_filter($other_property->query() . ' = ' . $id);
     $objects = $query->run();
     foreach ($objects as $object) {
       $this->run($other_trellis, $object, $depth + 1);
@@ -32,7 +32,8 @@ class Delete {
   function get_child_links($trellis) {
     $links = $trellis->get_links();
     foreach ($links as $link) {
-      if ($link->get_other_property()->name == 'parent') {
+      $other = $link->get_other_property();
+      if ($other->name == 'parent' || $other->is_parent) {
         $result[] = $link;
       }
     }
