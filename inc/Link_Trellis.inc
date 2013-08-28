@@ -37,13 +37,13 @@ class Link_Trellis {
   }
 
   public function generate_delete_row($first_id, $second_id) {
-    $sql = "DELETE FROM %table_name WHERE %table_name.%first_key = $second_id" .
+    $sql = "DELETE FROM %table_name WHERE %table_name.%first_key = " . $first_id .
             " AND %table_name.%second_key = $second_id\n";
     return $this->populate_sql($sql);
   }
 
   public function generate_insert($first_id, $second_id) {
-    $sql = "INSERT INTO %table_name (`%first_key`, `%second_key`) VALUES ($first_id, $second_id)\n;";
+    $sql = "REPLACE INTO %table_name (`%first_key`, `%second_key`) VALUES ($first_id, $second_id)\n;";
     return $this->populate_sql($sql);
   }
 

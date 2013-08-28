@@ -272,7 +272,8 @@ SQL;
       // Clients can use the _remove flag to detach items from lists without deleting them
       if (is_object($object) && isset($object->_remove) && $object->_remove == true) {
         if ($other_id !== null) {
-          $this->db->query($join->generate_delete_row($id, $other_id));
+          $sql = $join->generate_delete_row($id, $other_id);
+          $this->db->query($sql);
         }
         // Should we throw an error here if the id is null?
       }
