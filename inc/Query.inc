@@ -53,17 +53,18 @@ class Query {
   function add_property_filter($property, $value, $like = false) {
     $placeholder = ':' . $property->name . '_filter';
     if ($value === 'null' && $this->type != 'string') {
-      $this->filters[] = "$property->name IS NULL";
+      $this->filters[] = $property->query() . ' IS NULL';
       return;
     }
 
+    $value = $this->ground->convert_value($value, $property->type);
     if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
       $this->add_property_join($property, $placeholder, true);
     }
     else {
       if ($like) {
         $this->filters[] = $property->query() . ' LIKE ' . $placeholder;
-        $value = '%' . (string)$value . '%';
+        $value = '%' . (string) $value . '%';
       }
       else {
         $this->filters[] = $property->query() . ' = ' . $placeholder;
@@ -276,7 +277,7 @@ class Query {
       if ($field->virtual)
         continue;
 
-      if ($property->name != $source->primary_key || $include_primary_key) {
+      if ($property->name != $trellis->primary_key || $include_primary_key) {
         $field_name = $property->get_field_name();
 //        $table_name = $this->trellis->get_table_name();
         $sql = $property->query();

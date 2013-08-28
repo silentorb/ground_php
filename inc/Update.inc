@@ -344,6 +344,9 @@ SQL;
     // a transaction.
     $sql = '';
     foreach ($tree as $trellis) {
+      if ($trellis->virtual)
+        continue;
+      
       $sql .= $this->generate_sql($trellis);
     }
 

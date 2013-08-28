@@ -53,6 +53,9 @@ class Delete {
     $tree = $trellis->get_tree();
 
     foreach ($tree as $trellis) {
+      if ($trellis->virtual)
+        continue;
+      
       $this->delete_record($trellis, $id);
     }
 

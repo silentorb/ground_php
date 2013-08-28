@@ -18,8 +18,8 @@ class Bloom_Property {
   public $property = null; // String reference to the property this connects to on the other trellis.
   public $default;
   public $private = false;
-  public $is_parent = false; // Is this a parent relationship?
-
+  public $is_parent = false; // Is this a parent relationship
+  
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
     foreach ($names as $key => $item) {
@@ -66,7 +66,7 @@ class Bloom_Property {
 
     throw new Exception("$this->name could not find valid field type.");
   }
-
+  
   public function get_field_value($value, $as_service = false) {
     if (is_string($value))
       $value = str_replace("'", "\\'", $value);
@@ -287,6 +287,9 @@ class Trellis {
   public $properties = array();
   // Every property including inherited properties
   public $all_properties = array();
+  // Virtual trellises do not connect to real tables
+  // Useful when subclassing a regular trellis
+  public $virtual = false;
 
   // It's a lot cleaner and safer to just query the links instead of track them.
 //  public $links = array();
@@ -479,6 +482,14 @@ class Trellis {
   }
 
   public function get_table_name() {
+    if ($this->virtual) {
+      if (is_object($this->parent)) {
+        return $this->parent->get_table_name();
+      }
+      else {
+        throw new Exception("Cannot query trellis $this->name since it is virtual and has no parent.");
+      }
+    }
     if ($this->table) {
       if ($this->table->db_name)
         return $this->table->db_name . '.' . $this->table->name;
@@ -543,8 +554,8 @@ class Trellis {
       $parent = $this->parent;
       $parent_table = $parent->get_table_name();
       $query->add_join('JOIN ' . $parent->get_table_query() .
-          ' ON ' . $parent_table . '.' . $parent->primary_key .
-          ' = ' . $query->main_table . '.' . $this->primary_key);
+              ' ON ' . $parent_table . '.' . $parent->primary_key .
+              ' = ' . $query->main_table . '.' . $this->primary_key);
 
       $query->add_source($parent, false);
 //      $parent->parent_query($query);
@@ -554,12 +565,13 @@ class Trellis {
   function get_join($main_table) {
     $result = '';
     if ($this->parent) {
+      if ($this->virtual) {
+        return '';// $this->parent->get_join($main_table);
+      }
       $parent = $this->parent;
-//      $parent_table = $parent->get_table_name();
-
       $result = 'JOIN ' . $parent->get_table_query() .
-          ' ON ' . $parent->query_primary_key() .
-          ' = ' . $main_table . '.' . $this->properties[$this->primary_key]->get_field_name();
+              ' ON ' . $parent->query_primary_key() .
+              ' = ' . $main_table . '.' . $this->properties[$this->primary_key]->get_field_name();
     }
 
     return $result;
