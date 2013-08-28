@@ -89,8 +89,12 @@ function ground_php_get() {
 
     $bag = Irrigation::create_bag_from_globals();
     $result = $ground->vineyard_service($bag);
+    if ($result === null) {
+      throw new Exception("Service result was null.");
+    }
   }
   catch (Exception $ex) {
+    $result = new stdClass();
     $code = $ex->getCode();
     if (!$code)
       $code = '500';
@@ -103,6 +107,7 @@ function ground_php_get() {
     }
     else {
       $result->message = $ex->getMessage();
+      $result->stack_trace = $ex->getTraceAsString();
       drupal_add_http_header('Status', $code . ' ' . $ex->getMessage());
     }
   }
