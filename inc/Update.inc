@@ -63,7 +63,7 @@ class Update extends Meta_Object {
       }
 
       $sql = 'SELECT ' . implode(', ', $primary_keys) . ' FROM ' . $trellis->get_table_name()
-          . ' WHERE ' . $condition_string;
+              . ' WHERE ' . $condition_string;
 
       $id_result = $this->db->query_array($sql);
       if (!$id_result) {
@@ -92,12 +92,7 @@ class Update extends Meta_Object {
       if ($field->virtual)
         continue;
 
-      if (property_exists($this->seed, $property->name)
-          || $property->insert_trellis
-          || $property->type == 'created'
-          || $property->type == 'modified'
-          || $property->insert == 'author'
-          || $property->insert == 'trellis') {
+      if (property_exists($this->seed, $property->name) || $property->insert_trellis || $property->type == 'created' || $property->type == 'modified' || $property->insert == 'author' || $property->insert == 'trellis') {
         $fields[] = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         if (strlen($value) == 0) {
@@ -148,10 +143,7 @@ class Update extends Meta_Object {
       if ($field->virtual)
         continue;
 
-      if (property_exists($this->seed, $property->name)
-          || $property->insert_trellis
-          || $property->insert == 'trellis'
-          || $property->type == 'modified') {
+      if (property_exists($this->seed, $property->name) || $property->insert_trellis || $property->insert == 'trellis' || $property->type == 'modified') {
         $field = '`' . $property->get_field_name() . '`';
         $value = $this->get_field_value($property);
         $updates[] = "$field = $value";
@@ -222,7 +214,7 @@ SQL;
         if ($property->readonly || $property->private)
           continue;
       }
-      
+
       switch ($property->get_relationship()) {
         case RELATIONSHIP_ONE_TO_ONE:
           // I think the new code I added earlier in the pipeline should
@@ -260,28 +252,38 @@ SQL;
 
     $other_trellis = $property->get_referenced_trellis();
 
-    if (!$create) {
-      $rows = $join->query_rows($id, $this->db);
-
-      foreach ($rows as $other_id) {
-        if (!in_array($other_id, $list)) {
-          $this->db->query($join->generate_delete_row($id, $other_id));
-        }
-        else {
-          $currently_in_table[] = $other_id;
-        }
-      }
-    }
+//    if (!$create) {
+//      $rows = $join->query_rows($id, $this->db);
+//
+//      foreach ($rows as $other_id) {
+//        if (!in_array($other_id, $list)) {
+//          $this->db->query($join->generate_delete_row($id, $other_id));
+//        }
+//        else {
+//          $currently_in_table[] = $other_id;
+//        }
+//      }
+//    }
 
     foreach ($list as $other_id) {
       $object = $other_id;
       $other_id = $other_trellis->get_id($object);
-      if ($other_id === null) {
-        $object = $this->ground->update_object($other_trellis, $object);
-        $other_id = $other_trellis->get_id($object);
+      
+      // Clients can use the _remove flag to detach items from lists without deleting them
+      if (is_object($object) && isset($object->_remove) && $object->_remove == true) {
+        if ($other_id !== null) {
+          $this->db->query($join->generate_delete_row($id, $other_id));
+        }
+        // Should we throw an error here if the id is null?
       }
-      if (!in_array($other_id, $currently_in_table)) {
-        $this->db->query($join->generate_insert($other_id, $id));
+      else {
+        if ($other_id === null) {
+          $object = $this->ground->update_object($other_trellis, $object);
+          $other_id = $other_trellis->get_id($object);
+        }
+        if (!in_array($other_id, $currently_in_table)) {
+          $this->db->query($join->generate_insert($other_id, $id));
+        }
       }
     }
   }
