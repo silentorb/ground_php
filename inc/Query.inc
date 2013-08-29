@@ -50,28 +50,39 @@ class Query {
   }
 
   // LIKE is not currently supported for JOIN filters
-  function add_property_filter($property, $value, $like = false) {
+  function add_property_filter($property, $value = null, $like = false) {
+    if (is_string($property)) {
+      if (!isset($this->trellis->all_properties[$property]))
+        throw new Exception($this->trellis->name . ' does not contain a property named ' . $property . '.');
+
+      $property = $this->trellis->all_properties[$property];
+    }
+
     $placeholder = ':' . $property->name . '_filter';
     if ($value === 'null' && $this->type != 'string') {
       $this->filters[] = $property->query() . ' IS NULL';
       return;
     }
 
-    $value = $this->ground->convert_value($value, $property->type);
+    if ($value !== null)
+      $value = $this->ground->convert_value($value, $property->type);
+
     if ($property->get_relationship() == RELATIONSHIP_MANY_TO_MANY) {
       $this->add_property_join($property, $placeholder, true);
     }
     else {
       if ($like) {
         $this->filters[] = $property->query() . ' LIKE ' . $placeholder;
-        $value = '%' . (string) $value . '%';
+        if ($value !== null)
+          $value = '%' . (string) $value . '%';
       }
       else {
         $this->filters[] = $property->query() . ' = ' . $placeholder;
       }
     }
 
-    $this->add_arguments(array($placeholder => $value));
+    if ($value !== null)
+      $this->add_arguments(array($placeholder => $value));
   }
 
   function add_key_filter($value) {

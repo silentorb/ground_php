@@ -336,6 +336,8 @@ SQL;
       }
     }
     switch ($type) {
+      case 'list':
+      case 'reference':
       case 'int':
         return (int) $value;
         break;
