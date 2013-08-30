@@ -19,7 +19,7 @@ class Bloom_Property {
   public $default;
   public $private = false;
   public $is_parent = false; // Is this a parent relationship
-  
+
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
     foreach ($names as $key => $item) {
@@ -66,7 +66,7 @@ class Bloom_Property {
 
     throw new Exception("$this->name could not find valid field type.");
   }
-  
+
   public function get_field_value($value, $as_service = false) {
     if (is_string($value))
       $value = str_replace("'", "\\'", $value);
@@ -544,7 +544,8 @@ class Trellis {
       }
     }
 
-    foreach ($source->properties as $key => $property) {
+    $properties = (array)$source->properties ;
+    foreach ($properties as $key => $property) {
       $this->add_property($key, $property);
     }
   }
@@ -566,7 +567,7 @@ class Trellis {
     $result = '';
     if ($this->parent) {
       if ($this->virtual) {
-        return '';// $this->parent->get_join($main_table);
+        return ''; // $this->parent->get_join($main_table);
       }
       $parent = $this->parent;
       $result = 'JOIN ' . $parent->get_table_query() .
