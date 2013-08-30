@@ -13,22 +13,20 @@ class Update extends Meta_Object {
   static public $log_queries = false;
 
   public function __construct($trellis, $seed, $ground = null) {
-    $this->seed = (object) $seed;
+    $this->seed = (object)$seed;
     if (is_string($trellis)) {
       if ($ground)
         $this->trellis = $ground->trellises[$trellis];
       else
         throw new Exception('No Ground provided to find trellis string.');
-    }
-    else {
+    } else {
       $this->trellis = $trellis;
     }
 
     $this->main_table = $this->trellis->get_table_name();
     if ($ground) {
       $this->ground = $ground;
-    }
-    else {
+    } else {
       $this->ground = $this->trellis->ground;
     }
 
@@ -42,13 +40,11 @@ class Update extends Meta_Object {
     $id = $this->seed->{$trellis->primary_key};
     if (!$id && $id !== 0) {
       return $this->create_record($trellis);
-    }
-    else {
+    } else {
       $table = $this->ground->tables[$trellis->name];
       if ($table && is_array($table->primary_keys) && count($table->primary_keys) > 0) {
         $primary_keys = $table->primary_keys;
-      }
-      else {
+      } else {
         $primary_keys = array($trellis->primary_key);
       }
       $conditions = array();
@@ -63,7 +59,7 @@ class Update extends Meta_Object {
       }
 
       $sql = 'SELECT ' . implode(', ', $primary_keys) . ' FROM ' . $trellis->get_table_name()
-              . ' WHERE ' . $condition_string;
+        . ' WHERE ' . $condition_string;
 
       $id_result = $this->db->query_array($sql);
       if (!$id_result) {
@@ -114,9 +110,8 @@ class Update extends Meta_Object {
 
     if (isset($this->seed->{$trellis->primary_key})) {
       $id = $this->seed->{$trellis->primary_key};
-    }
-    else {
-      $id = (int) $this->db->last_insert_id($trellis->primary_key);
+    } else {
+      $id = (int)$this->db->last_insert_id($trellis->primary_key);
       $this->seed->{$trellis->primary_key} = $id;
     }
 
@@ -241,7 +236,7 @@ SQL;
     }
   }
 
-  protected function  update_many_to_many($property, $id, $create = false) {
+  protected function update_many_to_many($property, $id, $create = false) {
     $list = $this->seed->{$property->name};
     if (!is_array($list))
       return;
@@ -268,23 +263,24 @@ SQL;
     foreach ($list as $other_id) {
       $object = $other_id;
       $other_id = $other_trellis->get_id($object);
-      
+
       // Clients can use the _remove flag to detach items from lists without deleting them
       if (is_object($object) && isset($object->_remove) && $object->_remove == true) {
         if ($other_id !== null) {
           $sql = $join->generate_delete_row($id, $other_id);
+          $this->ground->invoke('delete.' . $join->table_name, $property, $id, $other_id, $join);
           $this->db->query($sql);
         }
         // Should we throw an error here if the id is null?
-      }
-      else {
+      } else {
         if ($other_id === null) {
           $object = $this->ground->update_object($other_trellis, $object);
           $other_id = $other_trellis->get_id($object);
         }
-        if (!in_array($other_id, $currently_in_table)) {
-          $this->db->query($join->generate_insert($other_id, $id));
-        }
+//        if (!in_array($other_id, $currently_in_table)) {
+        $this->db->query($join->generate_insert($other_id, $id));
+        $this->ground->invoke('create.' . $join->table_name, $property, $id, $other_id, $join);
+//        }
       }
     }
   }
@@ -303,9 +299,8 @@ SQL;
   protected function update_reference($property, $id) {
     $object = $this->seed->{$property->name};
     if (is_array($object)) {
-      $object = (object) $object;
-    }
-    else if (!is_object($object)) {
+      $object = (object)$object;
+    } else if (!is_object($object)) {
       return;
     }
 
@@ -314,12 +309,11 @@ SQL;
 
   protected function update_reference_object($object, $property, $id) {
     if (is_array($object))
-      $object = (object) $object;
+      $object = (object)$object;
 
     if ($object->trellis) {
       $trellis = $object->trellis;
-    }
-    else {
+    } else {
       $trellis = $property->trellis;
     }
 
@@ -346,7 +340,7 @@ SQL;
     foreach ($tree as $trellis) {
       if ($trellis->virtual)
         continue;
-      
+
       $sql .= $this->generate_sql($trellis);
     }
 

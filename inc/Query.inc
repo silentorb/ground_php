@@ -52,10 +52,11 @@ class Query {
   // LIKE is not currently supported for JOIN filters
   function add_property_filter($property, $value = null, $like = false) {
     if (is_string($property)) {
-      if (!isset($this->trellis->all_properties[$property]))
-        throw new Exception($this->trellis->name . ' does not contain a property named ' . $property . '.');
-
-      $property = $this->trellis->all_properties[$property];
+      $properties = $this->trellis->get_all_properties();
+      if (!isset($properties[$property])) {
+        throw new \Exception($this->trellis->name . ' does not contain a property named ' . $property . '.');
+      }
+      $property = $properties[$property];
     }
 
     $placeholder = ':' . $property->name . '_filter';
