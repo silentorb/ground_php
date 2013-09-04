@@ -19,7 +19,8 @@ class Bloom_Property {
   public $default;
   public $private = false;
   public $is_parent = false; // Is this a parent relationship
-
+  public $virtual = false;
+  
   public function __construct($name, $source, $parent) {
     $names = get_object_vars($source);
     foreach ($names as $key => $item) {

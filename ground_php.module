@@ -138,7 +138,7 @@ function ground_php_update() {
     if (!count($objects)) {
       throw new Exception('Object list is empty', 400);
     }
-    $result->result = (object)$ground->update_objects($objects);
+    $result->result = $ground->update_objects($objects);
     if (count($result->result->failures) > 0) {
       drupal_add_http_header('Status', 500);
       $result->success = false;
@@ -171,7 +171,6 @@ function ground_php_update() {
   $result->objects = $objects;
 
   drupal_add_http_header('Content-Type', 'application/json');
-  watchdog('ground', print_r($result, true));
   print json_encode($result);
 }
 

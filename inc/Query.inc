@@ -280,7 +280,7 @@ class Query {
       $key = 1;
     }
     foreach ($properties as $property) {
-      if ($property->type == 'list')
+      if ($property->type == 'list' || $property->virtual)
         continue;
 
       $field = $property->get_field_override();
@@ -311,26 +311,6 @@ class Query {
         'joins' => $joins,
     );
   }
-
-//  function get_joins($trellis, $include_links = true) {
-////    $this->add_source($trellis);
-//    $current_trellis = $trellis;
-//    do {
-//      $links = $current_trellis->get_links();
-//      foreach ($links as $link) {
-//        if (is_array($include_links)) {
-//          if (in_array($link->name, $include_links))
-//            $this->add_link($link);
-//        }
-//        else {
-//          if ($include_links) {
-//            $this->add_link($link);
-//          }
-//        }
-//      }
-//    }
-//    while ($current_trellis = $current_trellis->parent);
-//  }
 
   function process_row(&$row, $authorized_properties = null) {
     // Map field names to bloom property names.
@@ -370,6 +350,9 @@ class Query {
     $links = $this->trellis->get_all_links();
 
     foreach ($links as $name => $property) {
+      if ($property->virtual)
+        continue;
+
       $path = $this->get_path($property->name);
       if ($authorized_properties && !array_key_exists($name, $authorized_properties))
         continue;
