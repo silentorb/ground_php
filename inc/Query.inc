@@ -168,7 +168,7 @@ class Query {
   }
 
   function add_pager() {
-    $this->limit = $this->generate_pager((int) $_GET['offset'], (int) $_GET_['limit']);
+    $this->limit = $this->generate_pager((int) $_GET['offset'], (int) $_GET['limit']);
   }
 
   function paged_sql($sql) {
