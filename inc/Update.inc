@@ -78,6 +78,9 @@ class Update extends Meta_Object {
     $core_properties = $trellis->get_core_properties();
     foreach ($core_properties as $property) {
 
+      if ($property->virtual)
+        continue;
+      
       // Ignore shared fields
       $field = $property->get_field_override();
       if ($field && $field->share)
