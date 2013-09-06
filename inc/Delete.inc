@@ -53,6 +53,7 @@ class Delete {
     $tree = $trellis->get_tree();
 
     foreach ($tree as $trellis) {
+      $trellis->ground->invoke('delete.' . $trellis->name, $object);
       if ($trellis->virtual)
         continue;
       
