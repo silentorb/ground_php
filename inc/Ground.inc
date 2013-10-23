@@ -82,9 +82,9 @@ class Ground extends Meta_Object {
       $this->db = new Ground_Database();
       $this->db->connect($database);
     }
-    $path = drupal_get_path('module', 'ground_php');
+    $path = realpath(dirname(__FILE__) . DIRECTORY_SEPARATOR . '..');
     $this->listen($this, 'connect.query', 'on_connect_query');
-    $this->load_property_types($path . '/property_types.json');
+    $this->load_property_types($path . DIRECTORY_SEPARATOR . 'property_types.json');
   }
 
   public function add_module($name) {

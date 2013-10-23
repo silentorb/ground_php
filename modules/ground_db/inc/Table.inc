@@ -14,14 +14,14 @@ class Table {
   // mostly just effects table creation.
   public $primary_keys = null;
   public static $types = array(
-      'CHAR' => 'string',
-      'DECIMAL' => 'decimal',
-      'INT' => 'int',
-      'TINYINT' => 'bool',
-      'SMALLINT' => 'int',
-      'VARCHAR' => 'string',
-      'TEXT' => 'text',
-      'LONGTEXT' => 'text',
+    'CHAR' => 'string',
+    'DECIMAL' => 'decimal',
+    'INT' => 'int',
+    'TINYINT' => 'bool',
+    'SMALLINT' => 'int',
+    'VARCHAR' => 'string',
+    'TEXT' => 'text',
+    'LONGTEXT' => 'text',
   );
 
   function __construct($name, $ground) {
@@ -71,8 +71,8 @@ class Table {
     foreach ($this->properties as $name => $property) {
       $type = $this->ground->property_types[$property->type];
       $field = array(
-          'name' => $name,
-          'type' => $type->get_field_type(),
+        'name' => $name,
+        'type' => $type->get_field_type(),
       );
       if (isset($property->default))
         $field['default'] = $property->default;
@@ -151,15 +151,17 @@ class Table {
     }
     $fields = array();
     foreach ($core_properties as $property) {
-      $field = $this->properties[$property->name];
+      if (isset($this->properties[$property->name])) {
+        $field = $this->properties[$property->name];
 
-      // Don't duplicate shared fields.
-      if ($field && $field->share)
-        continue;
+        // Don't duplicate shared fields.
+        if ($field && $field->share)
+          continue;
+      }
 
       $field = array(
-          'name' => $property->get_field_name(),
-          'type' => $property->get_field_type(),
+        'name' => $property->get_field_name(),
+        'type' => $property->get_field_type(),
       );
 
       if (isset($property->default))
@@ -173,7 +175,7 @@ class Table {
       foreach ($this->primary_keys as $name) {
         if (!isset($trellis->properties[$name]))
           throw new Exception("Error creating $trellis->name; it does not have a primary key named $name.");
-        
+
         $primary_keys[] = $trellis->properties[$name]->get_field_name();
       }
     }
@@ -216,7 +218,7 @@ class Table {
   }
 
   static function generate_index_sql($name, $index) {
-    $index = (object) $index;
+    $index = (object)$index;
     $index_fields = implode('`, `', $index->fields);
     $result = '';
     if ($index->unique) {
@@ -254,7 +256,7 @@ class Table {
     }
 
     MetaHub::extend($this, $source);
-    $this->properties = (array) $this->properties;
+    $this->properties = (array)$this->properties;
 //    if (isset($source->name)) {
 //      $this->name = $source->name;
 //    }
@@ -314,7 +316,7 @@ class Table {
   }
 
   function get_ground_layer() {
-    
+
   }
 
   /* Example:
