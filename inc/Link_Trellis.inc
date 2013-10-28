@@ -26,12 +26,12 @@ class Link_Trellis {
 
   public function generate_join($id, $reverse = false) {
     if ($reverse) {
-      $sql = "JOIN %table_name ON %table_name.%second_key = %forward_id" .
+      $sql = "JOIN %table_name ON %table_name.%second_key = %back_id" .
               " AND %table_name.%first_key = $id\n";
     }
     else {
       $sql = "JOIN %table_name ON %table_name.%second_key = $id" .
-              " AND %table_name.%first_key = %back_id\n";
+              " AND %table_name.%first_key = %forward_id\n";
     }
     return $this->populate_sql($sql);
   }

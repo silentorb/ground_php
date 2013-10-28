@@ -105,7 +105,7 @@ class Query {
     }
   }
 
-  function add_property_join($property, $id, $reverse = false) {
+  function add_property_join($property, $id, $reverse = true) {
     $link_class = $property->get_link_class();
     $join = new $link_class($property);
     $join_sql = $join->generate_join($id, $reverse);

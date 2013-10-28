@@ -281,7 +281,7 @@ SQL;
           $other_id = $other_trellis->get_id($object);
         }
 //        if (!in_array($other_id, $currently_in_table)) {
-        $this->db->query($join->generate_insert($other_id, $id));
+        $this->db->query($join->generate_insert($id, $other_id));
         $this->ground->invoke('create.' . $join->table_name, $property, $id, $other_id, $join);
 //        }
       }

@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'irrigation/Path.inc';
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'Path.inc';
 
 interface IChannel {
   public function run($request);

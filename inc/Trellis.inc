@@ -171,7 +171,8 @@ class Bloom_Property {
       return $other_table->properties[$this->property];
     }
     else {
-      foreach ($other_table->properties as $property) {
+      $properties = (array)$other_table->properties;
+      foreach ($properties as $property) {
         if ($property->trellis == $this->parent->name) {
           return $property;
         }
