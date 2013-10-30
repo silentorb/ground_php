@@ -368,25 +368,6 @@ class Trellis {
     return $result;
   }
 
-  function get_authorized_properties($account = null, $fortress = null, $access = 1) {
-    if ($fortress === null)
-      return $this->get_all_properties();
-
-    $properties = $this->get_all_properties();
-    $base_path = $this->name . '/';
-    $result = array();
-    foreach ($properties as $property) {
-      if ($property->private)
-        continue;
-
-      $property_access = $fortress->access($account, $base_path . $property->name);
-      if ($property >= $access) {
-        $result[$property->name] = $property;
-      }
-    }
-    return $result;
-  }
-
   public function get_core_properties() {
     $result = array();
     foreach ($this->properties as $property) {

@@ -18,7 +18,10 @@ class Query {
   public $fields = array();
   public $base_path;
   public $arguments = array();
+  public $properties = null; // Set this to an array to only use the properties in this list.
   static public $log_queries = false;
+
+  static $operators = array('=', 'LIKE', '!=', 'is');
 
   public function __construct($trellis, $base_path = null) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
@@ -50,7 +53,10 @@ class Query {
   }
 
   // LIKE is not currently supported for JOIN filters
-  function add_property_filter($property, $value = null, $like = false) {
+  function add_property_filter($property, $value = null, $operator = '=') {
+    if (!in_array($operator, Query::$operators))
+      throw new \Exception("Operator is not supported: $operator.");
+
     if (is_string($property)) {
       $properties = $this->trellis->get_all_properties();
       if (!isset($properties[$property])) {
@@ -72,13 +78,13 @@ class Query {
       $this->add_property_join($property, $placeholder, true);
     }
     else {
-      if ($like) {
+      if ($operator == 'LIKE') {
         $this->filters[] = $property->query() . ' LIKE ' . $placeholder;
         if ($value !== null)
-          $value = '%' . (string) $value . '%';
+          $value = '%' . (string)$value . '%';
       }
       else {
-        $this->filters[] = $property->query() . ' = ' . $placeholder;
+        $this->filters[] = $property->query() . " $operator $placeholder";
       }
     }
 
@@ -168,7 +174,7 @@ class Query {
   }
 
   function add_pager() {
-    $this->limit = $this->generate_pager((int) $_GET['offset'], (int) $_GET['limit']);
+    $this->limit = $this->generate_pager((int)$_GET['offset'], (int)$_GET['limit']);
   }
 
   function paged_sql($sql) {
@@ -242,7 +248,14 @@ class Query {
     $result = new \stdClass();
     $result->objects = array();
     \Ground::remove_private_fields_from_array($this->fields, $this->trellis);
-    $properties = $this->trellis->get_authorized_properties($user, $this->ground->fortress);
+    if ($this->properties)
+      $properties = $this->properties;
+    else
+      $properties = $this->trellis->get_all_properties();
+
+    if (is_object($this->ground->fortress))
+      $properties = $this->ground->fortress->get_authorized_properties($properties, $this->trellis->name . '/', $user);
+
     $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
@@ -264,7 +277,7 @@ class Query {
     }
 
     $count_sql = 'SELECT COUNT(*) FROM (' . $sql . ') tmp';
-    $result->total = ((int) $this->db->query_value($count_sql, $this->arguments)) - $prohibit_count;
+    $result->total = ((int)$this->db->query_value($count_sql, $this->arguments)) - $prohibit_count;
     $this->post_process_result($result);
 
 //    if ($return_sql)
@@ -307,8 +320,8 @@ class Query {
     }
 
     return array(
-        'fields' => $fields,
-        'joins' => $joins,
+      'fields' => $fields,
+      'joins' => $joins,
     );
   }
 
@@ -447,7 +460,7 @@ class Query {
   }
 
   function post_process_result($result) {
-    
+
   }
 
 }

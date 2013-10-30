@@ -525,9 +525,45 @@ SQL;
       throw new Exception('No path or trellis was specified.', 404);
 
     $query = $this->create_query($trellis);
-    $this->customize_query_from_request($query, $request);
+    if ($_SERVER['REQUEST_METHOD'] == 'POST')
+      $this->customize_query_from_post($query, $request);
+    else
+      $this->customize_query_from_request($query, $request);
 
     return $query->run_as_service(true);
+  }
+
+  public function customize_query_from_post($query, $request) {
+    $trellis = $request->path[0];
+    if (!isset($this->trellises[$trellis]))
+      throw new Exception('Could not find trellis: ' . $trellis);
+
+    $trellis = $this->trellises[$trellis];
+
+    $data = $request->POST;
+    if (isset($data['fields'])) {
+      $properties = $trellis->get_all_properties();
+      $query->properties = array();
+      foreach ($data['fields'] as $name) {
+        $query->properties[] = $properties[$name];
+      }
+    }
+
+    if (isset($data['filters'])) {
+      foreach ($data['filters'] as $filter) {
+        $operator = '=';
+        if (isset($filter->operator))
+          $operator = $filter->operator;
+
+        if (!isset($filter->property))
+          throw new Exception('Filter property not set!');
+
+        if (!isset($filter->value))
+          throw new Exception('Filter value not set!');
+
+        $query->add_property_filter($filter->property, $filter->value, $operator);
+      }
+    }
   }
 
   public function customize_query_from_request($query, $request) {

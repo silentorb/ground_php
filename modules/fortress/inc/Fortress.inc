@@ -168,4 +168,18 @@ class Fortress extends Ground_Module {
     // Dummy function to trigger the included files at the top of this file.
   }
 
+
+ function get_authorized_properties($properties, $base_path, $account = null, $access = 1) {
+    $result = array();
+    foreach ($properties as $property) {
+      if ($property->private)
+        continue;
+
+      $property_access = $this->access($account, $base_path . $property->name);
+      if ($property_access >= $access) {
+        $result[$property->name] = $property;
+      }
+    }
+    return $result;
+  }
 }
