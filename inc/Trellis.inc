@@ -78,7 +78,7 @@ class Bloom_Property {
       return 'FALSE';
 
     if ($this->type == 'string' || $this->type == 'text') {
-      $value = "'" . preg_replace("/[\r\n]+/", '\n', $value) . "'";
+      $value = "'" . preg_replace("/\r\n/", '\n', $value) . "'";
     }
     else if ($this->type == 'reference') {
       if (is_array($value)) {
