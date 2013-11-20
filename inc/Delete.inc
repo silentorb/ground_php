@@ -17,8 +17,10 @@ class Delete {
 
   function delete_children($trellis, $id, $depth = 0) {
     $links = $this->get_child_links($trellis);
-    foreach ($links as $link) {
-      $this->delete_child($link, $id, $depth);
+    if ($links) {
+      foreach ($links as $link) {
+        $this->delete_child($link, $id, $depth);
+      }
     }
   }
 

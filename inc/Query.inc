@@ -19,13 +19,13 @@ class Query {
   public $base_path;
   public $arguments = array();
   public $properties = null; // Set this to an array to only use the properties in this list.
+  public $definition = null; // Structured definition if any was used to define this query
   static public $log_queries = false;
 
   static $operators = array('=', 'LIKE', '!=', 'is');
 
   public function __construct($trellis, $base_path = null) {
     if (get_class($trellis) != 'Trellis' && !is_subclass_of($trellis, 'Trellis')) {
-      $x = $x;
       throw new \Exception('An invalid trellis was passed to the Query constructor.');
     }
     $this->trellis = $trellis;
@@ -221,7 +221,11 @@ class Query {
   function run($arguments = array()) {
     $result = new \stdClass();
     $result->objects = array();
-    $properties = $this->trellis->get_all_properties();
+    if ($this->properties)
+      $properties = $this->properties;
+    else
+      $properties = $this->trellis->get_all_properties();
+    
     $sql = $this->generate_sql($properties);
     $sql = str_replace("\r", "\n", $sql);
     $paged_sql = $this->paged_sql($sql);
@@ -302,7 +306,7 @@ class Query {
       if ($field->virtual)
         continue;
 
-      if ($property->name != $trellis->primary_key || $include_primary_key) {
+      if ($property->name != $this->trellis->primary_key || $include_primary_key) {
         $field_name = $property->get_field_name();
 //        $table_name = $this->trellis->get_table_name();
         $sql = $property->query();
@@ -389,14 +393,24 @@ class Query {
       }
     }
 
-    $this->ground->invoke('process.row.' . $this->trellis->name, $row, $this, $trellis);
+    $this->ground->invoke('process.row.' . $this->trellis->name, $row, $this, $this->trellis);
+  }
+
+  private function create_subquery($trellis, $property) {
+    $query = $this->ground->create_query($trellis, $this->get_path($property->name));
+    $query->include_links = false;
+    $query->expansions = $this->expansions;
+    $definition = $this->definition;
+    if (is_array($definition) && is_object($definition['properties']->{$property->name})) {
+      $this->ground->customize_query_from_post($query, $definition['properties']->{$property->name});
+    }
+
+    return $query;
   }
 
   function get_many_to_many_list($id, $property, $other_table) {
     $other_property = $property->get_other_property();
-    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
-    $query->include_links = false;
-    $query->expansions = $this->expansions;
+    $query = $this->create_subquery($other_table, $property);
     $query->add_property_join($property, $id);
     return $query->run();
   }
@@ -407,17 +421,13 @@ class Query {
       $other_property = $other_table->properties[$other_table->primary_key];
     }
 
-    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
-    $query->include_links = false;
-    $query->expansions = $this->expansions;
+    $query = $this->create_subquery($other_table, $property);
     $query->add_filter($other_property->query() . ' = ' . $id);
     return $query->run();
   }
 
   function get_reference_object($row, $property, $other_table) {
-    $query = $this->ground->create_query($other_table, $this->get_path($property->name));
-    $query->include_links = false;
-    $query->expansions = $this->expansions;
+    $query = $this->create_subquery($other_table, $property);
     if (!isset($row->{$property->name})) {
       return null;
 //      throw new Exception("Query result does not have $property->name.");

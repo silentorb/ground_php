@@ -5,6 +5,7 @@
 require_once dirname(__FILE__) . '/Query.inc';
 
 if (!function_exists('str_to_bool')) {
+
   function str_to_bool($string) {
     $string = strtolower($string);
     return $string == 'true' || $string == '1' ? true : false;
@@ -201,7 +202,7 @@ class Ground extends Meta_Object {
     }
 
     if (isset($data->views)) {
-      $this->views = array_merge($this->views, (array)$data->views);
+      $this->views = array_merge($this->views, (array) $data->views);
     }
 
     if (isset($data->tables)) {
@@ -340,7 +341,7 @@ SQL;
       case 'list':
       case 'reference':
       case 'int':
-        return (int)$value;
+        return (int) $value;
         break;
       case 'string':
       case 'text':
@@ -352,7 +353,7 @@ SQL;
         break;
       case 'float':
       case 'double':
-        return (float)$value;
+        return (float) $value;
         break;
     }
 
@@ -372,7 +373,7 @@ SQL;
   function update_object($trellis, $seed, $as_service = false) {
     $trellis = $this->sanitize_trellis_argument($trellis, false);
     if (is_array($seed))
-      $seed = (object)$seed;
+      $seed = (object) $seed;
 
     // If $_deleted is an object then it is a list of links
     // to delete which will be handled by Update.
@@ -396,7 +397,7 @@ SQL;
   }
 
   protected function update_object_with_fortress($seed) {
-    $seed = (object)$seed;
+    $seed = (object) $seed;
     if (!isset($seed->trellis) && !isset($this->trellises[$seed->trellis])) {
       return 'Missing Trellis';
     }
@@ -434,7 +435,7 @@ SQL;
     $result->successes = array();
     $result->failures = array();
     foreach ($objects as $seed) {
-      $seed = $this->update_object_with_fortress((object)$seed);
+      $seed = $this->update_object_with_fortress((object) $seed);
       if ($seed && !is_string($seed)) {
         $result->successes[] = $seed;
       }
@@ -526,26 +527,23 @@ SQL;
 
     $query = $this->create_query($trellis);
     if ($_SERVER['REQUEST_METHOD'] == 'POST')
-      $this->customize_query_from_post($query, $request);
+      $this->customize_query_from_post($query, $request->POST);
     else
       $this->customize_query_from_request($query, $request);
 
     return $query->run_as_service(true);
   }
 
-  public function customize_query_from_post($query, $request) {
-    $trellis = $request->path[0];
-    if (!isset($this->trellises[$trellis]))
-      throw new Exception('Could not find trellis: ' . $trellis);
+  public function customize_query_from_post($query, $data) {
+    $trellis = $query->trellis;
+    $query->definition = $data = (array)$data;
 
-    $trellis = $this->trellises[$trellis];
-
-    $data = $request->POST;
-    if (isset($data['fields'])) {
+    if (isset($data['properties'])) {
       $properties = $trellis->get_all_properties();
       $query->properties = array();
-      foreach ($data['fields'] as $name) {
-        $query->properties[] = $properties[$name];
+      foreach ($data['properties'] as $key=>$property) {
+        if (isset($properties[$key]))
+          $query->properties[$key] = $properties[$key];
       }
     }
 
@@ -572,7 +570,7 @@ SQL;
     $trellis = $request->path[0];
 
     if ($id) {
-      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int)$id);
+      $query->add_filter($query->trellis->query_primary_key() . ' = ' . (int) $id);
     }
 
     // Currently only works for int types.
@@ -592,9 +590,9 @@ SQL;
     if (isset($args['limit'])) {
       $offset = 0;
       if (isset($args['offset']))
-        $offset = (int)$args['offset'];
+        $offset = (int) $args['offset'];
 
-      $query->limit = $query->generate_pager($offset, (int)$args['limit']);
+      $query->limit = $query->generate_pager($offset, (int) $args['limit']);
     }
 
     if (isset($request->POST['query'])) {
