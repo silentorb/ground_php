@@ -624,14 +624,19 @@ SQL;
   public static function format_order_string($string, $trellis) {
     $properties = $trellis->get_all_properties();
     $tokens = explode(' ', $string);
+    $result = array();
     foreach ($tokens as $key => $token) {
       $text = strtolower($token);
-      if ($text != 'desc' && $text != 'asc' && !isset($properties[$token])) {
-        $tokens[$key] = '';
+      if (isset($properties[$token])) {
+        $result[] = $text;
+      }
+      else if ($text == 'desc' || $text == 'asc' && count($result) > 0) {
+        $i = count($result) - 1;
+        $result[$i] = $result[$i] . ' ' . $text;
       }
     }
 
-    return implode($tokens);
+    return implode($result, ', ');
   }
 
   public static function strip(&$object, $strip_properties = array()) {
